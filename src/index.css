@@ -1,4 +1,54 @@
+@font-face {
+  font-family: BadaBoom;
+  src: url("src\\assets\\fonts\\AA BadaBoom BB\\aa_badaboom_bb.ttf");
+}
+
+@font-face {
+  font-family: AnimeAce;
+  src: url("src\\assets\\fonts\\Anime Ace\\animeace2_reg.otf");
+}
+
+@font-face {
+  font-family: AnimeAce;
+  font-weight: bold;
+  src: url("src\\assets\\fonts\\Anime Ace\\animeace2_bld.otf");
+}
+
+@font-face {
+  font-family: AnimeAce;
+  font-style: italic;
+  src: url("src\\assets\\fonts\\Anime Ace\\animeace2_ital.otf");
+}
+
+@font-face {
+  font-family: Gunny;
+  src: url("src\\assets\\fonts\\gunny-rewritten\\gnyrwn971.ttf");
+}
+
+@font-face {
+  font-family: Earwig;
+  src: url("src\\assets\\fonts\\earwig_factory\\earwig factory rg.otf");
+}
+
 @import "tailwindcss";
+
+@theme {
+  --font-badaboom: BadaBoom, "sans-serif";
+  --font-anime: AnimeAce, "sans-serif";
+  --font-gunny: Gunny, "sans-serif";
+  --font-earwig: Earwig, "sans-serif";
+}
+
+.persona-text {
+  font-size: 2rem;
+  color: white;
+  font-weight: bold;
+  text-shadow:
+    -2px -2px 0 #000,
+    2px -2px 0 #000,
+    -2px 2px 0 #000,
+    2px 2px 0 #000;
+}
 
 
 :root {
