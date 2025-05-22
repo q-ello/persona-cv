@@ -1,8 +1,10 @@
+/* badaboom */
 @font-face {
   font-family: BadaBoom;
   src: url("src\\assets\\fonts\\AA BadaBoom BB\\aa_badaboom_bb.ttf");
 }
 
+/* anime ace */
 @font-face {
   font-family: AnimeAce;
   src: url("src\\assets\\fonts\\Anime Ace\\animeace2_reg.otf");
@@ -21,13 +23,232 @@
 }
 
 @font-face {
+  font-family: AnimeAce;
+  src: url("src\\assets\\fonts\\Anime Ace\\animeace2_reg.otf");
+}
+
+/* arsenal */
+@font-face {
+  font-family: Arsenal;
+  src: url("src\\assets\\fonts\\Arsenal\\Arsenal-Bold.ttf");
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: Arsenal;
+  src: url("src\\assets\\fonts\\Arsenal\\Arsenal-BoldItalic.ttf");
+  font-weight: bold;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Arsenal;
+  src: url("src\\assets\\fonts\\Arsenal\\Arsenal-Italic.ttf");
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Arsenal;
+  src: url("src\\assets\\fonts\\Arsenal\\Arsenal-Regular.ttf");
+}
+
+/* bubblegum superstar */
+@font-face {
+  font-family: Bubblegum;
+  src: url("src\\assets\\fonts\\bubblegum_superstar\\BUBBS___.TTF");
+}
+
+/* calaboose */
+@font-face {
+  font-family: Calaboose;
+  src: url("src\\assets\\fonts\\calaboose\\calabooseDEMO.otf");
+}
+
+/* cooper black */
+@font-face {
+  font-family: Cooper;
+  src: url("src\\assets\\fonts\\cooper-black\\COOPBL.TTF");
+}
+
+/* earwig factory */
+@font-face {
+  font-family: Earwig;
+  src: url("src\\assets\\fonts\\earwig_factory\\earwig factory rg.otf");
+}
+
+/* gunny rewritten*/
+@font-face {
   font-family: Gunny;
   src: url("src\\assets\\fonts\\gunny-rewritten\\gnyrwn971.ttf");
 }
 
+/* helvetica */
 @font-face {
-  font-family: Earwig;
-  src: url("src\\assets\\fonts\\earwig_factory\\earwig factory rg.otf");
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Black.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Black.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Black.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Black.woff2");
+  font-weight: 900;
+}
+
+@font-face {
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-BlackIta.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-BlackIta.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-BlackIta.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-BlackIta.woff2");
+  font-weight: 900;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Bold.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Bold.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Bold.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Bold.woff2");
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-BoldIta.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-BoldIta.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-BoldIta.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-BoldIta.woff2");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtBdIta.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtBdIta.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtBdIta.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtBdIta.woff2");
+  font-weight: 800;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtraBold.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtraBold.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtraBold.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtraBold.woff2");
+  font-weight: 900;
+}
+
+@font-face {
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtLt.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtLt.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtLt.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtLt.woff2");
+  font-weight: 200;
+}
+
+@font-face {
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtLtIta.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtLtIta.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtLtIta.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtLtIta.woff2");
+  font-weight: 200;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Hairline.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Hairline.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Hairline.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Hairline.woff2");
+  font-weight: 100;
+}
+
+@font-face {
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-HairlineI.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-HairlineI.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-HairlineI.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-HairlineI.woff2");
+  font-weight: 100;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Light.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Light.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Light.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Light.woff2");
+  font-weight: 200;
+}
+
+@font-face {
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-LightIta.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-LightIta.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-LightIta.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-LightIta.woff2");
+  font-weight: 200;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-MedIta.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-MedIta.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-MedIta.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-MedIta.woff2");
+  font-weight: 500;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Medium.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Medium.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Medium.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Medium.woff2");
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-RegIta.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-RegIta.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-RegIta.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-RegIta.woff2");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Regular.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Regular.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Regular.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Regular.woff2");
+  font-weight: 400;
 }
 
 @import "tailwindcss";
@@ -35,21 +256,14 @@
 @theme {
   --font-badaboom: BadaBoom, "sans-serif";
   --font-anime: AnimeAce, "sans-serif";
-  --font-gunny: Gunny, "sans-serif";
+  --font-arsenal: Arsenal, "sans-serif";
+  --font-bubblegum: Bubblegum, "sans-serif";
+  --font-calaboose: Calaboose, "sans-serif";
+  --font-cooper: Cooper, "sans-serif";
   --font-earwig: Earwig, "sans-serif";
+  --font-gunny: Gunny, "sans-serif";
+  --font-helvetica: Helvetica, "sans-serif";
 }
-
-.persona-text {
-  font-size: 2rem;
-  color: white;
-  font-weight: bold;
-  text-shadow:
-    -2px -2px 0 #000,
-    2px -2px 0 #000,
-    -2px 2px 0 #000,
-    2px 2px 0 #000;
-}
-
 
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;

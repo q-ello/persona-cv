@@ -10,7 +10,7 @@ type PersonaTextProps = {
 
 export const PersonaText: React.FC<PersonaTextProps> = ({
   text,
-  rotateRange = 10,
+  rotateRange = 5,
   shiftRange = 3,
   className = 'persona-text',
   scaleRange = 0.1
@@ -22,7 +22,7 @@ export const PersonaText: React.FC<PersonaTextProps> = ({
         font: index == specialLetter ? 'earwig' : 'badaboom',
         rotate: Math.floor(Math.random() * (rotateRange * 2 + 1)) - rotateRange,
         shift: Math.floor(Math.random() * (shiftRange * 2 + 1)) - shiftRange,
-        scale: Math.floor(Math.random() * (scaleRange * 2)) - scaleRange + 1,
+        scale: Math.random() * (scaleRange * 2) - scaleRange + 1,
     }));
   }, [text, rotateRange, shiftRange, scaleRange]);
 
