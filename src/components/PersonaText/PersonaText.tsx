@@ -18,7 +18,7 @@ export const PersonaText: React.FC<PersonaTextProps> = ({
   // Precompute random styles once using useMemo
   const randomizedStyles = useMemo(() => {
     const specialLetter = Math.floor(Math.random() * text.split('').length)
-    return text.split('').map((letter, index) => ({
+    return text.split('').map((_, index) => ({
         font: index == specialLetter ? 'earwig' : 'badaboom',
         rotate: Math.floor(Math.random() * (rotateRange * 2 + 1)) - rotateRange,
         shift: Math.floor(Math.random() * (shiftRange * 2 + 1)) - shiftRange,

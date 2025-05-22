@@ -1,9 +1,8 @@
-import React from 'react'
 import { Link } from 'react-router-dom'
 
 const MainMenu = () => {
   return (
-    <div className='text-red-500'>
+    <div>
       MainMenu<br/>
       press start, settings and beatiful background<br/>
       reference: main menu persona<br/>
