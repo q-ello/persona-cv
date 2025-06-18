@@ -2,13 +2,13 @@ import './Command.css'
 
 const Command = () => {
   return (
-    <div className='text-8xl -rotate-10 text-white'>
+    <div className='text-9xl -rotate-15 text-white'>
         {/* c */}
         <span className="font-cooper inline-block scale-125">C</span>
         {/* o */}
         <span className="font-bubblegum scale-y-75 inline-block translate-y-2">o</span>
         {/* m1 */}
-        <span className="font-calaboose scale-x-75 scale-y-125 inline-block -mx-4 rotate-5">m</span>
+        <span className="font-calaboose scale-x-75 scale-y-125 inline-block -mx-5 rotate-5">m</span>
         {/* m2 */}
         <span className="overflow-hidden inline-block leading-none translate-y-8 rotate-10 py-3">
           <span className="p-1 pb-3 font-cooper bg-white inline-block -rotate-20 -skew-x-5">
