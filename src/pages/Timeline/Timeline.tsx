@@ -15,8 +15,17 @@ const Timeline = () => {
         </div>
         {/* white screen */}
         <div className="absolute top-0 right-[-10%] w-[50%] h-full bg-white -skew-x-[23deg]"></div>
-        <div className="absolute text-black font-helvetica text-2xl bottom-23 left-20 right-0 -skew-y-5 -skew-x-5 font-black scale-x-95 -rotate-5 white-outline">
+        {/* which plans do you want to view */}
+        <div className="absolute text-black font-helvetica text-2xl bottom-23 left-20 right-0 -skew-y-5 -skew-x-5 font-black scale-x-95 -rotate-5 white-outline 
+        cursor-default select-none">
           Which plans do you want to view?
+        </div>
+        <div className="absolute top-10 left-10">
+          <FontHelper text='APR' size={3} imgSize={[100, 100]} imgPosition={[100, 100]}/>
+        </div>
+        {/* date */}
+        <div className="absolute text-white text-3xl top-40 right-85 bg-black font-arsenal font-bold -rotate-5 pl-25 pr-20 py-3 scale-y-90 cursor-default select-none">
+          4/24 &nbsp;(Sun)
         </div>
       </div>
     </div>

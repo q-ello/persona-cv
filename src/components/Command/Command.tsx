@@ -2,7 +2,7 @@ import './Command.css'
 
 const Command = () => {
   return (
-    <div className='text-9xl -rotate-15 text-white'>
+    <div className='text-9xl -rotate-15 text-white select-none'>
         {/* c */}
         <span className="font-cooper inline-block scale-125">C</span>
         {/* o */}
