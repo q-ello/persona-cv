@@ -251,6 +251,20 @@
   font-weight: 400;
 }
 
+
+/* milker */
+@font-face {
+  font-family: Milker;
+  src: url("src/assets/fonts/milker/Milker.otf");
+}
+
+/* none away from the moon */
+@font-face {
+  font-family: Moon;
+  src: url("src/assets/fonts/NoneAwayFromTheMoon/NoneAwayFromTheMoon-OjK3.ttf")
+}
+
+
 @import "tailwindcss";
 
 @theme {
@@ -263,6 +277,8 @@
   --font-earwig: Earwig, "sans-serif";
   --font-gunny: Gunny, "sans-serif";
   --font-helvetica: Helvetica, "sans-serif";
+  --font-milker: Milker, "sans-serif";
+  --font-moon: Moon, "sans-serif";
 }
 
 :root {

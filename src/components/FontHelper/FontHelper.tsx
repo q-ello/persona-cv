@@ -13,6 +13,7 @@ const FontHelper = (props: FontHelperProps) => {
   return (
     <div>
       <div 
+        className='bg-[#000000bf]'
         style={{
           fontSize: `${size}em`
         }}
@@ -26,6 +27,8 @@ const FontHelper = (props: FontHelperProps) => {
         <div className="font-earwig">earwig factory: {text} {text.toUpperCase()}</div>
         <div className="font-gunny">gunny rewritten: {text} {text.toUpperCase()}</div>
         <div className="font-helvetica font-bold">helvetica: {text} {text.toUpperCase()}</div>
+        <div className="font-milker">milker: {text}</div>
+        <div className="font-moon">moon: {text}</div>
       </div>
       <img 
         src={image} 

@@ -10,7 +10,7 @@ const Command = () => {
         {/* m1 */}
         <span className="font-calaboose scale-x-75 scale-y-125 inline-block -mx-5 rotate-5">m</span>
         {/* m2 */}
-        <span className="overflow-hidden inline-block leading-none translate-y-8 rotate-10 py-3">
+        <span className="overflow-hidden inline-block leading-none translate-y-8 rotate-10 py-5">
           <span className="p-1 pb-3 font-cooper bg-white inline-block -rotate-20 -skew-x-5">
             <span className="text-black inline-block rotate-10 skew-x-5">M</span>
           </span>
