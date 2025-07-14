@@ -30,15 +30,9 @@ const CalendarGrid = (props: ICalendarProps) => {
     const now = new Date()
 
     const dayColors = new Map([
-        [EWeekday.Weekday, '--color-neutral'],
-        [EWeekday.Saturday, '--color-teal'],
-        [EWeekday.Sunday, '--color-red']
-    ])
-
-    const futureColors = new Map([
-        [EWeekday.Weekday, 200],
-        [EWeekday.Saturday, 500],
-        [EWeekday.Sunday, 700]
+        [EWeekday.Weekday, ['--color-neutral-400', '--color-neutral-200']],
+        [EWeekday.Saturday, ['--color-teal-700', '--color-teal-500']],
+        [EWeekday.Sunday, ['--color-red-900', '--color-red-700']]
     ])
 
     return (
@@ -75,7 +69,7 @@ const CalendarGrid = (props: ICalendarProps) => {
                         key={index}
                         style={{
                             // letterSpacing: `${number[0] === '1' ? '0.1em' : ''}`,
-                            color: `var(${dayColors.get(dayType)}-${(futureColors.get(dayType) ?? 0) + (isFuture ? 0 : 200)})`
+                            color: `var(${(dayColors.get(dayType) ?? ['--color-neutral-400', '--color-neutral-200'])[Number(isFuture)]})`
                         }}>
                         {number}
                         {isToday &&
