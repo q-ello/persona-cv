@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useState } from 'react'
 import CalendarGrid from '../../components/CalendarGrid/CalendarGrid'
 import CBack from '../../components/CBack/CBack'
 import Command from '../../components/Command/Command'
@@ -8,7 +8,8 @@ import './Timeline.css'
 const Timeline = () => {
   const today = new Date()
   const [year, setYear] = useState<number>(today.getFullYear())
-  const [month, setMonth] = useState<number>(today.getMonth())
+  // const [month, setMonth] = useState<number>(today.getMonth())
+  const [month, setMonth] = useState<number>(4)
   const [day, setDay] = useState<number>(today.getDate())
   const [weekday, setWeekday] = useState<number>(today.getUTCDay())
 

@@ -1,11 +1,11 @@
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import WeekDay from '../WeekDay/WeekDay'
 import clsx from 'clsx'
 
 enum EWeekday {
     Weekday,
     Saturday,
-    Sunday
+    Holiday
 }
 
 interface ICalendarProps {
@@ -13,7 +13,25 @@ interface ICalendarProps {
     month: number,
 }
 
+interface IHoliday
+{
+    date: string,
+    localName: string,
+    name: string
+}
+
+async function getHolidays(year: number): Promise<IHoliday[]> {
+  const res = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/RU`);
+  return await res.json();
+}
+
+const formatNumber = (num: number) => {
+    return ("0" + num).slice(-2);
+}
+
 const CalendarGrid = (props: ICalendarProps) => {
+    const [holidayDates, setHolidayDates] = useState<IHoliday[]>([]);
+    
     const { year, month } = props
     const daysNumbers: string[] = useMemo(() => {
         const days: string[] = []
@@ -32,12 +50,21 @@ const CalendarGrid = (props: ICalendarProps) => {
     const dayColors = new Map([
         [EWeekday.Weekday, ['--color-neutral-400', '--color-neutral-200']],
         [EWeekday.Saturday, ['--color-teal-700', '--color-teal-500']],
-        [EWeekday.Sunday, ['--color-red-900', '--color-red-700']]
+        [EWeekday.Holiday, ['--color-red-900', '--color-red-700']]
     ])
+
+    useEffect(() => {
+        const fetchHolidays = async () => {
+            const holidays = await getHolidays(year);
+            setHolidayDates(holidays);
+        };
+        fetchHolidays();
+    }, [year])
 
     return (
         <div className="grid-container h-full w-full py-20 pl-80 pr-70 -rotate-5 text-center -skew-y-1">
             <div className="grid grid-cols-7">
+                {/* headers */}
                 <WeekDay day={['S', 'u', 'N']} rotates={[-5, 0, 5]} translates={[[0, 0], [0, -5], [3, 0]]} scales={[[1, 1.3], [1, 1.3], [1, 1.2]]} />
                 <WeekDay day={['M', 'o', 'N']} rotates={[-3, -2, 3]} translates={[[0, 0], [2, 0], [0, 0]]} scales={[[1, 1.3], [1, 1.3], [1, 1.3]]} />
                 <WeekDay day={['T', 'U', 'E']} rotates={[-4, 2, 0]} translates={[[5, 0], [0, 4], [-3, 0]]} scales={[[1, 1.3], [0.9, 1.2], [0.8, 1.2]]} />
@@ -45,15 +72,17 @@ const CalendarGrid = (props: ICalendarProps) => {
                 <WeekDay day={['T', 'H', 'u']} rotates={[0, -2, -4]} translates={[[3, 0], [0, 5], [0, 0]]} scales={[[1, 1.3], [0.9, 1.2], [1, 1.3]]} />
                 <WeekDay day={['F', 'R', 'i']} rotates={[-3, -2, 0]} translates={[[0, 5], [0, 0], [0, 4]]} scales={[[0.9, 1.2], [0.8, 1.1], [1, 1.2]]} />
                 <WeekDay day={['S', 'A', 'T']} rotates={[-3, 0, 6]} translates={[[6, 0], [0, 9], [-15, 0]]} scales={[[0.9, 1.3], [0.7, 1], [0.8, 1.2]]} />
+                {/* days */}
                 {daysNumbers.map((number, index) => {
                     if (!number) return <div key={index}></div>;
                     let dayType: EWeekday;
+                    // get a color from the day of the week
                     switch (index % 7) {
                         case 6:
                             dayType = EWeekday.Saturday
                             break
                         case 0:
-                            dayType = EWeekday.Sunday
+                            dayType = EWeekday.Holiday
                             break
                         default:
                             dayType = EWeekday.Weekday
@@ -61,6 +90,14 @@ const CalendarGrid = (props: ICalendarProps) => {
                     const date = new Date(year, month, parseInt(number, 10))
                     const isFuture = date > now
                     const isToday = date.toDateString() == now.toDateString()
+
+                    // if it is a holiday then it is red
+                    const isHoliday = holidayDates.some(h => h.date === `${year}-${formatNumber(month + 1)}-${formatNumber(+number)}`)
+                    if (isHoliday)
+                    {
+                        dayType = EWeekday.Holiday
+                    }
+
                     return (<div
                         className={clsx('font-milker text-9xl h-[120px] tracking-tight relative', {
                             'scale-[0.7_1]': number.length === 2,
