@@ -105,12 +105,12 @@ const CalendarGrid = (props: ICalendarProps) => {
                         })}
                         key={index}
                         style={{
-                            // letterSpacing: `${number[0] === '1' ? '0.1em' : ''}`,
                             color: `var(${(dayColors.get(dayType) ?? ['--color-neutral-400', '--color-neutral-200'])[Number(isFuture)]})`
                         }}>
                         {number}
                         {isToday &&
-                            < div className="text-neutral-300 font-moon text-7xl absolute bottom-1 whitespace-nowrap left-1/2 -translate-x-1/2 flex tracking-tighter -rotate-2">
+                            < div className={clsx('text-neutral-300 font-moon text-7xl absolute bottom-1 whitespace-nowrap left-1/2 flex tracking-tighter -rotate-2',
+                            number.length === 1 && 'scale-[0.7_1] -translate-x-1/2' || number[0] === '1' && '-translate-x-3/7' || '-translate-x-2/5')}>
                                 TO<span className='font-helvetica font-black scale-x-60 inline-block -mx-2 -translate-y-1'>D</span>AY
                             </div>}
                     </div>)

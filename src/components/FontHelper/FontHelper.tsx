@@ -5,11 +5,12 @@ interface FontHelperProps
     text?: string,
     size?: number,
     imgSize?: number[],
-    imgPosition?: number[]
+    imgPosition?: number[],
+    imgUrl?: string
 }
 
 const FontHelper = (props: FontHelperProps) => {
-    const {text="hi", size=6, imgSize=[300, 100], imgPosition=[25, 75]} = props
+    const {text="hi", size=6, imgSize=[300, 100], imgPosition=[25, 75], imgUrl=image} = props
   return (
     <div>
       <div 
@@ -31,7 +32,7 @@ const FontHelper = (props: FontHelperProps) => {
         <div className="font-moon">moon: {text}</div>
       </div>
       <img 
-        src={image} 
+        src={imgUrl} 
         className={`object-none mx-auto`}
         style={{
           width: `${imgSize[0]}px`,
