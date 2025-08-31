@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import CalendarGrid from './components/CalendarGrid/CalendarGrid'
 import CBack from '../../components/CBack/CBack'
 import Command from '../../components/Command/Command'
-// import FontHelper from '../../components/FontHelper/FontHelper'
+import FontHelper from '../../components/FontHelper/FontHelper'
 import './Timeline.css'
 import Month from './components/Month/Month'
 import Year from './components/Year/Year'
@@ -11,39 +11,45 @@ import clsx from 'clsx'
 import { AnimatePresence } from 'motion/react'
 import { useNavigate } from 'react-router-dom'
 import cancelAudio from './../../assets/audio/cancel.wav'
-// import image from './../../assets/images/image.png'
+import { EEventState, EEventType, IEvent } from './types'
+import image from './../../assets/images/image.png'
+import imgLongEvent from './../../assets/images/image long event.png'
+
+// just manual map
+const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
+const weekdayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 const Timeline = () => {
+  // date data
   const today = new Date()
   const [year, setYear] = useState<number>(today.getFullYear())
   const [month, setMonth] = useState<number>(today.getMonth())
   const [day, setDay] = useState<number>(today.getDate())
   // const [day, setDay] = useState<number>(29)
   const [weekday, setWeekday] = useState<number>(today.getUTCDay())
+
+  // events data
+  const API_KEY = import.meta.env.VITE_GOOGLE_CALENDAR_API_KEY
+  const [events, setEvents] = useState<Map<string, IEvent[]>>(new Map())
+
+  // for c back
+  const cancelSound = new Audio(cancelAudio)
   const [cBackActivated, setCBackActivated] = useState<boolean>(false)
 
-  const cancelSound = new Audio(cancelAudio)
-
-  const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
-  const weekdayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-
   const pastSelected = useMemo(() => new Date(year, month, day).setHours(0, 0, 0, 0) < today.setHours(0, 0, 0, 0), [year, month, day])
-
   const navigate = useNavigate();
 
   const goBack = () => {
     setCBackActivated(true)
     cancelSound.play()
-    cancelSound.onended = () => {navigate('/')}
+    cancelSound.onended = () => { navigate('/') }
   }
 
   const handleKeyPress = useCallback((event: KeyboardEvent) => {
-    if (event.key === 'c')
-    {
-      
+    if (event.key === 'c') {
+
       goBack()
     }
-    // do stuff with stateVariable and event
   }, []);
 
   // we want to handle key presses
@@ -54,6 +60,76 @@ const Timeline = () => {
       window.removeEventListener("keydown", handleKeyPress);
     };
   }, []);
+
+  // fetching events
+  useEffect(() => {
+    const common_id = import.meta.env.VITE_GOOGLE_COMMON_CALENDAR_ID || ''
+    const deadlines_id = import.meta.env.VITE_GOOGLE_DEADLINES_CALENDAR_ID || ''
+    const eventsMap = new Map<string, IEvent[]>()
+
+    const addToMap = (key: string, event: IEvent) => {
+      if (eventsMap.has(key)) eventsMap.get(key)?.push(event)
+      else eventsMap.set(key, [event])
+    }
+
+    // get events from different calendars
+    const fetchEvents = async (calendarId: string, eventType: EEventType) => {
+      const response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events?key=${API_KEY}`)
+
+      const data = await response.json()
+
+      if (!data.items) return
+
+      data.items.forEach((item: any) => {
+        const eventEng: string = item.summary
+        const eventRu: string = item.description ?? eventEng
+
+        // if there is a time the date is for a day
+
+        if (item.start.dateTime) {
+          const eventStart: Date = new Date(item.start.dateTime)
+          const eventState: EEventState = EEventState.Single
+          const newEvent: IEvent = { eventEng, eventRu, type: eventType, state: eventState }
+          const date = eventStart.toLocaleDateString()
+          addToMap(date, newEvent)
+        }
+        // if event is going for days we need to add every day into the map
+        else if (item.start.date) {
+          const eventStart = new Date(item.start.date)
+          // event end is exclusive
+          const eventEnd = new Date(item.end.date)
+
+          eventEnd.setDate(eventEnd.getDate() - 1)
+
+          const eventState: EEventState = eventStart.toDateString() === eventEnd.toDateString() ? EEventState.Single : EEventState.Start
+          const newEvent: IEvent = { eventEng, eventRu, type: eventType, state: eventState }
+          const date = eventStart.toLocaleDateString()
+          addToMap(date, newEvent)
+
+          //if the start end end are the same then it is a single event, no need to make everything else
+          if (eventStart.toDateString() === eventEnd.toDateString()) {
+            return
+          }
+
+          let d: Date = eventStart
+          d.setDate(d.getDate() + 1)
+          while (d.toDateString() != eventEnd.toDateString()) {
+            const middleEvent = {eventEng, eventRu, type: eventType, state: EEventState.Middle}
+            addToMap(d.toLocaleDateString(), middleEvent)
+            d.setDate(d.getDate() + 1)
+          }
+
+          const finalEvent = {eventEng, eventRu, type: eventType, state: EEventState.End}
+          addToMap(d.toLocaleDateString(), finalEvent)
+        }
+
+        setEvents(eventsMap)
+      })
+    }
+
+    fetchEvents(common_id, EEventType.Common)
+    fetchEvents(deadlines_id, EEventType.Deadline)
+  }, [])
 
   return (
     <div className='w-full cursor-default select-none'>
@@ -67,7 +143,7 @@ const Timeline = () => {
               <div className="absolute bg-black opacity-75 top-0 left-0 right-0 bottom-0 w-full h-full "></div>
             </div>
             {/* calendar grid*/}
-            <CalendarGrid year={year} month={month} />
+            <CalendarGrid year={year} month={month} events={events} />
           </div>
         </div>
         {/* white screen */}
@@ -90,13 +166,13 @@ const Timeline = () => {
           {pastSelected && <DailyLog />}
         </AnimatePresence>
         <div className="absolute top-10 left-10">
-        {/* <FontHelper text='c' size={2} imgSize={[400, 100]} imgPosition={[90, 100]} imgUrl={image}/> */}
-      </div>
+          <FontHelper text='' size={0} imgSize={[500, 100]} imgPosition={[30, 100]} imgUrl={imgLongEvent}/>
+        </div>
         {/* c back */}
-        <CBack isActivated={cBackActivated} onClick={goBack}/>
+        <CBack isActivated={cBackActivated} onClick={goBack} />
       </div>
-      <button className='absolute top-100 right-20' onClick={() => {setYear(2025)}}>Set year 2025</button>
-      <button className='absolute top-120 right-20' onClick={() => {setYear(2026)}}>Set year 2026</button>
+      <button className='absolute top-100 right-20 bg-black rounded-xl py-1 px-2' onClick={() => { setYear(2025) }}>Set year 2025</button>
+      <button className='absolute top-120 right-20 bg-black rounded-xl py-1 px-2' onClick={() => { setYear(2026) }}>Set year 2026</button>
     </div>
   )
 }

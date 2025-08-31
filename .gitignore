@@ -25,3 +25,6 @@ dist-ssr
 
 #files from persona
 p5r_data/
+
+#environment keys
+.env

@@ -9,7 +9,7 @@ interface ICBackProps
 
 const CBack = ({isActivated, onClick}: ICBackProps) => {
     return (
-        <div className={clsx("absolute bottom-5 right-100", isActivated && 'scale-120')} onClick={onClick} >
+        <button className={clsx("absolute bottom-5 right-100", isActivated && 'scale-120')} onClick={onClick} >
             <span className="bg-black w-12 h-12 font-helvetica font-black text-white text-3xl py-1 inline-block mr-1">C</span>
             <span
                 className="inline-block font-helvetica font-black text-white text-4xl relative -translate-y-1 p-1 pt-1 -rotate-2"
@@ -28,7 +28,7 @@ const CBack = ({isActivated, onClick}: ICBackProps) => {
                     <span className='inline-block -rotate-3 scale-y-110 translate-y-0.5 z-1'>k</span>
                 </span>
             </span>
-        </div>
+        </button>
     )
 }
 

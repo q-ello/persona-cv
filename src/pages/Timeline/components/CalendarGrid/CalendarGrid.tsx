@@ -1,28 +1,18 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import WeekDay from '../WeekDay/WeekDay'
 import clsx from 'clsx'
+import { IEvent, IHoliday, EWeekday, EEventState } from '../../types';
 
-enum EWeekday {
-    Weekday,
-    Saturday,
-    Holiday
-}
 
 interface ICalendarProps {
     year: number,
     month: number,
-}
-
-interface IHoliday
-{
-    date: string,
-    localName: string,
-    name: string
+    events: Map<string, IEvent[]>
 }
 
 async function getHolidays(year: number): Promise<IHoliday[]> {
-  const res = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/RU`);
-  return await res.json();
+    const res = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/RU`);
+    return await res.json();
 }
 
 const formatNumber = (num: number) => {
@@ -31,8 +21,8 @@ const formatNumber = (num: number) => {
 
 const CalendarGrid = (props: ICalendarProps) => {
     const [holidayDates, setHolidayDates] = useState<IHoliday[]>([]);
-    
-    const { year, month } = props
+
+    const { year, month, events } = props
     const daysNumbers: string[] = useMemo(() => {
         const days: string[] = []
         const firstWeekDay = new Date(year, month, 1).getUTCDay()
@@ -89,30 +79,64 @@ const CalendarGrid = (props: ICalendarProps) => {
                     }
                     const date = new Date(year, month, parseInt(number, 10))
                     const isFuture = date > now
-                    const isToday = date.toDateString() == now.toDateString()
+                    const isToday = date.toLocaleDateString() == now.toLocaleDateString()
 
                     // if it is a holiday then it is red
                     const isHoliday = holidayDates.some(h => h.date === `${year}-${formatNumber(month + 1)}-${formatNumber(+number)}`)
-                    if (isHoliday)
-                    {
+                    if (isHoliday) {
                         dayType = EWeekday.Holiday
                     }
 
-                    return (<div
-                        className={clsx('font-milker text-9xl h-[120px] tracking-tight relative', {
-                            'scale-[0.7_1]': number.length === 2,
-                            'tracking-widest': number[0] === '1'
-                        })}
-                        key={index}
-                        style={{
-                            color: `var(${(dayColors.get(dayType) ?? ['--color-neutral-400', '--color-neutral-200'])[Number(isFuture)]})`
-                        }}>
-                        {number}
+                    const eventState: EEventState = events.get(date.toLocaleDateString())?.reduce((val, curr) => curr.state === EEventState.Middle ? curr : val).state ?? (isHoliday ? EEventState.Single : EEventState.None)
+
+                    const renderEvent = (eventState: EEventState) => {
+                        switch (eventState) {
+                            case EEventState.End:
+                                return (
+                                    <div className={clsx('flex relative h-[15px] items-center', number.length === 2 && number[0] >= '2' && 'left-3')}>
+                                        <div className={clsx("bg-neutral-200 w-4 h-2 w-full mx-auto", )}></div>
+                                        <div className={clsx("bg-neutral-200 w-[15px] h-[15px] rounded-full mx-auto mx-auto shrink-0")}></div>
+                                        <div className={clsx("w-full h-2 mx-auto")}></div>
+                                    </div>
+                                )
+                            case EEventState.Middle:
+                                return (
+                                    <div className={clsx('flex relative h-[15px] items-center', number.length === 2 && number[0] >= '2' && 'left-3')}>
+                                        <div className={clsx("bg-neutral-200 w-full h-2 mx-auto mx-auto shrink-0")}></div>
+                                    </div>
+                                )
+                            case EEventState.None:
+                                return
+                            case EEventState.Start:
+                                return (
+                                    <div className={clsx('flex relative h-[15px] items-center', number.length === 2 && number[0] >= '2' && 'left-3')}>
+                                        <div className={clsx("w-50 h-2 mx-auto")}></div>
+                                        <div className={clsx("bg-neutral-200 w-[15px] h-[15px] rounded-full mx-auto shrink-0")}></div>
+                                        <div className={clsx("bg-neutral-200 w-full h-2 mx-auto")}></div>
+                                    </div>
+                                )
+                            case EEventState.Single:
+                                return (<div className={clsx("relative bg-neutral-200 w-[15px] h-[15px] rounded-full mx-auto", number.length === 2 && number[0] >= '2' && 'left-3')}></div>)
+                        }
+                    }
+
+                    return (<div className='h-[120px] relative' key={index}>
+                        <div
+                            className={clsx('font-milker text-9xl tracking-tight relative', {
+                                'scale-[0.7_1]': number.length === 2,
+                                'tracking-widest': number[0] === '1'
+                            })}
+                            style={{
+                                color: `var(${(dayColors.get(dayType) ?? ['--color-neutral-400', '--color-neutral-200'])[Number(isFuture)]})`
+                            }}>
+                            {number}
+                        </div>
                         {isToday &&
-                            < div className={clsx('text-neutral-300 font-moon text-7xl absolute bottom-1 whitespace-nowrap left-1/2 flex tracking-tighter -rotate-2',
-                            number.length === 1 && 'scale-[0.7_1] -translate-x-1/2' || number[0] === '1' && '-translate-x-3/7' || '-translate-x-2/5')}>
+                            <div className={clsx('text-neutral-300 font-moon text-7xl absolute bottom-1 scale-[0.7_1] whitespace-nowrap left-1/2 flex tracking-tighter -rotate-2',
+                                number.length === 1 && '-translate-x-1/2' || number[0] === '1' && '-translate-x-1/2' || '-translate-x-3/7')}>
                                 TO<span className='font-helvetica font-black scale-x-60 inline-block -mx-2 -translate-y-1'>D</span>AY
                             </div>}
+                        {renderEvent(eventState)}
                     </div>)
                 }
                 )}
