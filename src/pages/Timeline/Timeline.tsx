@@ -22,11 +22,7 @@ const weekdayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const Timeline = () => {
   // date data
   const today = new Date()
-  const [year, setYear] = useState<number>(today.getFullYear())
-  const [month, setMonth] = useState<number>(today.getMonth())
-  const [day, setDay] = useState<number>(today.getDate())
-  // const [day, setDay] = useState<number>(29)
-  const [weekday, setWeekday] = useState<number>(today.getUTCDay())
+  const [selectedDate, setSelectedDate] = useState<Date>(today)
 
   // events data
   const API_KEY = import.meta.env.VITE_GOOGLE_CALENDAR_API_KEY
@@ -36,7 +32,7 @@ const Timeline = () => {
   const cancelSound = new Audio(cancelAudio)
   const [cBackActivated, setCBackActivated] = useState<boolean>(false)
 
-  const pastSelected = useMemo(() => new Date(year, month, day).setHours(0, 0, 0, 0) < today.setHours(0, 0, 0, 0), [year, month, day])
+  const pastSelected = useMemo(() => selectedDate.setHours(0, 0, 0, 0) < today.setHours(0, 0, 0, 0), [selectedDate])
   const navigate = useNavigate();
 
   const goBack = () => {
@@ -47,8 +43,28 @@ const Timeline = () => {
 
   const handleKeyPress = useCallback((event: KeyboardEvent) => {
     if (event.key === 'c') {
-
       goBack()
+      return
+    }
+
+    if (event.key === 'w' || event.key === 'ArrowUp')
+    {
+      setSelectedDate(new Date(selectedDate.setDate(selectedDate.getDate() - 7)))
+    }
+
+    if (event.key === 'a' || event.key === 'ArrowLeft')
+    {
+      setSelectedDate(new Date(selectedDate.setDate(selectedDate.getDate() - 1)))
+    }
+
+    if (event.key === 's' || event.key === 'ArrowDown')
+    {
+      setSelectedDate(new Date(selectedDate.setDate(selectedDate.getDate() + 7)))
+    }
+
+    if (event.key === 'd' || event.key === 'ArrowRight')
+    {
+      setSelectedDate(new Date(selectedDate.setDate(selectedDate.getDate() + 1)))
     }
   }, []);
 
@@ -143,19 +159,19 @@ const Timeline = () => {
               <div className="absolute bg-black opacity-75 top-0 left-0 right-0 bottom-0 w-full h-full "></div>
             </div>
             {/* calendar grid*/}
-            <CalendarGrid year={year} month={month} events={events} />
+            <CalendarGrid year={selectedDate.getFullYear()} month={selectedDate.getMonth()} events={events} />
           </div>
         </div>
         {/* white screen */}
         <div className={clsx("absolute top-0 right-[-10%] w-[50%] h-full -skew-x-[23deg]", pastSelected && 'bg-neutral-400' || 'bg-white')}></div>
         {/* month */}
-        <Month month={monthNames[month]} bgColor={pastSelected ? 'bg-neutral-400' : 'bg-white'} />
+        <Month month={monthNames[selectedDate.getMonth()]} bgColor={pastSelected ? 'bg-neutral-400' : 'bg-white'} />
         {/* year */}
-        <Year year={year} />
+        <Year year={selectedDate.getFullYear()} />
 
         {/* date */}
-        <div className={clsx("absolute  text-3xl top-40 right-80 bg-black font-arsenal font-bold -rotate-5 pl-25 pr-15 py-3 scale-y-90", pastSelected && 'text-neutral-400' || 'text-white')}>
-          {month + 1}/{day}/{year % 100} &nbsp;({weekdayNames[weekday]})
+        <div className={clsx("absolute text-3xl top-40 right-73 bg-black font-arsenal font-bold -rotate-5 pl-25 pr-15 py-3 scale-y-90", pastSelected && 'text-neutral-400' || 'text-white')}>
+          {selectedDate.toLocaleDateString()} &nbsp;({weekdayNames[selectedDate.getDay()]})
         </div>
         {/* which plans do you want to view */}
         <div className={clsx("absolute text-black font-helvetica text-2xl bottom-23 left-20 right-0 -skew-y-5 -skew-x-5 font-black scale-x-95 -rotate-5", pastSelected && 'grey-outline' || 'white-outline')}>
@@ -165,14 +181,14 @@ const Timeline = () => {
         <AnimatePresence>
           {pastSelected && <DailyLog />}
         </AnimatePresence>
-        <div className="absolute top-10 left-10">
+        {/* <div className="absolute top-10 left-10">
           <FontHelper text='' size={0} imgSize={[500, 100]} imgPosition={[30, 100]} imgUrl={imgLongEvent}/>
-        </div>
+        </div> */}
         {/* c back */}
         <CBack isActivated={cBackActivated} onClick={goBack} />
       </div>
-      <button className='absolute top-100 right-20 bg-black rounded-xl py-1 px-2' onClick={() => { setYear(2025) }}>Set year 2025</button>
-      <button className='absolute top-120 right-20 bg-black rounded-xl py-1 px-2' onClick={() => { setYear(2026) }}>Set year 2026</button>
+      <button className='absolute top-100 right-20 bg-black rounded-xl py-1 px-2' onClick={() => { setSelectedDate(new Date(selectedDate.setFullYear(2025))) }}>Set year 2025</button>
+      <button className='absolute top-120 right-20 bg-black rounded-xl py-1 px-2' onClick={() => { setSelectedDate(new Date(selectedDate.setFullYear(2026))) }}>Set year 2026</button>
     </div>
   )
 }
