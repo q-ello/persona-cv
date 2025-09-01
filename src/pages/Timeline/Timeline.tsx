@@ -8,7 +8,7 @@ import Month from './components/Month/Month'
 import Year from './components/Year/Year'
 import DailyLog from './components/DailyLog/DailyLog'
 import clsx from 'clsx'
-import { AnimatePresence } from 'motion/react'
+import { AnimatePresence, transform } from 'motion/react'
 import { useNavigate } from 'react-router-dom'
 import cancelAudio from './../../assets/audio/cancel.wav'
 import { EEventState, EEventType, IEvent } from './types'
@@ -23,6 +23,8 @@ const Timeline = () => {
   // date data
   const today = new Date()
   const [selectedDate, setSelectedDate] = useState<Date>(today)
+  const pastSelected = useMemo(() => selectedDate.setHours(0, 0, 0, 0) < today.setHours(0, 0, 0, 0), [selectedDate])
+  const navigate = useNavigate();
 
   // events data
   const API_KEY = import.meta.env.VITE_GOOGLE_CALENDAR_API_KEY
@@ -31,9 +33,6 @@ const Timeline = () => {
   // for c back
   const cancelSound = new Audio(cancelAudio)
   const [cBackActivated, setCBackActivated] = useState<boolean>(false)
-
-  const pastSelected = useMemo(() => selectedDate.setHours(0, 0, 0, 0) < today.setHours(0, 0, 0, 0), [selectedDate])
-  const navigate = useNavigate();
 
   const goBack = () => {
     setCBackActivated(true)
@@ -170,8 +169,8 @@ const Timeline = () => {
         <Year year={selectedDate.getFullYear()} />
 
         {/* date */}
-        <div className={clsx("absolute text-3xl top-40 right-73 bg-black font-arsenal font-bold -rotate-5 pl-25 pr-15 py-3 scale-y-90", pastSelected && 'text-neutral-400' || 'text-white')}>
-          {selectedDate.toLocaleDateString()} &nbsp;({weekdayNames[selectedDate.getDay()]})
+        <div className={clsx("absolute text-3xl top-40 right-68 bg-black font-arsenal font-bold pl-25 pr-15 py-3 scale-y-90", pastSelected && 'text-neutral-400' || 'text-white')} style={{transform: `rotate(${pastSelected ? -3 : Math.floor(Math.random() * -5)}deg)`}}>
+          <span className='inline-block w-32'>{selectedDate.toLocaleDateString()}</span>&nbsp;&nbsp;&nbsp;({weekdayNames[selectedDate.getDay()]})
         </div>
         {/* which plans do you want to view */}
         <div className={clsx("absolute text-black font-helvetica text-2xl bottom-23 left-20 right-0 -skew-y-5 -skew-x-5 font-black scale-x-95 -rotate-5", pastSelected && 'grey-outline' || 'white-outline')}>
