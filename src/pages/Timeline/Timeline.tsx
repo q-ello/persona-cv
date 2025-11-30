@@ -8,20 +8,26 @@ import Month from './components/Month/Month'
 import Year from './components/Year/Year'
 import DailyLog from './components/DailyLog/DailyLog'
 import clsx from 'clsx'
-import { AnimatePresence, transform } from 'motion/react'
+import { AnimatePresence } from 'motion/react'
 import { useNavigate } from 'react-router-dom'
 import cancelAudio from './../../assets/audio/cancel.wav'
 import { EEventState, EEventType, IEvent } from './types'
-import image from './../../assets/images/image.png'
-import imgLongEvent from './../../assets/images/image long event.png'
 
 // just manual map
 const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
 const weekdayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
+const maxPastDate = new Date(2023, 0, 1);
+
 const Timeline = () => {
   // date data
   const today = new Date()
+  const maxFutureDate = useMemo(() => {
+    const date = new Date(today.getFullYear(), today.getMonth() + 3, 1);
+    date.setDate(date.getDate() - 1)
+    return date;
+  }, [today])
+
   const [selectedDate, setSelectedDate] = useState<Date>(today)
   const pastSelected = useMemo(() => selectedDate.setHours(0, 0, 0, 0) < today.setHours(0, 0, 0, 0), [selectedDate])
   const navigate = useNavigate();
@@ -43,29 +49,42 @@ const Timeline = () => {
   const handleKeyPress = useCallback((event: KeyboardEvent) => {
     if (event.key === 'c') {
       goBack()
-      return
+      return;
     }
 
-    if (event.key === 'w' || event.key === 'ArrowUp')
-    {
-      setSelectedDate(new Date(selectedDate.setDate(selectedDate.getDate() - 7)))
+    if (selectedDate.toLocaleDateString() === maxPastDate.toLocaleDateString() && (event.key === 'w' || event.key === 'a' || event.key === 'ArrowUp' || event.key === 'ArrowLeft')) {
+      console.log('yep');
+      return;
     }
 
-    if (event.key === 'a' || event.key === 'ArrowLeft')
-    {
-      setSelectedDate(new Date(selectedDate.setDate(selectedDate.getDate() - 1)))
+    console.log(selectedDate.toLocaleDateString(), maxFutureDate.toLocaleDateString());
+
+    if (selectedDate.toLocaleDateString() === maxFutureDate.toLocaleDateString() && (event.key === 's' || event.key === 'd' || event.key === 'ArrowDown' || event.key === 'ArrowRight')) {
+      return;
     }
 
-    if (event.key === 's' || event.key === 'ArrowDown')
-    {
-      setSelectedDate(new Date(selectedDate.setDate(selectedDate.getDate() + 7)))
-    }
+    setSelectedDate(prev => {
+      let d = new Date(prev);
 
-    if (event.key === 'd' || event.key === 'ArrowRight')
-    {
-      setSelectedDate(new Date(selectedDate.setDate(selectedDate.getDate() + 1)))
-    }
-  }, []);
+      if (event.key === 'w' || event.key === 'ArrowUp') {
+        d.setDate(d.getDate() - 7)
+      }
+
+      if (event.key === 'a' || event.key === 'ArrowLeft') {
+        d.setDate(d.getDate() - 1)
+      }
+
+      if (event.key === 's' || event.key === 'ArrowDown') {
+        d.setDate(d.getDate() + 7)
+      }
+
+      if (event.key === 'd' || event.key === 'ArrowRight') {
+        d.setDate(d.getDate() + 1)
+      }
+
+      return clampDate(d);
+    })
+  }, [selectedDate, goBack, maxPastDate, maxFutureDate]);
 
   // we want to handle key presses
   useEffect(() => {
@@ -129,12 +148,12 @@ const Timeline = () => {
           let d: Date = eventStart
           d.setDate(d.getDate() + 1)
           while (d.toDateString() != eventEnd.toDateString()) {
-            const middleEvent = {eventEng, eventRu, type: eventType, state: EEventState.Middle}
+            const middleEvent = { eventEng, eventRu, type: eventType, state: EEventState.Middle }
             addToMap(d.toLocaleDateString(), middleEvent)
             d.setDate(d.getDate() + 1)
           }
 
-          const finalEvent = {eventEng, eventRu, type: eventType, state: EEventState.End}
+          const finalEvent = { eventEng, eventRu, type: eventType, state: EEventState.End }
           addToMap(d.toLocaleDateString(), finalEvent)
         }
 
@@ -145,6 +164,24 @@ const Timeline = () => {
     fetchEvents(common_id, EEventType.Common)
     fetchEvents(deadlines_id, EEventType.Deadline)
   }, [])
+
+  const clampDate = (date: Date): Date => {
+    if (date < maxPastDate) return maxPastDate;
+    if (date > maxFutureDate) return maxFutureDate;
+    return date;
+  }
+
+  const isOnMaxPastMonth = useMemo(() => {
+    return selectedDate.getFullYear() === maxPastDate.getFullYear() && selectedDate.getMonth() === maxPastDate.getMonth()
+  }, [selectedDate])
+
+  const isOnMaxFutureMonth = useMemo(() => {
+    return selectedDate.getFullYear() === maxFutureDate.getFullYear() && selectedDate.getMonth() === maxFutureDate.getMonth()
+  }, [selectedDate])
+
+  const dateRotate = useMemo(() => {
+    return `rotate(${pastSelected ? -3 : Math.floor(Math.random() * -5)}deg)`
+  }, [pastSelected, selectedDate])
 
   return (
     <div className='w-full cursor-default select-none'>
@@ -164,12 +201,12 @@ const Timeline = () => {
         {/* white screen */}
         <div className={clsx("absolute top-0 right-[-10%] w-[50%] h-full -skew-x-[23deg]", pastSelected && 'bg-neutral-400' || 'bg-white')}></div>
         {/* month */}
-        <Month month={monthNames[selectedDate.getMonth()]} bgColor={pastSelected ? 'bg-neutral-400' : 'bg-white'} />
+        <Month month={monthNames[selectedDate.getMonth()]} bgColor={pastSelected ? 'bg-neutral-400' : 'bg-white'} qEnabled={!isOnMaxPastMonth} eEnabled={!isOnMaxFutureMonth} />
         {/* year */}
         <Year year={selectedDate.getFullYear()} />
 
         {/* date */}
-        <div className={clsx("absolute text-3xl top-40 right-68 bg-black font-arsenal font-bold pl-25 pr-15 py-3 scale-y-90", pastSelected && 'text-neutral-400' || 'text-white')} style={{transform: `rotate(${pastSelected ? -3 : Math.floor(Math.random() * -5)}deg)`}}>
+        <div className={clsx("absolute text-3xl top-40 right-68 bg-black font-arsenal font-bold pl-25 pr-15 py-3 scale-y-90", pastSelected && 'text-neutral-400' || 'text-white')} style={{ transform: dateRotate }}>
           <span className='inline-block w-32'>{selectedDate.toLocaleDateString()}</span>&nbsp;&nbsp;&nbsp;({weekdayNames[selectedDate.getDay()]})
         </div>
         {/* which plans do you want to view */}
@@ -186,8 +223,6 @@ const Timeline = () => {
         {/* c back */}
         <CBack isActivated={cBackActivated} onClick={goBack} />
       </div>
-      <button className='absolute top-100 right-20 bg-black rounded-xl py-1 px-2' onClick={() => { setSelectedDate(new Date(selectedDate.setFullYear(2025))) }}>Set year 2025</button>
-      <button className='absolute top-120 right-20 bg-black rounded-xl py-1 px-2' onClick={() => { setSelectedDate(new Date(selectedDate.setFullYear(2026))) }}>Set year 2026</button>
     </div>
   )
 }

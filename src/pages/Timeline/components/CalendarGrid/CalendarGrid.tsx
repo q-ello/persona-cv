@@ -79,7 +79,7 @@ const CalendarGrid = (props: ICalendarProps) => {
                     }
                     const date = new Date(year, month, parseInt(number, 10))
                     const isFuture = date > now
-                    const isToday = date.toLocaleDateString() == now.toLocaleDateString()
+                    const isToday = date.toLocaleDateString() === now.toLocaleDateString()
 
                     // if it is a holiday then it is red
                     const isHoliday = holidayDates.some(h => h.date === `${year}-${formatNumber(month + 1)}-${formatNumber(+number)}`)
