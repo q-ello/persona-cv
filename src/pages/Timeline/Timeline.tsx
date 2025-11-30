@@ -195,7 +195,7 @@ const Timeline = () => {
               <div className="absolute bg-black opacity-75 top-0 left-0 right-0 bottom-0 w-full h-full "></div>
             </div>
             {/* calendar grid*/}
-            <CalendarGrid year={selectedDate.getFullYear()} month={selectedDate.getMonth()} events={events} />
+            <CalendarGrid year={selectedDate.getFullYear()} month={selectedDate.getMonth()} events={events} selectedDate={selectedDate} onDateHovered={setSelectedDate}/>
           </div>
         </div>
         {/* white screen */}

@@ -2,12 +2,14 @@ import React, { useEffect, useMemo, useState } from 'react'
 import WeekDay from '../WeekDay/WeekDay'
 import clsx from 'clsx'
 import { IEvent, IHoliday, EWeekday, EEventState } from '../../types';
-
+import './CalendarGrid.css'
 
 interface ICalendarProps {
     year: number,
     month: number,
-    events: Map<string, IEvent[]>
+    events: Map<string, IEvent[]>,
+    selectedDate: Date,
+    onDateHovered: (date: Date) => void
 }
 
 async function getHolidays(year: number): Promise<IHoliday[]> {
@@ -22,7 +24,7 @@ const formatNumber = (num: number) => {
 const CalendarGrid = (props: ICalendarProps) => {
     const [holidayDates, setHolidayDates] = useState<IHoliday[]>([]);
 
-    const { year, month, events } = props
+    const { year, month, events, selectedDate, onDateHovered } = props
     const daysNumbers: string[] = useMemo(() => {
         const days: string[] = []
         const firstWeekDay = new Date(year, month, 1).getUTCDay()
@@ -79,7 +81,8 @@ const CalendarGrid = (props: ICalendarProps) => {
                     }
                     const date = new Date(year, month, parseInt(number, 10))
                     const isFuture = date > now
-                    const isToday = date.toLocaleDateString() === now.toLocaleDateString()
+                    const isToday = date.toLocaleDateString() === now.toLocaleDateString();
+                    const isSelected = date.toLocaleDateString() === selectedDate.toLocaleDateString();
 
                     // if it is a holiday then it is red
                     const isHoliday = holidayDates.some(h => h.date === `${year}-${formatNumber(month + 1)}-${formatNumber(+number)}`)
@@ -94,7 +97,7 @@ const CalendarGrid = (props: ICalendarProps) => {
                             case EEventState.End:
                                 return (
                                     <div className={clsx('flex relative h-[15px] items-center', number.length === 2 && number[0] >= '2' && 'left-3')}>
-                                        <div className={clsx("bg-neutral-200 w-4 h-2 w-full mx-auto", )}></div>
+                                        <div className={clsx("bg-neutral-200 w-4 h-2 w-full mx-auto",)}></div>
                                         <div className={clsx("bg-neutral-200 w-[15px] h-[15px] rounded-full mx-auto mx-auto shrink-0")}></div>
                                         <div className={clsx("w-full h-2 mx-auto")}></div>
                                     </div>
@@ -120,16 +123,30 @@ const CalendarGrid = (props: ICalendarProps) => {
                         }
                     }
 
-                    return (<div className='h-[120px] relative' key={index}>
-                        <div
-                            className={clsx('font-milker text-9xl tracking-tight relative', {
-                                'scale-[0.7_1]': number.length === 2,
-                                'tracking-widest': number[0] === '1'
-                            })}
-                            style={{
-                                color: `var(${(dayColors.get(dayType) ?? ['--color-neutral-400', '--color-neutral-200'])[Number(isFuture)]})`
-                            }}>
-                            {number}
+                    return (<div className='h-[120px] relative' key={index} onMouseEnter={() => {onDateHovered(date)}}>
+                        <div className={clsx('font-milker text-9xl tracking-tight relative', {
+                            'tracking-widest': number[0] === '1'
+                        })}>
+                            <div
+                                className={clsx({ 'scale-[0.7_1]': number.length === 2 })}
+                                style={{
+                                    color: `var(${(dayColors.get(dayType) ?? ['--color-neutral-400', '--color-neutral-200'])[Number(isFuture)]})`
+                                }}>
+                                {number}
+                            </div>
+                            {/* render another if selected */}
+                            {isSelected &&
+                                <div className={clsx(`absolute -inset-5 top-0 overflow-hidden bg-red-700 rounded-[4px] z-2 selected-date-plate`, {
+                                })}>
+                                    <div
+                                        className={clsx('absolute inset-5 top-0 text-black selected-date', {
+                                            'scale-[0.7_1]': number.length === 2
+                                        })}>
+
+                                        {number}
+                                    </div>
+                                </div>
+                            }
                         </div>
                         {isToday &&
                             <div className={clsx('text-neutral-300 font-moon text-7xl absolute bottom-1 scale-[0.7_1] whitespace-nowrap left-1/2 flex tracking-tighter -rotate-2',
