@@ -52,14 +52,14 @@ const Timeline = () => {
       return;
     }
 
-    if (selectedDate.toLocaleDateString() === maxPastDate.toLocaleDateString() && (event.key === 'w' || event.key === 'a' || event.key === 'ArrowUp' || event.key === 'ArrowLeft')) {
+    if (selectedDate.toLocaleDateString() === maxPastDate.toLocaleDateString() && (event.key === 'w' || event.key === 'a' || event.key === 'ArrowUp' || event.key === 'ArrowLeft' || event.key === 'q')) {
       console.log('yep');
       return;
     }
 
     console.log(selectedDate.toLocaleDateString(), maxFutureDate.toLocaleDateString());
 
-    if (selectedDate.toLocaleDateString() === maxFutureDate.toLocaleDateString() && (event.key === 's' || event.key === 'd' || event.key === 'ArrowDown' || event.key === 'ArrowRight')) {
+    if (selectedDate.toLocaleDateString() === maxFutureDate.toLocaleDateString() && (event.key === 's' || event.key === 'd' || event.key === 'ArrowDown' || event.key === 'ArrowRight' || event.key === 'e')) {
       return;
     }
 
@@ -80,6 +80,14 @@ const Timeline = () => {
 
       if (event.key === 'd' || event.key === 'ArrowRight') {
         d.setDate(d.getDate() + 1)
+      }
+
+      if (event.key === 'e') {
+        d = moveMonth(d, 1);
+      }
+
+      if (event.key === 'q') {
+        d = moveMonth(d, -1);
       }
 
       return clampDate(d);
@@ -171,6 +179,29 @@ const Timeline = () => {
     return date;
   }
 
+  const moveMonth = (date: Date, delta: number): Date => {
+    const day = date.getDate();
+    const newMonth = date.getMonth() + delta;
+
+    const daysInTargetMonth = new Date(date.getFullYear(), newMonth + 1, 0).getDate();
+    if (day > daysInTargetMonth) {
+      date.setDate(daysInTargetMonth);
+    } else {
+      date.setDate(day);
+    }
+
+    date.setMonth(newMonth);
+    return date;
+  }
+
+  const onMonthChanged = (direction: number) => {
+    setSelectedDate(prev => {
+      let d = new Date(prev);
+      d = moveMonth(d, direction);
+      return clampDate(d);
+    });
+  }
+
   const isOnMaxPastMonth = useMemo(() => {
     return selectedDate.getFullYear() === maxPastDate.getFullYear() && selectedDate.getMonth() === maxPastDate.getMonth()
   }, [selectedDate])
@@ -201,7 +232,7 @@ const Timeline = () => {
         {/* white screen */}
         <div className={clsx("absolute top-0 right-[-10%] w-[50%] h-full -skew-x-[23deg]", pastSelected && 'bg-neutral-400' || 'bg-white')}></div>
         {/* month */}
-        <Month month={monthNames[selectedDate.getMonth()]} bgColor={pastSelected ? 'bg-neutral-400' : 'bg-white'} qEnabled={!isOnMaxPastMonth} eEnabled={!isOnMaxFutureMonth} />
+        <Month month={monthNames[selectedDate.getMonth()]} bgColor={pastSelected ? 'bg-neutral-400' : 'bg-white'} qEnabled={!isOnMaxPastMonth} eEnabled={!isOnMaxFutureMonth} onMonthChanged={onMonthChanged}/>
         {/* year */}
         <Year year={selectedDate.getFullYear()} />
 
