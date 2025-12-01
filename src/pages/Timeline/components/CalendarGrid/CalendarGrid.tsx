@@ -1,15 +1,15 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState, useRef } from 'react'
 import WeekDay from '../WeekDay/WeekDay'
 import clsx from 'clsx'
-import { IEvent, IHoliday, EWeekday, EEventState } from '../../types';
+import { IEvent, IHoliday, EWeekday, EEventState, EEventType } from '../../types';
 import './CalendarGrid.css'
 
 interface ICalendarProps {
     year: number,
     month: number,
-    events: Map<string, IEvent[]>,
-    selectedDate: Date,
-    onDateHovered: (date: Date) => void
+    events?: Map<string, IEvent[]>,
+    onDateHovered?: (date: Date) => void,
+    onCellLayout?: (date: string, rect: DOMRect) => void
 }
 
 async function getHolidays(year: number): Promise<IHoliday[]> {
@@ -24,7 +24,7 @@ const formatNumber = (num: number) => {
 const CalendarGrid = (props: ICalendarProps) => {
     const [holidayDates, setHolidayDates] = useState<IHoliday[]>([]);
 
-    const { year, month, events, selectedDate, onDateHovered } = props
+    const { year, month, events, onDateHovered, onCellLayout } = props
     const daysNumbers: string[] = useMemo(() => {
         const days: string[] = []
         const firstWeekDay = new Date(year, month, 1).getUTCDay()
@@ -67,6 +67,14 @@ const CalendarGrid = (props: ICalendarProps) => {
                 {/* days */}
                 {daysNumbers.map((number, index) => {
                     if (!number) return <div key={index}></div>;
+                    const ref = useRef<HTMLDivElement>(null);
+
+                    useEffect(() => {
+                        if (ref.current) {
+                            onCellLayout?.(new Date(year, month, parseInt(number, 10)).toDateString(), ref.current.getBoundingClientRect());
+                        }
+                    }, [ref.current]);
+
                     let dayType: EWeekday;
                     // get a color from the day of the week
                     switch (index % 7) {
@@ -81,8 +89,12 @@ const CalendarGrid = (props: ICalendarProps) => {
                     }
                     const date = new Date(year, month, parseInt(number, 10))
                     const isFuture = date > now
-                    const isToday = date.toLocaleDateString() === now.toLocaleDateString();
-                    const isSelected = date.toLocaleDateString() === selectedDate.toLocaleDateString();
+
+                    // check if there is a deadline on this date
+                    const isDeadline = (events?.get(date.toLocaleDateString())?.some(e => e.type === EEventType.Deadline) && isFuture) ?? false;
+                    if (isDeadline) {
+                        dayType = EWeekday.Holiday
+                    }
 
                     // if it is a holiday then it is red
                     const isHoliday = holidayDates.some(h => h.date === `${year}-${formatNumber(month + 1)}-${formatNumber(+number)}`)
@@ -90,7 +102,7 @@ const CalendarGrid = (props: ICalendarProps) => {
                         dayType = EWeekday.Holiday
                     }
 
-                    const eventState: EEventState = events.get(date.toLocaleDateString())?.reduce((val, curr) => curr.state === EEventState.Middle ? curr : val).state ?? (isHoliday ? EEventState.Single : EEventState.None)
+                    const eventState: EEventState = events?.get(date.toLocaleDateString())?.reduce((val, curr) => curr.state === EEventState.Middle ? curr : val).state ?? (isHoliday ? EEventState.Single : EEventState.None)
 
                     const renderEvent = (eventState: EEventState) => {
                         switch (eventState) {
@@ -123,36 +135,35 @@ const CalendarGrid = (props: ICalendarProps) => {
                         }
                     }
 
-                    return (<div className='h-[120px] relative' key={index} onMouseEnter={() => {onDateHovered(date)}}>
+                    return (<div className='h-[120px] relative' ref={ref} key={index} onMouseEnter={() => { onDateHovered?.(date) }}>
                         <div className={clsx('font-milker text-9xl tracking-tight relative', {
-                            'tracking-widest': number[0] === '1'
+                            'tracking-widest': number[0] === '1',
                         })}>
                             <div
-                                className={clsx({ 'scale-[0.7_1]': number.length === 2 })}
+                                className={clsx({ 'scale-[0.7_1] isolate': number.length === 2 })}
                                 style={{
                                     color: `var(${(dayColors.get(dayType) ?? ['--color-neutral-400', '--color-neutral-200'])[Number(isFuture)]})`
                                 }}>
                                 {number}
                             </div>
-                            {/* render another if selected */}
-                            {isSelected &&
-                                <div className={clsx(`absolute -inset-5 top-0 overflow-hidden bg-red-700 rounded-[4px] z-2 selected-date-plate`, {
-                                })}>
-                                    <div
-                                        className={clsx('absolute inset-5 top-0 text-black selected-date', {
-                                            'scale-[0.7_1]': number.length === 2
-                                        })}>
-
-                                        {number}
-                                    </div>
-                                </div>
+                            {/* render deadline */}
+                            {isDeadline &&
+                                [0, 1, 2, 3, 4].map(i => (<div key={i} className={clsx(`absolute inset-0 deadline-layer`, {
+                                    'scale-[0.7_1]': number.length === 2
+                                })}
+                                    style={
+                                        {
+                                            '--x': `${Math.random() * (i) * 10 - i * 4}px`,
+                                            '--y': `${Math.random() * (i) * 10 - i * 4}px`,
+                                            color: `var(${(dayColors.get(dayType) ?? ['--color-neutral-400', '--color-neutral-200'])[Number(isFuture)]})`,
+                                            opacity: 1 - i / 5
+                                        } as React.CSSProperties
+                                    }
+                                >
+                                    {number}
+                                </div>))
                             }
                         </div>
-                        {isToday &&
-                            <div className={clsx('text-neutral-300 font-moon text-7xl absolute bottom-1 scale-[0.7_1] whitespace-nowrap left-1/2 flex tracking-tighter -rotate-2',
-                                number.length === 1 && '-translate-x-1/2' || number[0] === '1' && '-translate-x-1/2' || '-translate-x-3/7')}>
-                                TO<span className='font-helvetica font-black scale-x-60 inline-block -mx-2 -translate-y-1'>D</span>AY
-                            </div>}
                         {renderEvent(eventState)}
                     </div>)
                 }

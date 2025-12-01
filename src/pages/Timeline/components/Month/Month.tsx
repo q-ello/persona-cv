@@ -1,5 +1,3 @@
-import React from 'react'
-
 interface IMonthProps {
     month: string,
     bgColor: string,
