@@ -1,3 +1,4 @@
+import React from 'react';
 import Back from '../../assets/images/Back.svg'
 import clsx from 'clsx'
 
@@ -32,4 +33,4 @@ const CBack = ({isActivated, onClick}: ICBackProps) => {
     )
 }
 
-export default CBack
+export default React.memo(CBack, (prev, next) => prev.isActivated === next.isActivated);

@@ -1,4 +1,5 @@
 import clsx from 'clsx';
+import React from 'react';
 
 const Today = ({ position, number }: { position: { x: number; y: number; w: number; h: number } | null, number: string }) => {
     if (!position) return null;
@@ -14,4 +15,4 @@ const Today = ({ position, number }: { position: { x: number; y: number; w: numb
     )
 }
 
-export default Today
+export default React.memo(Today, (prev, next) => prev.position === next.position && prev.number === next.number);

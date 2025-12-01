@@ -1,6 +1,8 @@
+import React from 'react';
 import './Command.css'
 
 const Command = () => {
+
   return (
     <div className='text-9xl -rotate-15 text-white select-none'>
         {/* c */}
@@ -25,4 +27,4 @@ const Command = () => {
   )
 }
 
-export default Command
+export default React.memo(Command);

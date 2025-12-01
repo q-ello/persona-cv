@@ -27,4 +27,4 @@ const Year = ({ year }: IYearProps) => {
   )
 }
 
-export default Year
+export default React.memo(Year)

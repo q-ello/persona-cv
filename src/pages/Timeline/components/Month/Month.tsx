@@ -1,3 +1,5 @@
+import React from "react";
+
 interface IMonthProps {
     month: string,
     bgColor: string,
@@ -33,4 +35,4 @@ const Month = ({ month, bgColor, qEnabled, eEnabled, onMonthChanged }: IMonthPro
     )
 }
 
-export default Month
+export default React.memo(Month, (prev, next) => prev.month === next.month && prev.bgColor === next.bgColor && prev.qEnabled === next.qEnabled && prev.eEnabled === next.eEnabled);

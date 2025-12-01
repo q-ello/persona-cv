@@ -97,11 +97,8 @@ const Timeline = () => {
     }
 
     if (selectedDate.toLocaleDateString() === maxPastDate.toLocaleDateString() && (event.key === 'w' || event.key === 'a' || event.key === 'ArrowUp' || event.key === 'ArrowLeft' || event.key === 'q')) {
-      console.log('yep');
       return;
     }
-
-    console.log(selectedDate.toLocaleDateString(), maxFutureDate.toLocaleDateString());
 
     if (selectedDate.toLocaleDateString() === maxFutureDate.toLocaleDateString() && (event.key === 's' || event.key === 'd' || event.key === 'ArrowDown' || event.key === 'ArrowRight' || event.key === 'e')) {
       return;
@@ -268,7 +265,7 @@ const Timeline = () => {
             <div className="-bottom-7 absolute right-75 pb-15 opacity-25">
               <Command />
             </div>
-            {todayPos && <Today position={todayPos} number={today.getDate().toString()} />}
+            {selectedDate.getMonth() === today.getMonth() && selectedDate.getFullYear() === today.getFullYear() && <Today position={todayPos} number={today.getDate().toString()} />}
             <div className="">
               <SelectedPlate position={selectedPos} />
               {/* calendar grid*/}
@@ -311,4 +308,4 @@ const Timeline = () => {
   )
 }
 
-export default Timeline
+export default Timeline;

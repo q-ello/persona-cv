@@ -1,5 +1,3 @@
-import React from 'react'
-
 interface IWeekDayProps {
     day: string[],
     scales: number[][],
