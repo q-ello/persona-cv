@@ -4,7 +4,7 @@
   src: url("src\\assets\\fonts\\AA BadaBoom BB\\aa_badaboom_bb.ttf");
 }
 
-/* anime ace */
+/* #region anime ace */
 @font-face {
   font-family: AnimeAce;
   src: url("src\\assets\\fonts\\Anime Ace\\animeace2_reg.otf");
@@ -27,7 +27,9 @@
   src: url("src\\assets\\fonts\\Anime Ace\\animeace2_reg.otf");
 }
 
-/* arsenal */
+/* #endregion */
+
+/* #region arsenal */
 @font-face {
   font-family: Arsenal;
   src: url("src\\assets\\fonts\\Arsenal\\Arsenal-Bold.ttf");
@@ -51,6 +53,7 @@
   font-family: Arsenal;
   src: url("src\\assets\\fonts\\Arsenal\\Arsenal-Regular.ttf");
 }
+/* #endregion */
 
 /* bubblegum superstar */
 @font-face {
@@ -64,11 +67,32 @@
   src: url("src\\assets\\fonts\\calaboose\\calabooseDEMO.otf");
 }
 
-/* cooper black */
+/* casad */
+@font-face {
+  font-family: Casad;
+  src: url("src\\assets\\fonts\\casad\\7fonts.ru_Casad.ttf");
+}
+
+/* #region cooper */
 @font-face {
   font-family: Cooper;
-  src: url("src\\assets\\fonts\\cooper-black\\COOPBL.TTF");
+  src: url("src\\assets\\fonts\\cooper\\COOPBL.TTF");
+  font-weight: black;
 }
+
+@font-face {
+  font-family: Cooper;
+  src: url("src\\assets\\fonts\\cooper\\cooper-bt-medium.otf");
+  font-weight: medium;
+}
+
+@font-face {
+  font-family: Cooper;
+  src: url("src\\assets\\fonts\\cooper\\Cooper Bold BT.ttf");
+  font-weight: bold;
+}
+
+/* #endregion */
 
 /* earwig factory */
 @font-face {
@@ -82,7 +106,7 @@
   src: url("src\\assets\\fonts\\gunny-rewritten\\gnyrwn971.ttf");
 }
 
-/* helvetica */
+/* #region Helvetica */
 @font-face {
   font-family: Helvetica;
   src: 
@@ -250,7 +274,7 @@
     url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Regular.woff2");
   font-weight: 400;
 }
-
+/* #endregion */
 
 /* milker */
 @font-face {
@@ -273,6 +297,7 @@
   --font-arsenal: Arsenal, "sans-serif";
   --font-bubblegum: Bubblegum, "sans-serif";
   --font-calaboose: Calaboose, "sans-serif";
+  --font-casad: Casad, "sans-serif";
   --font-cooper: Cooper, "sans-serif";
   --font-earwig: Earwig, "sans-serif";
   --font-gunny: Gunny, "sans-serif";

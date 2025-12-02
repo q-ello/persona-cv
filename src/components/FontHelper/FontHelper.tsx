@@ -24,7 +24,10 @@ const FontHelper = (props: FontHelperProps) => {
         <div className="font-arsenal">arsenal: {text} {text.toUpperCase()}</div>
         <div className="font-bubblegum">bubblegum superstar: {text}</div>
         <div className="font-calaboose">calaboose: {text}</div>
-        <div className="font-cooper">cooper black: {text} {text.toUpperCase()}</div>
+        <div className="font-casad">casad: {text} {text.toUpperCase()}</div>
+        <div className="font-cooper font-black">cooper black: {text} {text.toUpperCase()}</div>
+        <div className="font-cooper font-bold">cooper bold: {text} {text.toUpperCase()}</div>
+        <div className="font-cooper">cooper medium: {text} {text.toUpperCase()}</div>
         <div className="font-earwig">earwig factory: {text} {text.toUpperCase()}</div>
         <div className="font-gunny">gunny rewritten: {text} {text.toUpperCase()}</div>
         <div className="font-helvetica font-bold">helvetica: {text} {text.toUpperCase()}</div>

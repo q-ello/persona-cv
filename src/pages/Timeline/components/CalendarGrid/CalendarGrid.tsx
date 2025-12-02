@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import WeekDay from '../WeekDay/WeekDay'
-import { IEvent, IHoliday } from '../../types';
+import { IEvent } from '../../types';
 import './CalendarGrid.css'
-import DayCell from '../DayCell/DayCell';
+import DayCell from './DayCell';
 import React from 'react';
 
 interface ICalendarProps {
@@ -13,14 +13,7 @@ interface ICalendarProps {
     onCellLayout?: (date: string, rect: DOMRect) => void
 }
 
-async function getHolidays(year: number): Promise<IHoliday[]> {
-    const res = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/RU`);
-    return await res.json();
-}
-
 const CalendarGrid = (props: ICalendarProps) => {
-    const [holidayDates, setHolidayDates] = useState<IHoliday[]>([]);
-
     const { year, month, events, onDateHovered, onCellLayout } = props
     const daysNumbers: string[] = useMemo(() => {
         const days: string[] = []
@@ -36,14 +29,6 @@ const CalendarGrid = (props: ICalendarProps) => {
 
     const now = new Date()
 
-    useEffect(() => {
-        const fetchHolidays = async () => {
-            const holidays = await getHolidays(year);
-            setHolidayDates(holidays);
-        };
-        fetchHolidays();
-    }, [year])
-
     return (
         <div className="grid-container h-full w-full py-20 pl-80 pr-70 -rotate-5 text-center -skew-y-1">
             <div className="grid grid-cols-7">
@@ -58,7 +43,7 @@ const CalendarGrid = (props: ICalendarProps) => {
                 {/* days */}
                 {daysNumbers.map((number, index) => {
                     if (!number) return <div key={index}></div>;
-                    return <DayCell key={index} index={index} number={number} year={year} month={month} now={now} events={events} holidayDates={holidayDates} onDateHovered={onDateHovered} onCellLayout={onCellLayout} />
+                    return <DayCell key={index} index={index} number={number} year={year} month={month} now={now} events={events} onDateHovered={onDateHovered} onCellLayout={onCellLayout} />
                 }
                 )}
             </div>

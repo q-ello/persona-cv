@@ -23,7 +23,8 @@ export enum EEventState
 export enum EEventType
 {
     Common,
-    Deadline
+    Deadline,
+    Holiday
 }
 
 export interface IEvent

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { EEventState, EEventType, EWeekday, IEvent, IHoliday } from "../../types";
+import { EEventState, EEventType, EWeekday, IEvent } from "../../types";
 import { clsx } from "clsx";
 
 interface IDayCellProps {
@@ -9,13 +9,8 @@ interface IDayCellProps {
     month: number,
     now: Date,
     events?: Map<string, IEvent[]>,
-    holidayDates: IHoliday[],
     onDateHovered?: (date: Date) => void,
     onCellLayout?: (date: string, rect: DOMRect) => void
-}
-
-const formatNumber = (num: number) => {
-    return ("0" + num).slice(-2);
 }
 
 const dayColors = new Map([
@@ -25,7 +20,7 @@ const dayColors = new Map([
 ])
 
 const DayCell = (props: IDayCellProps) => {
-    const { index, number, year, month, now, events, holidayDates, onDateHovered, onCellLayout } = props;
+    const { index, number, year, month, now, events, onDateHovered, onCellLayout } = props;
 
     const ref = useRef<HTMLDivElement>(null);
 
@@ -51,34 +46,30 @@ const DayCell = (props: IDayCellProps) => {
     const date = new Date(year, month, parseInt(number, 10))
     const isFuture = date > now
 
-    // check if there is a deadline on this date
     const isDeadline = (events?.get(date.toLocaleDateString())?.some(e => e.type === EEventType.Deadline) && isFuture) ?? false;
-    if (isDeadline) {
-        dayType = EWeekday.Holiday
-    }
-
-    // if it is a holiday then it is red
-    const isHoliday = holidayDates.some(h => h.date === `${year}-${formatNumber(month + 1)}-${formatNumber(+number)}`)
-    if (isHoliday) {
+    const isHoliday = events?.get(date.toLocaleDateString())?.some(e => e.type === EEventType.Holiday) ?? false;
+    if (isHoliday || isDeadline) {
         dayType = EWeekday.Holiday
     }
 
     const eventState: EEventState = events?.get(date.toLocaleDateString())?.reduce((val, curr) => curr.state === EEventState.Middle ? curr : val).state ?? (isHoliday ? EEventState.Single : EEventState.None)
 
-    const renderEvent = (eventState: EEventState) => {
+    const renderEvent = (eventState: EEventState, isFuture: boolean) => {
+        const eventColor = isFuture && 'bg-neutral-200' || 'bg-neutral-400';
+
         switch (eventState) {
             case EEventState.End:
                 return (
                     <div className={clsx('flex relative h-[15px] items-center', number.length === 2 && number[0] >= '2' && 'left-3')}>
-                        <div className={clsx("bg-neutral-200 w-4 h-2 w-full mx-auto",)}></div>
-                        <div className={clsx("bg-neutral-200 w-[15px] h-[15px] rounded-full mx-auto mx-auto shrink-0")}></div>
+                        <div className={clsx("w-4 h-2 w-full mx-auto", eventColor)}></div>
+                        <div className={clsx("w-[15px] h-[15px] rounded-full mx-auto mx-auto shrink-0", eventColor)}></div>
                         <div className={clsx("w-full h-2 mx-auto")}></div>
                     </div>
                 )
             case EEventState.Middle:
                 return (
                     <div className={clsx('flex relative h-[15px] items-center', number.length === 2 && number[0] >= '2' && 'left-3')}>
-                        <div className={clsx("bg-neutral-200 w-full h-2 mx-auto mx-auto shrink-0")}></div>
+                        <div className={clsx("w-full h-2 mx-auto mx-auto shrink-0", eventColor)}></div>
                     </div>
                 )
             case EEventState.None:
@@ -87,12 +78,12 @@ const DayCell = (props: IDayCellProps) => {
                 return (
                     <div className={clsx('flex relative h-[15px] items-center', number.length === 2 && number[0] >= '2' && 'left-3')}>
                         <div className={clsx("w-50 h-2 mx-auto")}></div>
-                        <div className={clsx("bg-neutral-200 w-[15px] h-[15px] rounded-full mx-auto shrink-0")}></div>
-                        <div className={clsx("bg-neutral-200 w-full h-2 mx-auto")}></div>
+                        <div className={clsx("w-[15px] h-[15px] rounded-full mx-auto shrink-0", eventColor)}></div>
+                        <div className={clsx("w-full h-2 mx-auto", eventColor)}></div>
                     </div>
                 )
             case EEventState.Single:
-                return (<div className={clsx("relative bg-neutral-200 w-[15px] h-[15px] rounded-full mx-auto", number.length === 2 && number[0] >= '2' && 'left-3')}></div>)
+                return (<div className={clsx("relative w-[15px] h-[15px] rounded-full mx-auto", eventColor, number.length === 2 && number[0] >= '2' && 'left-3')}></div>)
         }
     }
 
@@ -125,7 +116,7 @@ const DayCell = (props: IDayCellProps) => {
                 </div>))
             }
         </div>
-        {renderEvent(eventState)}
+        {renderEvent(eventState, isFuture)}
     </div>)
 };
 export default DayCell;

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import CalendarGrid from './components/CalendarGrid/CalendarGrid'
 import CBack from '../../components/CBack/CBack'
 import Command from '../../components/Command/Command'
@@ -9,16 +9,24 @@ import DailyLog from './components/DailyLog/DailyLog'
 import clsx from 'clsx'
 import { AnimatePresence } from 'motion/react'
 import { useNavigate } from 'react-router-dom'
-import cancelAudio from './../../assets/audio/cancel.wav'
-import { EEventState, EEventType, IEvent } from './types'
+import { EEventState, EEventType, IEvent, IHoliday } from './types'
 import { SelectedPlate } from './components/SelectedPlate/SelectedPlate'
 import Today from './components/Today/Today'
+import DatePlate from './components/DatePlate/DatePlate'
+import Events from './components/Events/Events'
+import { soundManager } from '../../sound/soundManager'
 
 // just manual map
 const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
 const weekdayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 const maxPastDate = new Date(2023, 0, 1);
+
+async function getHolidays(year: number): Promise<IHoliday[]> {
+  const res = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/RU`);
+  return await res.json();
+}
+
 
 const Timeline = () => {
   // date data
@@ -30,6 +38,9 @@ const Timeline = () => {
   }, [today])
 
   const [selectedDate, setSelectedDate] = useState<Date>(today)
+  const previousDate = useRef(selectedDate)
+
+  // #region positions
   const [rects, setRects] = useState<Map<string, DOMRect>>(new Map())
   const [offset, setOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
 
@@ -72,6 +83,7 @@ const Timeline = () => {
       h: rect.height
     };
   }, [rects, offset, today]);
+// #endregion
 
   const pastSelected = useMemo(() => selectedDate.setHours(0, 0, 0, 0) < today.setHours(0, 0, 0, 0), [selectedDate])
   const navigate = useNavigate();
@@ -81,26 +93,16 @@ const Timeline = () => {
   const [events, setEvents] = useState<Map<string, IEvent[]>>(new Map())
 
   // for c back
-  const cancelSound = new Audio(cancelAudio)
   const [cBackActivated, setCBackActivated] = useState<boolean>(false)
 
   const goBack = () => {
     setCBackActivated(true)
-    cancelSound.play()
-    cancelSound.onended = () => { navigate('/') }
+    soundManager.play('cancel', () => navigate('/'))
   }
 
   const handleKeyPress = useCallback((event: KeyboardEvent) => {
     if (event.key === 'c') {
       goBack()
-      return;
-    }
-
-    if (selectedDate.toLocaleDateString() === maxPastDate.toLocaleDateString() && (event.key === 'w' || event.key === 'a' || event.key === 'ArrowUp' || event.key === 'ArrowLeft' || event.key === 'q')) {
-      return;
-    }
-
-    if (selectedDate.toLocaleDateString() === maxFutureDate.toLocaleDateString() && (event.key === 's' || event.key === 'd' || event.key === 'ArrowDown' || event.key === 'ArrowRight' || event.key === 'e')) {
       return;
     }
 
@@ -135,6 +137,7 @@ const Timeline = () => {
     })
   }, [selectedDate, goBack, maxPastDate, maxFutureDate]);
 
+  // #region useeffect
   // we want to handle key presses
   useEffect(() => {
     window.addEventListener("keydown", handleKeyPress);
@@ -164,7 +167,7 @@ const Timeline = () => {
       if (!data.items) return
 
       data.items.forEach((item: any) => {
-        const eventEng: string = item.summary
+        const eventEng: string = item.summary ?? 'I did not name this event'
         const eventRu: string = item.description ?? eventEng
 
         // if there is a time the date is for a day
@@ -210,10 +213,39 @@ const Timeline = () => {
       })
     }
 
-    fetchEvents(common_id, EEventType.Common)
-    fetchEvents(deadlines_id, EEventType.Deadline)
+    const fetchHolidays = async (year: number) => {
+      const holidays = await getHolidays(year);
+
+      if (!holidays) return
+
+      holidays.forEach((item: IHoliday) => {
+        const eventEng: string = item.name
+        const eventRu: string = item.localName ?? eventEng
+
+        const newEvent: IEvent = { eventEng, eventRu, type: EEventType.Holiday, state: EEventState.Single };
+        addToMap(new Date(item.date).toLocaleDateString(), newEvent);
+        setEvents(eventsMap)
+      })
+    };
+
+    fetchEvents(common_id, EEventType.Common);
+    fetchEvents(deadlines_id, EEventType.Deadline);
+    for (let year = maxPastDate.getFullYear(); year <= maxFutureDate.getFullYear(); year++) {
+      fetchHolidays(year);
+    }
+
   }, [])
 
+  useEffect(() => {
+    if (!selectedDate) return;
+
+    if (selectedDate.getTime() !== previousDate.current.getTime()) {
+        soundManager.play("cursor");
+        previousDate.current = selectedDate;
+    }
+  }, [selectedDate])
+
+  // #endregion
   const clampDate = (date: Date): Date => {
     if (date < maxPastDate) return maxPastDate;
     if (date > maxFutureDate) return maxFutureDate;
@@ -251,10 +283,6 @@ const Timeline = () => {
     return selectedDate.getFullYear() === maxFutureDate.getFullYear() && selectedDate.getMonth() === maxFutureDate.getMonth()
   }, [selectedDate])
 
-  const dateRotate = useMemo(() => {
-    return `rotate(${pastSelected ? -3 : Math.floor(Math.random() * -5)}deg)`
-  }, [pastSelected, selectedDate])
-
   return (
     <div className='w-full cursor-default select-none'>
       <div className="relative w-screen h-screen overflow-hidden">
@@ -287,9 +315,11 @@ const Timeline = () => {
         <Year year={selectedDate.getFullYear()} />
 
         {/* date */}
-        <div className={clsx("absolute text-3xl top-40 right-68 bg-black font-arsenal font-bold pl-25 pr-15 py-3 scale-y-90", pastSelected && 'text-neutral-400' || 'text-white')} style={{ transform: dateRotate }}>
-          <span className='inline-block w-32'>{selectedDate.toLocaleDateString()}</span>&nbsp;&nbsp;&nbsp;({weekdayNames[selectedDate.getDay()]})
-        </div>
+        {selectedDate && <DatePlate pastSelected={pastSelected} selectedDate={selectedDate} dayName={weekdayNames[selectedDate.getDay()]} />}
+
+        {/* events */}
+        {selectedDate && events.has(selectedDate.toLocaleDateString()) && <Events events={events.get(selectedDate.toLocaleDateString())!} pastSelected={pastSelected} />}
+
         {/* which plans do you want to view */}
         <div className={clsx("absolute text-black font-helvetica text-2xl bottom-23 left-20 right-0 -skew-y-5 -skew-x-5 font-black scale-x-95 -rotate-5", pastSelected && 'grey-outline' || 'white-outline')}>
           Which plans do you want to view?
@@ -298,8 +328,9 @@ const Timeline = () => {
         <AnimatePresence>
           {pastSelected && <DailyLog />}
         </AnimatePresence>
+
         {/* <div className="absolute top-10 left-10">
-          <FontHelper text='' size={0} imgSize={[500, 100]} imgPosition={[30, 100]} imgUrl={imgLongEvent}/>
+          <FontHelper text='Showa Day' size={2} imgSize={[600, 200]} imgPosition={[90, 25]} imgUrl={img_event} />
         </div> */}
         {/* c back */}
         <CBack isActivated={cBackActivated} onClick={goBack} />
