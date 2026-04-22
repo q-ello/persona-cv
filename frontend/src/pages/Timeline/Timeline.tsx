@@ -9,24 +9,21 @@ import DailyLog from './components/DailyLog/DailyLog'
 import clsx from 'clsx'
 import { AnimatePresence } from 'motion/react'
 import { useNavigate } from 'react-router-dom'
-import { EEventState, EEventType, IEvent, IHoliday } from './types'
 import { SelectedPlate } from './components/SelectedPlate/SelectedPlate'
 import Today from './components/Today/Today'
 import DatePlate from './components/DatePlate/DatePlate'
 import Events from './components/Events/Events'
 import { soundManager } from '../../sound/soundManager'
+import { EEventState, EEventType, IEvent, IHoliday } from '../../../../shared/types/event'
 
 // just manual map
-const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
+const monthNames : Map<string, string[]> = new Map([
+  ["ru", ['ЯНВ', 'ФЕВ', 'МАРТ', 'АПР', 'МАЙ', 'ИЮНЬ', 'ИЮЛЬ', 'АВГ', 'СЕН', 'ОКТ', 'НОЯ', 'ДЕК']],
+  ["eng", ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']]
+])
 const weekdayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 const maxPastDate = new Date(2023, 0, 1);
-
-async function getHolidays(year: number): Promise<IHoliday[]> {
-  const res = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/RU`);
-  return await res.json();
-}
-
 
 const Timeline = () => {
   // date data
@@ -88,8 +85,6 @@ const Timeline = () => {
   const pastSelected = useMemo(() => selectedDate.setHours(0, 0, 0, 0) < today.setHours(0, 0, 0, 0), [selectedDate])
   const navigate = useNavigate();
 
-  // events data
-  const API_KEY = import.meta.env.VITE_GOOGLE_CALENDAR_API_KEY
   const [events, setEvents] = useState<Map<string, IEvent[]>>(new Map())
 
   // for c back
@@ -149,93 +144,11 @@ const Timeline = () => {
 
   // fetching events
   useEffect(() => {
-    const common_id = import.meta.env.VITE_GOOGLE_COMMON_CALENDAR_ID || ''
-    const deadlines_id = import.meta.env.VITE_GOOGLE_DEADLINES_CALENDAR_ID || ''
-    const eventsMap = new Map<string, IEvent[]>()
-
-    const addToMap = (key: string, event: IEvent) => {
-      if (eventsMap.has(key)) eventsMap.get(key)?.push(event)
-      else eventsMap.set(key, [event])
-    }
-
-    // get events from different calendars
-    const fetchEvents = async (calendarId: string, eventType: EEventType) => {
-      const response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events?key=${API_KEY}`)
-
-      const data = await response.json()
-
-      if (!data.items) return
-
-      data.items.forEach((item: any) => {
-        const eventEng: string = item.summary ?? 'I did not name this event'
-        const eventRu: string = item.description ?? eventEng
-
-        // if there is a time the date is for a day
-
-        if (item.start.dateTime) {
-          const eventStart: Date = new Date(item.start.dateTime)
-          const eventState: EEventState = EEventState.Single
-          const newEvent: IEvent = { eventEng, eventRu, type: eventType, state: eventState }
-          const date = eventStart.toLocaleDateString()
-          addToMap(date, newEvent)
-        }
-        // if event is going for days we need to add every day into the map
-        else if (item.start.date) {
-          const eventStart = new Date(item.start.date)
-          // event end is exclusive
-          const eventEnd = new Date(item.end.date)
-
-          eventEnd.setDate(eventEnd.getDate() - 1)
-
-          const eventState: EEventState = eventStart.toDateString() === eventEnd.toDateString() ? EEventState.Single : EEventState.Start
-          const newEvent: IEvent = { eventEng, eventRu, type: eventType, state: eventState }
-          const date = eventStart.toLocaleDateString()
-          addToMap(date, newEvent)
-
-          //if the start end end are the same then it is a single event, no need to make everything else
-          if (eventStart.toDateString() === eventEnd.toDateString()) {
-            return
-          }
-
-          let d: Date = eventStart
-          d.setDate(d.getDate() + 1)
-          while (d.toDateString() != eventEnd.toDateString()) {
-            const middleEvent = { eventEng, eventRu, type: eventType, state: EEventState.Middle }
-            addToMap(d.toLocaleDateString(), middleEvent)
-            d.setDate(d.getDate() + 1)
-          }
-
-          const finalEvent = { eventEng, eventRu, type: eventType, state: EEventState.End }
-          addToMap(d.toLocaleDateString(), finalEvent)
-        }
-
-        setEvents(eventsMap)
-      })
-    }
-
-    const fetchHolidays = async (year: number) => {
-      const holidays = await getHolidays(year);
-
-      if (!holidays) return
-
-      holidays.forEach((item: IHoliday) => {
-        const eventEng: string = item.name
-        const eventRu: string = item.localName ?? eventEng
-
-        const newEvent: IEvent = { eventEng, eventRu, type: EEventType.Holiday, state: EEventState.Single };
-        addToMap(new Date(item.date).toLocaleDateString(), newEvent);
-        setEvents(eventsMap)
-      })
-    };
-
-    fetchEvents(common_id, EEventType.Common);
-    fetchEvents(deadlines_id, EEventType.Deadline);
-    for (let year = maxPastDate.getFullYear(); year <= maxFutureDate.getFullYear(); year++) {
-      fetchHolidays(year);
-    }
-
+    //TODO events 
+  
   }, [])
 
+  //sound for selection
   useEffect(() => {
     if (!selectedDate) return;
 
@@ -245,7 +158,18 @@ const Timeline = () => {
     }
   }, [selectedDate])
 
+  useEffect(() => {
+    const fetchObjectives = async () => {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/timeline/objectives`);
+
+      console.log(response)
+    }
+
+    fetchObjectives();
+  }, []);
+
   // #endregion
+
   const clampDate = (date: Date): Date => {
     if (date < maxPastDate) return maxPastDate;
     if (date > maxFutureDate) return maxFutureDate;
@@ -310,7 +234,7 @@ const Timeline = () => {
         {/* white screen */}
         <div className={clsx("absolute top-0 right-[-10%] w-[50%] h-full -skew-x-[23deg]", pastSelected && 'bg-neutral-400' || 'bg-white')}></div>
         {/* month */}
-        <Month month={monthNames[selectedDate.getMonth()]} bgColor={pastSelected ? 'bg-neutral-400' : 'bg-white'} qEnabled={!isOnMaxPastMonth} eEnabled={!isOnMaxFutureMonth} onMonthChanged={onMonthChanged} />
+        <Month month={monthNames.get("eng")?.[selectedDate.getMonth()] ?? "???"} bgColor={pastSelected ? 'bg-neutral-400' : 'bg-white'} qEnabled={!isOnMaxPastMonth} eEnabled={!isOnMaxFutureMonth} onMonthChanged={onMonthChanged} />
         {/* year */}
         <Year year={selectedDate.getFullYear()} />
 

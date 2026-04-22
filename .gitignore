@@ -7,16 +7,16 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+*/node_modules
+*/dist
+*/dist-ssr
 *.local
 
 # Editor directories and files
-.vscode/*
+*/.vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
+*/.idea
+*/.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
@@ -24,7 +24,7 @@ dist-ssr
 *.sw?
 
 #files from persona
-p5r_data/
+*/p5r_data/
 
 #environment keys
-.env
+*/.env

@@ -8,4 +8,13 @@ export default defineConfig({
     react(),
     tailwindcss()
   ],
+  server: {
+    proxy: {
+      '/notion-api': {
+        target: 'https://api.notion.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/notion-api/, '')
+      }
+    }
+  }
 })

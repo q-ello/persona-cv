@@ -34,10 +34,3 @@ export interface IEvent
     eventRu: string,
     type: EEventType
 }
-
-export interface IObjective
-{
-    objectiveEng: string,
-    objectiveRu: string
-    checked: boolean
-}
