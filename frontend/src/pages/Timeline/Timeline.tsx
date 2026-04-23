@@ -15,6 +15,7 @@ import DatePlate from './components/DatePlate/DatePlate'
 import Events from './components/Events/Events'
 import { soundManager } from '../../sound/soundManager'
 import { EEventState, EEventType, IEvent, IHoliday } from '../../../../shared/types/event'
+import { fetchObjectives } from '../../services/api'
 
 // just manual map
 const monthNames : Map<string, string[]> = new Map([
@@ -159,12 +160,6 @@ const Timeline = () => {
   }, [selectedDate])
 
   useEffect(() => {
-    const fetchObjectives = async () => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/timeline/objectives`);
-
-      console.log(response)
-    }
-
     fetchObjectives();
   }, []);
 

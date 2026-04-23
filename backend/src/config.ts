@@ -1,24 +1,34 @@
-export const config = {
+import {IConfig} from "./types/config.types";
+
+export const requireEnvVariable = (name: string): string => {
+    const value = process.env[name];
+    if (!value) {
+        throw new Error(`Environment variable ${name} is required but not set.`);
+    }
+    return value;
+}
+
+export const config : IConfig = {
     notion: {
-        secret: '',
-        objectivesDatasourceId: ''
+        secret: "",
+        objectivesDatasourceId: ""
     },
     googleCalendar: {
-        apiKey: '',
-        commonCalendarId: '',
-        deadlinesCalendarId: ''
+        apiKey: "",
+        commonCalendarId: "",
+        deadlinesCalendarId: ""
     }
-}
+};
 
 export const loadConfig = () => {
     config.notion = {
-        secret: process.env.NOTION_SECRET!,
-        objectivesDatasourceId: process.env.NOTION_OBJECTIVES_DATASOURCE_ID!
+        secret: requireEnvVariable("NOTION_SECRET"),
+        objectivesDatasourceId: requireEnvVariable("NOTION_OBJECTIVES_DATASOURCE_ID")
     }
 
     config.googleCalendar = {
-        apiKey: process.env.GOOGLE_CALENDAR_API_KEY!,
-        commonCalendarId: process.env.GOOGLE_COMMON_CALENDAR_ID!,
-        deadlinesCalendarId: process.env.GOOGLE_DEADLINES_CALENDAR_ID!
+        apiKey: requireEnvVariable("GOOGLE_CALENDAR_API_KEY"),
+        commonCalendarId: requireEnvVariable("GOOGLE_COMMON_CALENDAR_ID"),
+        deadlinesCalendarId: requireEnvVariable("GOOGLE_DEADLINES_CALENDAR_ID")
     }
 }

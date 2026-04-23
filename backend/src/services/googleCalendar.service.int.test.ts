@@ -1,0 +1,13 @@
+import { requireEnvVariable } from "../config";
+import { createGoogleCalendarService } from "./googleCalendar.service";
+
+describe("Integration: Google Calendar", () => {
+    it("should fetch real events from Google Calendar", async () => {
+        const service = createGoogleCalendarService({ apiKey: requireEnvVariable("GOOGLE_CALENDAR_API_KEY"), commonCalendarId: requireEnvVariable("GOOGLE_CALENDAR_COMMON_ID"), deadlinesCalendarId: requireEnvVariable("GOOGLE_CALENDAR_DEADLINES_ID") }, jest.fn());
+
+        const result = await service.getGoogleCalendarEvents(2026, 3); // April 2026
+        expect(Array.isArray(result)).toBe(true);
+        expect(result[0]).toHaveProperty("date");
+        expect(result[0]).toHaveProperty("event");
+    });
+});
