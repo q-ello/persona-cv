@@ -11,6 +11,7 @@ lerna-debug.log*
 */dist
 */dist-ssr
 *.local
+*/build/
 
 # Editor directories and files
 */.vscode/*
@@ -28,3 +29,7 @@ lerna-debug.log*
 
 #environment keys
 */.env
+*/.docker.env
+
+backend/jest-stare/
+node_modules

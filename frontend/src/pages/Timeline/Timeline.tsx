@@ -14,7 +14,7 @@ import Today from './components/Today/Today'
 import DatePlate from './components/DatePlate/DatePlate'
 import Events from './components/Events/Events'
 import { soundManager } from '../../sound/soundManager'
-import { EEventState, EEventType, IEvent, IHoliday } from '../../../../shared/types/event'
+import { EEventState, EEventType, IEvent, IHoliday } from '../../../../shared/src/types/event'
 import { fetchObjectives } from '../../services/api'
 
 // just manual map

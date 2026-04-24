@@ -1,5 +1,5 @@
 import { Client } from "@notionhq/client";
-import { IObjective } from '@shared/types/notion';
+import { IObjective } from '@cv/shared';
 import { INotionConfig } from "../types/config.types";
 
 export const createNotionService = (notion: Client,  deps: INotionConfig) => {

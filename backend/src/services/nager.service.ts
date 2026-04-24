@@ -1,5 +1,6 @@
-import { EEventState, EEventType, IEvent, IHoliday } from '@shared/types/event';
+import { EEventState, EEventType, IEvent, IHoliday } from '@cv/shared';
 import { IRawEvent } from '../types/events.types';
+import { getGeneralString } from '../utils';
 
 export const createNagerService = (fetchFn: typeof fetch) => {
 
@@ -28,7 +29,7 @@ export const createNagerService = (fetchFn: typeof fetch) => {
 
             const eventEng: string = item.name;
             const eventRu: string = item.localName ?? eventEng;
-            const date: string = new Date(item.date).toLocaleDateString();
+            const date: string = getGeneralString(new Date(item.date));
             const event: IEvent = { eventEng, eventRu, type: EEventType.Holiday, state: EEventState.Single }
 
             return { date, event };

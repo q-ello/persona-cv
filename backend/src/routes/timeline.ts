@@ -1,15 +1,16 @@
 import express from 'express';
-import { IEvent } from '@shared/types/event';
+import { IEvent } from '@cv/shared';
 import { createNotionService } from '../services/notion.service';
 import { createGoogleCalendarService } from '../services/googleCalendar.service';
 import { createNagerService } from '../services/nager.service';
+import { mergeEvents } from '../utils';
 
-const router = express.Router();
 
-export const createTimelineRouter = (notionService: ReturnType<typeof createNotionService>, 
+export const createTimelineRouter = (notionService: ReturnType<typeof createNotionService>,
     googleCalendarService: ReturnType<typeof createGoogleCalendarService>,
     nagerService: ReturnType<typeof createNagerService>
 ) => {
+    const router = express.Router();
 
     router.get('/objectives', async (req, res) => {
         try {
@@ -30,7 +31,7 @@ export const createTimelineRouter = (notionService: ReturnType<typeof createNoti
 
             const monthNum = parseInt(month as string);
             const yearNum = parseInt(year as string);
-            if (isNaN(monthNum) || isNaN(yearNum) || monthNum < 1 || monthNum > 12) {
+            if (isNaN(monthNum) || isNaN(yearNum) || monthNum < 0 || monthNum > 11) {
                 return res.status(400).json({ error: "Invalid month or year format" });
             }
 
@@ -39,16 +40,7 @@ export const createTimelineRouter = (notionService: ReturnType<typeof createNoti
                 nagerService.getHolidaysEvents(yearNum, monthNum)
             ]);
 
-
-            const eventsRecord: Record<string, IEvent[]> = {}
-
-            const addToMap = (key: string, event: IEvent) => {
-                if (eventsRecord[key]) eventsRecord[key].push(event);
-                else eventsRecord[key] = [event];
-            }
-
-            googleEvents.forEach(({ date, event }) => addToMap(date, event));
-            nagerEvents.forEach(({ date, event }) => addToMap(date, event));
+            const eventsRecord: Record<string, IEvent[]> = mergeEvents(googleEvents, nagerEvents);
 
             res.json(eventsRecord);
 

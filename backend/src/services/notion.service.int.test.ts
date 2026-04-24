@@ -1,5 +1,5 @@
 import { createNotionService } from "./notion.service";
-import { requireEnvVariable } from "../config";
+import { requireEnvVariable } from "../utils";
 
 describe("Integration: Notion", () => {
     it("fetches real data", async () => {

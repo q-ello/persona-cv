@@ -1,5 +1,5 @@
 import { createNotionService } from "./notion.service";
-import { requireEnvVariable } from "../config";
+import { requireEnvVariable } from "../utils";
 
 describe("NotionService", () => {
     it("maps valid response to objectives", async () => {

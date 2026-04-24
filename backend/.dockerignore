@@ -1,0 +1,15 @@
+**/node_modules
+**/dist
+**/build
+**/coverage
+**/jest-stare
+
+**/.git
+**/.gitignore
+
+**/.env
+**/*.log
+
+**/Dockerfile
+**/Dockerfile.dev
+**/docker-compose*.yml

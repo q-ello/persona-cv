@@ -1,5 +1,5 @@
 import { createGoogleCalendarService } from "./googleCalendar.service";
-import { EEventState } from "@shared/types/event";
+import { EEventState } from "@cv/shared";
 
 describe("GoogleCalendarService", () => {
 

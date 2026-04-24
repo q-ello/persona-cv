@@ -1,14 +1,11 @@
-import { EEventState, EEventType, IEvent } from '@shared/types/event';
+import { EEventState, EEventType, IEvent } from '@cv/shared';
 import { IRawEvent } from '../types/events.types';
 import { IGoogleCalendarConfig } from '../types/config.types';
+import { getGeneralString } from '../utils';
 
 export const createGoogleCalendarService = (deps: IGoogleCalendarConfig, fetchFn : typeof fetch) => {
     const getGoogleCalendarEvents = async (year: number, month: number): Promise<IRawEvent[]> => {
         const rawEvents: IRawEvent[] = [];
-
-        const getGeneralString = (date: Date) => {
-            return date.toISOString().split('T')[0];
-        }
 
         const fetchEvents = async (calendarId: string, eventType: EEventType) => {
             const apiUrl = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`;
