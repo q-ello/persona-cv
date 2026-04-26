@@ -1,2 +1,2 @@
-export * from "./types/event"
-export * from './types/notion'
+export * from "./types/event.js"
+export * from './types/notion.js'

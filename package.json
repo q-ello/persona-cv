@@ -4,5 +4,11 @@
         "backend",
         "frontend",
         "shared"
-    ]
+    ],
+    "scripts": {
+        "dev": "concurrently \"npm --prefix shared run watch\" \"npm --prefix backend run dev\""
+    },
+    "dependencies": {
+        "concurrently": "^9.2.1"
+    }
 }
