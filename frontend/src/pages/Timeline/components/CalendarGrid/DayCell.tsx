@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
-import { EEventState, EEventType, EWeekday, IEvent } from "../../types";
 import { clsx } from "clsx";
+import { EEventState, EEventType, EWeekday, getGeneralString, IEvent } from "@cv/shared";
 
 interface IDayCellProps {
     index: number,
@@ -46,13 +46,13 @@ const DayCell = (props: IDayCellProps) => {
     const date = new Date(year, month, parseInt(number, 10))
     const isFuture = date > now
 
-    const isDeadline = (events?.get(date.toLocaleDateString())?.some(e => e.type === EEventType.Deadline) && isFuture) ?? false;
-    const isHoliday = events?.get(date.toLocaleDateString())?.some(e => e.type === EEventType.Holiday) ?? false;
+    const isDeadline = (events?.get(getGeneralString(date))?.some(e => e.type === EEventType.Deadline) && isFuture) ?? false;
+    const isHoliday = events?.get(getGeneralString(date))?.some(e => e.type === EEventType.Holiday) ?? false;
     if (isHoliday || isDeadline) {
         dayType = EWeekday.Holiday
     }
 
-    const eventState: EEventState = events?.get(date.toLocaleDateString())?.reduce((val, curr) => curr.state === EEventState.Middle ? curr : val).state ?? (isHoliday ? EEventState.Single : EEventState.None)
+    const eventState: EEventState = events?.get(getGeneralString(date))?.reduce((val, curr) => curr.state === EEventState.Middle ? curr : val).state ?? (isHoliday ? EEventState.Single : EEventState.None)
 
     const renderEvent = (eventState: EEventState, isFuture: boolean) => {
         const eventColor = isFuture && 'bg-neutral-200' || 'bg-neutral-400';

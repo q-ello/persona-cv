@@ -1,16 +1,26 @@
 {
     "name": "@cv/shared",
     "version": "1.0.0",
-    "main": "dist/index.js",
+    "main": "dist/index.cjs",
+    "module": "dist/index.js",
     "types": "dist/index.d.ts",
+    "type": "module",
     "files": [
         "dist"
     ],
     "scripts": {
-        "build": "tsc",
-        "watch": "tsc --watch"
+        "build": "tsup",
+        "watch": "tsup --watch"
     },
-    "dependencies": {
+    "devDependencies": {
+        "tsup": "^8.5.1",
         "typescript": "^6.0.3"
+    },
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "require": "./dist/index.cjs",
+            "types": "./dist/index.d.ts"
+        }
     }
 }

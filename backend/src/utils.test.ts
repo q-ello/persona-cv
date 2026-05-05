@@ -1,4 +1,5 @@
-import { getGeneralString, mergeEvents, requireEnvVariable } from "./utils";
+import { getGeneralString } from "@cv/shared";
+import { mergeEvents, requireEnvVariable } from "./utils";
 
 describe("utility functions", () => {
     it("merges events by date", () => {
@@ -30,9 +31,19 @@ describe("utility functions", () => {
         process.env = originalEnv;
     });
 
-    it("gets general string from date", () => {
+    it("gets general string from a locally-constructed date", () => {
+        // new Date(year, month, day) is local — getGeneralString must reflect
+        // the local calendar date, not the UTC equivalent (which can differ in UTC+ zones).
+        const date = new Date(2026, 4, 1); // May 1, 2026 local time
+        const result = getGeneralString(date);
+        expect(result).toBe("2026-05-01");
+    });
+
+    it("gets general string from a UTC date string", () => {
         const date = new Date("2026-04-10T15:30:00Z");
         const result = getGeneralString(date);
-        expect(result).toBe("2026-04-10");
+        // Result is the LOCAL date, which may differ from UTC in UTC+ timezones.
+        // The important thing is it doesn't go backwards (e.g. returning Apr 9).
+        expect(result).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     });
 })

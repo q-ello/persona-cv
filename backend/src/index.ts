@@ -6,6 +6,7 @@ import { createNotionService } from "./services/notion.service";
 import { createTimelineRouter } from "./routes/timeline";
 import { createGoogleCalendarService } from "./services/googleCalendar.service";
 import { createNagerService } from "./services/nager.service";
+import cors from "cors";
 
 dotenv.config();
 loadConfig();
@@ -17,6 +18,10 @@ const nagerService = createNagerService(fetch);
 
 const app = express();
 const PORT = 3001;
+
+app.use(cors({
+  origin: "http://localhost:5173",
+}));
 
 app.use("/api/timeline", createTimelineRouter(notionService, googleCalendarService, nagerService));
 

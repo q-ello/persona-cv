@@ -13,12 +13,13 @@ import { SelectedPlate } from './components/SelectedPlate/SelectedPlate'
 import Today from './components/Today/Today'
 import DatePlate from './components/DatePlate/DatePlate'
 import Events from './components/Events/Events'
-import { soundManager } from '../../sound/soundManager'
-import { EEventState, EEventType, IEvent, IHoliday } from '../../../../shared/src/types/event'
-import { fetchObjectives } from '../../services/api'
+import { soundManager } from '../../services/sound/soundManager'
+import { getGeneralString, IEvent } from '@cv/shared'
+import { timelineApi } from '../../services/api/api'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 
 // just manual map
-const monthNames : Map<string, string[]> = new Map([
+const monthNames: Map<string, string[]> = new Map([
   ["ru", ['ЯНВ', 'ФЕВ', 'МАРТ', 'АПР', 'МАЙ', 'ИЮНЬ', 'ИЮЛЬ', 'АВГ', 'СЕН', 'ОКТ', 'НОЯ', 'ДЕК']],
   ["eng", ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']]
 ])
@@ -81,12 +82,16 @@ const Timeline = () => {
       h: rect.height
     };
   }, [rects, offset, today]);
-// #endregion
+  // #endregion
 
-  const pastSelected = useMemo(() => selectedDate.setHours(0, 0, 0, 0) < today.setHours(0, 0, 0, 0), [selectedDate])
+  const pastSelected = useMemo(() => {
+    const s = new Date(selectedDate);
+    const t = new Date(today);
+    s.setHours(0, 0, 0, 0);
+    t.setHours(0, 0, 0, 0)
+    return s < t;
+  }, [selectedDate, today])
   const navigate = useNavigate();
-
-  const [events, setEvents] = useState<Map<string, IEvent[]>>(new Map())
 
   // for c back
   const [cBackActivated, setCBackActivated] = useState<boolean>(false)
@@ -143,24 +148,47 @@ const Timeline = () => {
     };
   }, []);
 
-  // fetching events
+  const month = selectedDate.getMonth();
+  const year = selectedDate.getFullYear();
+
+  const queryClient = useQueryClient();
+
   useEffect(() => {
-    //TODO events 
-  
-  }, [])
+    queryClient.prefetchQuery({
+      queryKey: ['timeline', year, month + 1],
+      queryFn: () => timelineApi.getMonthEvents(year, month + 1)
+    });
+
+    queryClient.prefetchQuery({
+      queryKey: ['timeline', year, month - 1],
+      queryFn: () => timelineApi.getMonthEvents(year, month - 1)
+    });
+  }, [month, year]);
+
+  const { data: eventsData } = useQuery<Record<string, IEvent[]>>({
+    queryKey: ['timeline', year, month],
+    queryFn: () => timelineApi.getMonthEvents(year, month)
+  });
+
+  const events = useMemo(() => {
+    if (!eventsData) {
+      return new Map();
+    }
+    return new Map(Object.entries(eventsData));
+  }, [eventsData])
 
   //sound for selection
   useEffect(() => {
     if (!selectedDate) return;
 
     if (selectedDate.getTime() !== previousDate.current.getTime()) {
-        soundManager.play("cursor");
-        previousDate.current = selectedDate;
+      soundManager.play("cursor");
+      previousDate.current = selectedDate;
     }
   }, [selectedDate])
 
   useEffect(() => {
-    fetchObjectives();
+    timelineApi.getObjectives();
   }, []);
 
   // #endregion
@@ -237,7 +265,7 @@ const Timeline = () => {
         {selectedDate && <DatePlate pastSelected={pastSelected} selectedDate={selectedDate} dayName={weekdayNames[selectedDate.getDay()]} />}
 
         {/* events */}
-        {selectedDate && events.has(selectedDate.toLocaleDateString()) && <Events events={events.get(selectedDate.toLocaleDateString())!} pastSelected={pastSelected} />}
+        {selectedDate && events.has(getGeneralString(selectedDate)) && <Events events={events.get(getGeneralString(selectedDate))!} pastSelected={pastSelected} />}
 
         {/* which plans do you want to view */}
         <div className={clsx("absolute text-black font-helvetica text-2xl bottom-23 left-20 right-0 -skew-y-5 -skew-x-5 font-black scale-x-95 -rotate-5", pastSelected && 'grey-outline' || 'white-outline')}>

@@ -34,6 +34,22 @@ describe('getHolidaysEvents', () => {
         expect(result.length).toBe(0);
     });
 
+    it('uses the date string directly as the map key (no UTC shift)', async () => {
+        // This test guards against the timezone bug: new Date("2026-05-01") is UTC midnight,
+        // which in UTC+3 is April 30 locally. The key must remain "2026-05-01".
+        const fetchMock = jest.fn().mockResolvedValue({
+            json: async () => [
+                { date: '2026-05-01', name: 'Labour Day', localName: 'Праздник труда' }
+            ]
+        });
+
+        const service = createNagerService(fetchMock);
+        const result = await service.getHolidaysEvents(2026, 4); // May (0-based)
+
+        expect(result.length).toBe(1);
+        expect(result[0].date).toBe('2026-05-01');
+    });
+
     it("caches holidays by year", async () => {
         const fetchMock = jest.fn().mockResolvedValue({
             json: async () => [{ date: '2024-01-01', name: 'New Year' }]

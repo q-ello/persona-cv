@@ -1,6 +1,5 @@
-import { EEventState, EEventType, IEvent, IHoliday } from '@cv/shared';
+import { EEventState, EEventType, getGeneralString, getMonthFromDateString, IEvent, IHoliday } from '@cv/shared';
 import { IRawEvent } from '../types/events.types';
-import { getGeneralString } from '../utils';
 
 export const createNagerService = (fetchFn: typeof fetch) => {
 
@@ -23,17 +22,19 @@ export const createNagerService = (fetchFn: typeof fetch) => {
         if (!holidays) return []
 
         const events: IRawEvent[] = (holidays.map((item: IHoliday) => {
-            if (new Date(item.date).getMonth() !== month) {
+            if (getMonthFromDateString(item.date) !== month + 1) {
                 return null;
             }
 
             const eventEng: string = item.name;
             const eventRu: string = item.localName ?? eventEng;
-            const date: string = getGeneralString(new Date(item.date));
+            const date: string = item.date;
             const event: IEvent = { eventEng, eventRu, type: EEventType.Holiday, state: EEventState.Single }
 
             return { date, event };
         })).filter((event: IRawEvent | null): event is IRawEvent => event !== null);
+
+        console.log(events)
 
         return events;
     };

@@ -1,6 +1,8 @@
 {
   "dependencies": {
+    "@cv/shared": "*",
     "@notionhq/client": "^5.20.0",
+    "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "tsconfig-paths": "^4.2.0"
@@ -19,6 +21,7 @@
   "license": "ISC",
   "description": "backend for walking around CORS",
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jest": "^30.0.0",
     "@types/node": "^25.6.0",
