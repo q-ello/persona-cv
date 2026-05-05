@@ -1,0 +1,390 @@
+/* badaboom */
+@font-face {
+  font-family: BadaBoom;
+  src: url("src\\assets\\fonts\\AA BadaBoom BB\\aa_badaboom_bb.ttf");
+}
+
+/* #region anime ace */
+@font-face {
+  font-family: AnimeAce;
+  src: url("src\\assets\\fonts\\Anime Ace\\animeace2_reg.otf");
+}
+
+@font-face {
+  font-family: AnimeAce;
+  font-weight: bold;
+  src: url("src\\assets\\fonts\\Anime Ace\\animeace2_bld.otf");
+}
+
+@font-face {
+  font-family: AnimeAce;
+  font-style: italic;
+  src: url("src\\assets\\fonts\\Anime Ace\\animeace2_ital.otf");
+}
+
+@font-face {
+  font-family: AnimeAce;
+  src: url("src\\assets\\fonts\\Anime Ace\\animeace2_reg.otf");
+}
+
+/* #endregion */
+
+/* #region arsenal */
+@font-face {
+  font-family: Arsenal;
+  src: url("src\\assets\\fonts\\Arsenal\\Arsenal-Bold.ttf");
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: Arsenal;
+  src: url("src\\assets\\fonts\\Arsenal\\Arsenal-BoldItalic.ttf");
+  font-weight: bold;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Arsenal;
+  src: url("src\\assets\\fonts\\Arsenal\\Arsenal-Italic.ttf");
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Arsenal;
+  src: url("src\\assets\\fonts\\Arsenal\\Arsenal-Regular.ttf");
+}
+/* #endregion */
+
+/* bubblegum superstar */
+@font-face {
+  font-family: Bubblegum;
+  src: url("src\\assets\\fonts\\bubblegum_superstar\\BUBBS___.TTF");
+}
+
+/* calaboose */
+@font-face {
+  font-family: Calaboose;
+  src: url("src\\assets\\fonts\\calaboose\\calabooseDEMO.otf");
+}
+
+/* casad */
+@font-face {
+  font-family: Casad;
+  src: url("src\\assets\\fonts\\casad\\7fonts.ru_Casad.ttf");
+}
+
+/* #region cooper */
+@font-face {
+  font-family: Cooper;
+  src: url("src\\assets\\fonts\\cooper\\COOPBL.TTF");
+  font-weight: black;
+}
+
+@font-face {
+  font-family: Cooper;
+  src: url("src\\assets\\fonts\\cooper\\cooper-bt-medium.otf");
+  font-weight: medium;
+}
+
+@font-face {
+  font-family: Cooper;
+  src: url("src\\assets\\fonts\\cooper\\Cooper Bold BT.ttf");
+  font-weight: bold;
+}
+
+/* #endregion */
+
+/* earwig factory */
+@font-face {
+  font-family: Earwig;
+  src: url("src\\assets\\fonts\\earwig_factory\\earwig factory rg.otf");
+}
+
+/* gunny rewritten*/
+@font-face {
+  font-family: Gunny;
+  src: url("src\\assets\\fonts\\gunny-rewritten\\gnyrwn971.ttf");
+}
+
+/* #region Helvetica */
+@font-face {
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Black.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Black.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Black.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Black.woff2");
+  font-weight: 900;
+}
+
+@font-face {
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-BlackIta.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-BlackIta.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-BlackIta.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-BlackIta.woff2");
+  font-weight: 900;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Bold.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Bold.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Bold.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Bold.woff2");
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-BoldIta.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-BoldIta.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-BoldIta.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-BoldIta.woff2");
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtBdIta.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtBdIta.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtBdIta.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtBdIta.woff2");
+  font-weight: 800;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtraBold.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtraBold.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtraBold.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtraBold.woff2");
+  font-weight: 900;
+}
+
+@font-face {
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtLt.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtLt.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtLt.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtLt.woff2");
+  font-weight: 200;
+}
+
+@font-face {
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtLtIta.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtLtIta.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtLtIta.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-ExtLtIta.woff2");
+  font-weight: 200;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Hairline.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Hairline.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Hairline.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Hairline.woff2");
+  font-weight: 100;
+}
+
+@font-face {
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-HairlineI.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-HairlineI.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-HairlineI.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-HairlineI.woff2");
+  font-weight: 100;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Light.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Light.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Light.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Light.woff2");
+  font-weight: 200;
+}
+
+@font-face {
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-LightIta.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-LightIta.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-LightIta.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-LightIta.woff2");
+  font-weight: 200;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-MedIta.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-MedIta.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-MedIta.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-MedIta.woff2");
+  font-weight: 500;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Medium.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Medium.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Medium.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Medium.woff2");
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-RegIta.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-RegIta.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-RegIta.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-RegIta.woff2");
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: Helvetica;
+  src: 
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Regular.eot"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Regular.ttf"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Regular.woff"),
+    url("src\\assets\\fonts\\helvetica\\HelveticaNowDisplay-Regular.woff2");
+  font-weight: 400;
+}
+/* #endregion */
+
+/* milker */
+@font-face {
+  font-family: Milker;
+  src: url("src/assets/fonts/milker/Milker.otf");
+}
+
+/* none away from the moon */
+@font-face {
+  font-family: Moon;
+  src: url("src/assets/fonts/NoneAwayFromTheMoon/NoneAwayFromTheMoon-OjK3.ttf")
+}
+
+
+@import "tailwindcss";
+
+@theme {
+  --font-badaboom: BadaBoom, "sans-serif";
+  --font-anime: AnimeAce, "sans-serif";
+  --font-arsenal: Arsenal, "sans-serif";
+  --font-bubblegum: Bubblegum, "sans-serif";
+  --font-calaboose: Calaboose, "sans-serif";
+  --font-casad: Casad, "sans-serif";
+  --font-cooper: Cooper, "sans-serif";
+  --font-earwig: Earwig, "sans-serif";
+  --font-gunny: Gunny, "sans-serif";
+  --font-helvetica: Helvetica, "sans-serif";
+  --font-milker: Milker, "sans-serif";
+  --font-moon: Moon, "sans-serif";
+}
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+html, body, #root {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: default;
+}
+
+.button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+.button:hover {
+  border-color: #646cff;
+}
+.button:focus,
+.button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}

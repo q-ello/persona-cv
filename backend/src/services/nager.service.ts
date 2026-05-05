@@ -1,36 +1,43 @@
-import { EEventState, EEventType, IEvent, IHoliday } from '@shared/types/event';
+import { EEventState, EEventType, getGeneralString, getMonthFromDateString, IEvent, IHoliday } from '@cv/shared';
 import { IRawEvent } from '../types/events.types';
 
-const holidaysCache = new Map<number, IHoliday[]>();
+export const createNagerService = (fetchFn: typeof fetch) => {
 
-async function getHolidays(year: number): Promise<IHoliday[]> {
-    if (holidaysCache.has(year)) {
-        return holidaysCache.get(year)!;
-    }
-    const res = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/RU`);
-    const holidays = await res.json();
-    holidaysCache.set(year, holidays);
+    const holidaysCache = new Map<number, IHoliday[]>();
 
-    return holidays;
-}
-
-export const getHolidaysEvents = async (year: number, month: number) : Promise<IRawEvent[]> => {
-    const holidays = await getHolidays(year);
-
-    if (!holidays) return []
-
-    const events: IRawEvent[] = (holidays.map((item: IHoliday) => {
-        if (new Date(item.date).getMonth() !== month) {
-            return null;
+    async function getHolidays(year: number): Promise<IHoliday[]> {
+        if (holidaysCache.has(year)) {
+            return holidaysCache.get(year)!;
         }
+        const res = await fetchFn(`https://date.nager.at/api/v3/PublicHolidays/${year}/RU`);
+        const holidays = await res.json();
+        holidaysCache.set(year, holidays);
 
-        const eventEng: string = item.name;
-        const eventRu: string = item.localName ?? eventEng;
-        const date: string = new Date(item.date).toLocaleDateString();
-        const event: IEvent = { eventEng, eventRu, type: EEventType.Holiday, state: EEventState.Single }
+        return holidays;
+    }
 
-        return { date, event };
-    })).filter((event: IRawEvent | null): event is IRawEvent => event !== null);
+    const getHolidaysEvents = async (year: number, month: number): Promise<IRawEvent[]> => {
+        const holidays = await getHolidays(year);
 
-    return events;
-};
+        if (!holidays) return []
+
+        const events: IRawEvent[] = (holidays.map((item: IHoliday) => {
+            if (getMonthFromDateString(item.date) !== month + 1) {
+                return null;
+            }
+
+            const eventEng: string = item.name;
+            const eventRu: string = item.localName ?? eventEng;
+            const date: string = item.date;
+            const event: IEvent = { eventEng, eventRu, type: EEventType.Holiday, state: EEventState.Single }
+
+            return { date, event };
+        })).filter((event: IRawEvent | null): event is IRawEvent => event !== null);
+
+        console.log(events)
+
+        return events;
+    };
+
+    return { getHolidaysEvents };
+}

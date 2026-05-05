@@ -1,4 +1,4 @@
-import { EEventType } from '../../types';
+import { EEventType } from '@cv/shared';
 import clsx from 'clsx';
 
 interface IEventProps {
