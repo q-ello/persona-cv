@@ -1,9 +1,9 @@
 import { useMemo } from 'react'
 import WeekDay from '../WeekDay/WeekDay'
-import { IEvent } from '../../types';
 import './CalendarGrid.css'
 import DayCell from './DayCell';
 import React from 'react';
+import { IEvent } from '@cv/shared';
 
 interface ICalendarProps {
     year: number,
@@ -17,7 +17,7 @@ const CalendarGrid = (props: ICalendarProps) => {
     const { year, month, events, onDateHovered, onCellLayout } = props
     const daysNumbers: string[] = useMemo(() => {
         const days: string[] = []
-        const firstWeekDay = new Date(year, month, 1).getUTCDay()
+        const firstWeekDay = new Date(year, month, 1).getDay()
         const daysInMonth = new Date(year, month + 1, 0).getDate()
         for (let i = 0; i < firstWeekDay; i++)
             days.push('')

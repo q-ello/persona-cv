@@ -1,4 +1,4 @@
-import { IEvent } from '../../types'
+import { IEvent } from '@cv/shared';
 import Event from './Event';
 
 interface IEventsProps {

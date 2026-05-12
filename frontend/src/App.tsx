@@ -6,8 +6,8 @@ import Confidants from './pages/Confidants/Confidants'
 import Settings from './pages/Settings/Settings'
 import Projects from './pages/Projects/Projects'
 import { useEffect } from 'react'
-import { soundManager } from './sound/soundManager'
-import { UISounds } from './sound/sounds'
+import { soundManager } from './services/sound/soundManager'
+import { UISounds } from './services/sound/sounds'
 
 function App() {
   useEffect(() => {

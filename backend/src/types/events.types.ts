@@ -1,4 +1,4 @@
-import { IEvent } from "@shared/types/event";
+import { IEvent } from "@cv/shared";
 
 export interface IRawEvent
 {
