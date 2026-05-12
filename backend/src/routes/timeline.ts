@@ -1,8 +1,8 @@
 import express from 'express';
 import { IEvent } from '@cv/shared';
-import { createNotionService } from '../services/notion.service';
-import { createGoogleCalendarService } from '../services/googleCalendar.service';
-import { createNagerService } from '../services/nager.service';
+import { createNotionService } from '../services/notion/notion.service';
+import { createGoogleCalendarService } from '../services/googleCalendar/googleCalendar.service';
+import { createNagerService } from '../services/nager/nager.service';
 import { mergeEvents } from '../utils';
 
 

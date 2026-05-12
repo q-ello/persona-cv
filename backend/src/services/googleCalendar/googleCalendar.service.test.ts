@@ -1,35 +1,20 @@
 import { createGoogleCalendarService } from "./googleCalendar.service";
 import { EEventState } from "@cv/shared";
+import { createGoogleCalendarTestService } from "./googleCalendar.service.factory";
+import { createGoogleCalendarEvent } from "./googleCalendar.builders";
 
 describe("GoogleCalendarService", () => {
 
-    const setup = (mockResponse: any) => {
-        const fetchMock = jest.fn().mockResolvedValue({
-            json: async () => mockResponse
-        });
-
-        const service = createGoogleCalendarService(
-            {
-                apiKey: "test",
-                commonCalendarId: "common",
-                deadlinesCalendarId: "deadlines"
-            },
-            fetchMock
-        );
-
-        return { service, fetchMock };
-    };
-
     it("handles single day event", async () => {
-        const { service } = setup({
+        const { service } = createGoogleCalendarTestService({json: {
             items: [
-                {
+                createGoogleCalendarEvent({
                     summary: "Single Day Event",
                     description: "Однодневное событие",
                     start: { dateTime: "2025-05-10T10:00:00Z" }
-                }
+                })
             ]
-        });
+        }});
 
         const result = await service.getGoogleCalendarEvents(2025, 4);
 
@@ -38,15 +23,15 @@ describe("GoogleCalendarService", () => {
     });
 
     it("splits multi-day events correctly", async () => {
-        const { service } = setup({
+        const { service } = createGoogleCalendarTestService({json: {
             items: [
-                {
+                createGoogleCalendarEvent({
                     summary: "Trip",
                     start: { date: "2025-05-10" },
                     end: { date: "2025-05-13" } // exclusive
-                }
+                })
             ]
-        });
+        }});
 
         const result = await service.getGoogleCalendarEvents(2025, 4);
 
@@ -61,15 +46,15 @@ describe("GoogleCalendarService", () => {
     });
 
     it("handles single-day all-day event", async () => {
-        const { service } = setup({
+        const { service } = createGoogleCalendarTestService({json: {
             items: [
-                {
+                createGoogleCalendarEvent({
                     summary: "Holiday",
                     start: { date: "2025-05-10" },
                     end: { date: "2025-05-11" }
-                }
+                })
             ]
-        });
+        }});
 
         const result = await service.getGoogleCalendarEvents(2025, 4);
 
@@ -77,13 +62,13 @@ describe("GoogleCalendarService", () => {
     });
 
     it("skips items without summary", async () => {
-        const { service } = setup({
+        const { service } = createGoogleCalendarTestService({json: {
             items: [
-                {
+                createGoogleCalendarEvent({
                     start: { dateTime: "2025-05-10T10:00:00Z" }
-                }
+                })
             ]
-        });
+        }});
 
         const result = await service.getGoogleCalendarEvents(2025, 4);
 
@@ -91,7 +76,7 @@ describe("GoogleCalendarService", () => {
     });
 
     it("returns empty array when no items", async () => {
-        const { service } = setup({});
+        const { service } = createGoogleCalendarTestService({json: {}});
 
         const result = await service.getGoogleCalendarEvents(2025, 4);
 

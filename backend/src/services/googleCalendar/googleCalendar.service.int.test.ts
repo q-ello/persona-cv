@@ -1,5 +1,5 @@
-import { requireEnvVariable } from "../utils";
-import { createGoogleCalendarService } from "./googleCalendar.service";
+import { requireEnvVariable } from "../../utils";
+import { createGoogleCalendarService } from "../googleCalendar/googleCalendar.service";
 
 describe("Integration: Google Calendar", () => {
     it("should fetch real events from Google Calendar", async () => {

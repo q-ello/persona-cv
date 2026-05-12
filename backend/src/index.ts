@@ -4,7 +4,7 @@ import {config, loadConfig} from "./config";
 import Client from "@notionhq/client/build/src/Client";
 import { createNotionService } from "./services/notion.service";
 import { createTimelineRouter } from "./routes/timeline";
-import { createGoogleCalendarService } from "./services/googleCalendar.service";
+import { createGoogleCalendarService } from "./services/googleCalendar/googleCalendar.service";
 import { createNagerService } from "./services/nager.service";
 import cors from "cors";
 

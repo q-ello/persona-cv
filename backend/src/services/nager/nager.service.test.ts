@@ -1,16 +1,15 @@
+import { json } from "stream/consumers";
 import { createNagerService } from "./nager.service";
+import { createNagerTestService } from "./nager.service.factory";
 
 describe('getHolidaysEvents', () => {
     it('filters holidays by month', async () => {
-        const fetchMock = jest.fn().mockResolvedValue({
-            json: async () => [
+        const {service} = createNagerTestService({json: [
                 { date: '2024-01-01', name: 'New Year', localName: 'Новый год' },
                 { date: '2024-02-14', name: 'Valentine\'s Day', localName: 'День святого Валентина' },
                 { date: '2024-03-08', name: 'International Women\'s Day', localName: 'Международный женский день' }
-            ]
-        });
-
-        const service = createNagerService(fetchMock);
+            ]}
+        );
 
         const result = await service.getHolidaysEvents(2024, 1); // February
 
@@ -20,14 +19,11 @@ describe('getHolidaysEvents', () => {
     });
 
     it('returns empty array if no holidays in the month', async () => {
-        const fetchMock = jest.fn().mockResolvedValue({
-            json: async () => [
+        const {service} = createNagerTestService({json: [
                 { date: '2024-01-01', name: 'New Year', localName: 'Новый год' },
                 { date: '2024-02-14', name: 'Valentine\'s Day', localName: 'День святого Валентина' }
-            ]
-        });
-
-        const service = createNagerService(fetchMock);
+            ]}
+        );
 
         const result = await service.getHolidaysEvents(2024, 2); // March
 
@@ -37,13 +33,7 @@ describe('getHolidaysEvents', () => {
     it('uses the date string directly as the map key (no UTC shift)', async () => {
         // This test guards against the timezone bug: new Date("2026-05-01") is UTC midnight,
         // which in UTC+3 is April 30 locally. The key must remain "2026-05-01".
-        const fetchMock = jest.fn().mockResolvedValue({
-            json: async () => [
-                { date: '2026-05-01', name: 'Labour Day', localName: 'Праздник труда' }
-            ]
-        });
-
-        const service = createNagerService(fetchMock);
+        const {service} = createNagerTestService({json: [{ date: '2026-05-01', name: 'Labour Day', localName: 'Праздник труда' }]});
         const result = await service.getHolidaysEvents(2026, 4); // May (0-based)
 
         expect(result.length).toBe(1);
@@ -51,11 +41,7 @@ describe('getHolidaysEvents', () => {
     });
 
     it("caches holidays by year", async () => {
-        const fetchMock = jest.fn().mockResolvedValue({
-            json: async () => [{ date: '2024-01-01', name: 'New Year' }]
-        });
-
-        const service = createNagerService(fetchMock);
+        const {service, fetchMock} = createNagerTestService({json: [{ date: '2024-01-01', name: 'New Year' }]});
 
         await service.getHolidaysEvents(2024, 0);
         await service.getHolidaysEvents(2024, 1);

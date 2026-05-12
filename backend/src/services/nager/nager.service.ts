@@ -1,5 +1,5 @@
 import { EEventState, EEventType, getGeneralString, getMonthFromDateString, IEvent, IHoliday } from '@cv/shared';
-import { IRawEvent } from '../types/events.types';
+import { IRawEvent } from '../../types/events.types';
 
 export const createNagerService = (fetchFn: typeof fetch) => {
 
@@ -33,8 +33,6 @@ export const createNagerService = (fetchFn: typeof fetch) => {
 
             return { date, event };
         })).filter((event: IRawEvent | null): event is IRawEvent => event !== null);
-
-        console.log(events)
 
         return events;
     };

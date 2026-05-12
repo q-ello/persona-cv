@@ -1,34 +1,24 @@
-import express from "express";
-import { createTimelineRouter } from "./timeline";
 import request from "supertest";
 import { IEvent } from "@cv/shared";
-
-const setupApp = (overrides?: any) => {
-    const notionService = { getNotionObjectives: jest.fn().mockResolvedValue([]), ...overrides?.notionService } as any;
-    const googleCalendarService = { getGoogleCalendarEvents: jest.fn().mockResolvedValue([]), ...overrides?.googleCalendarService } as any;
-    const nagerService = { getHolidaysEvents: jest.fn().mockResolvedValue([]), ...overrides?.nagerService } as any;
-    const app = express();
-    app.use("/api/timeline", createTimelineRouter(notionService, googleCalendarService, nagerService));
-    return { app, notionService, googleCalendarService, nagerService };
-};
+import { createTestApp } from "../test/factories/createTestApp";
 
 describe("/events route", () => {
 
     it("returns 400 if params missing", async () => {
-        const { app } = setupApp();
+        const { app } = createTestApp();
         const response = await request(app).get("/api/timeline/events");
         expect(response.status).toBe(400);
     });
 
     it("returns empty object if no events", async () => {
-        const { app } = setupApp();
+        const { app } = createTestApp();
         const response = await request(app).get("/api/timeline/events?year=2024&month=1");
         expect(response.status).toBe(200);
         expect(response.body).toEqual({});
     });
 
     it("merges google and holiday events correctly", async () => {
-        const { app, googleCalendarService, nagerService } = setupApp();
+        const { app, googleCalendarService, nagerService } = createTestApp();
 
         googleCalendarService.getGoogleCalendarEvents.mockResolvedValue([
             {
@@ -52,7 +42,7 @@ describe("/events route", () => {
     });
 
     it("returns 400 for invalid month", async () => {
-        const { app } = setupApp();
+        const { app } = createTestApp();
 
         const res = await request(app)
             .get("/api/timeline/events?month=99&year=2026");
@@ -64,7 +54,7 @@ describe("/events route", () => {
         const googleMock = jest.fn().mockResolvedValue([]);
         const nagerMock = jest.fn().mockResolvedValue([]);
 
-        const { app, googleCalendarService } = setupApp({
+        const { app } = createTestApp({
             googleCalendarService: { getGoogleCalendarEvents: googleMock },
             nagerService: { getHolidaysEvents: nagerMock }
         });
@@ -78,7 +68,7 @@ describe("/events route", () => {
     });
 
     it("handles multiple events on same date without overwriting", async () => {
-        const { app, googleCalendarService, nagerService } = setupApp();
+        const { app, googleCalendarService, nagerService } = createTestApp();
 
         googleCalendarService.getGoogleCalendarEvents.mockResolvedValue([
             { date: "2026-04-10", event: { eventEng: "A", eventRu: "A", type: "Common", state: "Single" } }
@@ -100,7 +90,7 @@ describe("/events route", () => {
 
 describe("/objectives route", () => {
     it("returns objectives from Notion", async () => {
-        const { app, notionService } = setupApp();
+        const { app, notionService } = createTestApp();
 
         const mockObjectives = [
             { id: "1", title: "Objective 1", description: "Desc 1", date: "2024-01-01" },

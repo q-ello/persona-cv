@@ -1,6 +1,6 @@
 import { Client } from "@notionhq/client";
 import { IObjective } from '@cv/shared';
-import { INotionConfig } from "../types/config.types";
+import { INotionConfig } from "../../types/config.types";
 
 export const createNotionService = (notion: Client,  deps: INotionConfig) => {
     const GetPropertyValue = (property: any): string => {
