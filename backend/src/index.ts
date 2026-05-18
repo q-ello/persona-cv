@@ -2,11 +2,11 @@ import dotenv from "dotenv";
 import express from "express";
 import {config, loadConfig} from "./config";
 import Client from "@notionhq/client/build/src/Client";
-import { createNotionService } from "./services/notion.service";
 import { createTimelineRouter } from "./routes/timeline";
 import { createGoogleCalendarService } from "./services/googleCalendar/googleCalendar.service";
-import { createNagerService } from "./services/nager.service";
 import cors from "cors";
+import { createNotionService } from "./services/notion/notion.service";
+import { createNagerService } from "./services/nager/nager.service";
 
 dotenv.config();
 loadConfig();
