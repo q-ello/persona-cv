@@ -1,5 +1,3 @@
-import React from 'react'
-
 const DailyLogText = () => {
   return (
     <div className='text-black text-8xl font-helvetica font-extrabold scale-x-75 scale-y-120 tracking-tight text-left pl-5 pt-2'>

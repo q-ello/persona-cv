@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { getGeneralString } from '@cv/shared';
 
-interface ICellPosition {
+export interface ICellPosition {
     x: number;
     y: number;
     w: number;
