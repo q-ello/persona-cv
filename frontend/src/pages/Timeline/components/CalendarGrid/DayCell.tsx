@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { clsx } from "clsx";
 import { EEventState, EEventType, EWeekday, getGeneralString, IEvent } from "@cv/shared";
 
@@ -27,7 +27,7 @@ const DayCell = (props: IDayCellProps) => {
     useEffect(() => {
         if (ref.current) {
             const date = new Date(year, month, parseInt(number, 10));
-            onCellLayout?.(date.toDateString(), ref.current.getBoundingClientRect());
+            onCellLayout?.(getGeneralString(date), ref.current.getBoundingClientRect());
         }
     }, [year, month, number]);
 
@@ -46,13 +46,13 @@ const DayCell = (props: IDayCellProps) => {
     const date = new Date(year, month, parseInt(number, 10))
     const isFuture = date > now
 
-    const isDeadline = (events?.get(getGeneralString(date))?.some(e => e.type === EEventType.Deadline) && isFuture) ?? false;
+    const isDeadline = (events?.get(getGeneralString(date))?.some(e => e.type === EEventType.Deadline)) ?? false;
     const isHoliday = events?.get(getGeneralString(date))?.some(e => e.type === EEventType.Holiday) ?? false;
     if (isHoliday || isDeadline) {
         dayType = EWeekday.Holiday
     }
 
-    const eventState: EEventState = events?.get(getGeneralString(date))?.reduce((val, curr) => curr.state === EEventState.Middle ? curr : val).state ?? (isHoliday ? EEventState.Single : EEventState.None)
+    const eventState: EEventState = events?.get(getGeneralString(date))?.reduce((val, curr) => curr.state === EEventState.Middle ? curr : val).state ?? (isHoliday ? EEventState.Single : EEventState.None);
 
     const renderEvent = (eventState: EEventState, isFuture: boolean) => {
         const eventColor = isFuture && 'bg-neutral-200' || 'bg-neutral-400';
@@ -85,7 +85,13 @@ const DayCell = (props: IDayCellProps) => {
             case EEventState.Single:
                 return (<div className={clsx("relative w-[15px] h-[15px] rounded-full mx-auto", eventColor, number.length === 2 && number[0] >= '2' && 'left-3')}></div>)
         }
-    }
+    };
+
+    const glitchOffsets = useMemo(() =>
+        [0, 1, 2, 3, 4].map(i => ({
+            x: Math.random() * (i) * 8 - i * 3,
+            y: Math.random() * (i) * 8 - i * 3,
+        })), [number, year, month]);
 
     return (<div className='h-[120px] relative' ref={ref} key={index} onMouseEnter={() => { onDateHovered?.(date) }}>
         <div className={clsx('font-milker text-9xl tracking-tight relative', {
@@ -99,14 +105,14 @@ const DayCell = (props: IDayCellProps) => {
                 {number}
             </div>
             {/* render deadline */}
-            {isDeadline &&
+            {isDeadline && isFuture &&
                 [0, 1, 2, 3, 4].map(i => (<div key={i} className={clsx(`absolute inset-0 deadline-layer`, {
                     'scale-[0.7_1]': number.length === 2
                 })}
                     style={
                         {
-                            '--x': `${Math.random() * (i) * 8 - i * 3}px`,
-                            '--y': `${Math.random() * (i) * 8 - i * 3}px`,
+                            '--x': `${glitchOffsets[i].x}px`,
+                            '--y': `${glitchOffsets[i].y}px`,
                             color: `var(${(dayColors.get(dayType) ?? ['--color-neutral-400', '--color-neutral-200'])[Number(isFuture)]})`,
                             opacity: 1 - i / 5
                         } as React.CSSProperties

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import CalendarGrid from './components/CalendarGrid/CalendarGrid'
 import CBack from '../../components/CBack/CBack'
 import Command from '../../components/Command/Command'
@@ -14,170 +14,67 @@ import Today from './components/Today/Today'
 import DatePlate from './components/DatePlate/DatePlate'
 import Events from './components/Events/Events'
 import { soundManager } from '../../services/sound/soundManager'
-import { getGeneralString, IEvent } from '@cv/shared'
+import { getGeneralString } from '@cv/shared'
 import { timelineApi } from '../../services/api/api'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import useDateNavigation from './hooks/useDateNavigation'
+import useCellPosition from './hooks/useCellPosition'
+import useTimelineData from './hooks/useTimelineData'
 
 // just manual map
 const monthNames: Map<string, string[]> = new Map([
   ["ru", ['ЯНВ', 'ФЕВ', 'МАРТ', 'АПР', 'МАЙ', 'ИЮНЬ', 'ИЮЛЬ', 'АВГ', 'СЕН', 'ОКТ', 'НОЯ', 'ДЕК']],
   ["eng", ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']]
-])
-const weekdayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-
-const maxPastDate = new Date(2023, 0, 1);
+]);
+const weekdayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 const Timeline = () => {
-  // date data
-  const today = new Date()
-  const maxFutureDate = useMemo(() => {
-    const date = new Date(today.getFullYear(), today.getMonth() + 3, 1);
-    date.setDate(date.getDate() - 1)
-    return date;
-  }, [today])
+  const {
+    today,
+    selectedDate,
+    setSelectedDate,
+    previousDate,
+    pastSelected,
+    isOnMaxFutureMonth,
+    isOnMaxPastMonth,
+    onMonthChanged,
+    handleKeyNav
+  } = useDateNavigation();
 
-  const [selectedDate, setSelectedDate] = useState<Date>(today)
-  const previousDate = useRef(selectedDate)
+  const { gridRef, registerCell, selectedPos, todayPos } = useCellPosition(selectedDate, today);
 
-  // #region positions
-  const [rects, setRects] = useState<Map<string, DOMRect>>(new Map())
-  const [offset, setOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
+  const month = selectedDate.getMonth();
+  const year = selectedDate.getFullYear();
 
-  const gridRef = useCallback((el: HTMLDivElement | null) => {
-    if (el) {
-      const rect = el.getBoundingClientRect();
-      setOffset({ x: rect.left, y: rect.top });
-    }
-  }, []);
+  const { events } = useTimelineData(year, month);
 
-  const registerCell = (dateKey: string, rect: DOMRect) => {
-    setRects(prev => {
-      const newMap = new Map(prev);
-      newMap.set(dateKey, rect);
-      return newMap;
-    });
-  }
-
-  const selectedPos = useMemo(() => {
-    if (!selectedDate) return null;
-    const rect = rects.get(selectedDate.toDateString());
-    if (!rect) return null;
-    return {
-      x: rect.left - offset.x,
-      y: rect.top - offset.y,
-      w: rect.width,
-      h: rect.height
-    };
-  }, [selectedDate, rects, offset]);
-
-  const todayPos = useMemo(() => {
-    if (!rects.has(today.toDateString())) return null;
-
-    const rect = rects.get(today.toDateString());
-    if (!rect) return null;
-    return {
-      x: rect.left - offset.x,
-      y: rect.top - offset.y,
-      w: rect.width,
-      h: rect.height
-    };
-  }, [rects, offset, today]);
-  // #endregion
-
-  const pastSelected = useMemo(() => {
-    const s = new Date(selectedDate);
-    const t = new Date(today);
-    s.setHours(0, 0, 0, 0);
-    t.setHours(0, 0, 0, 0)
-    return s < t;
-  }, [selectedDate, today])
   const navigate = useNavigate();
+  const [cBackActivated, setCBackActivated] = useState<boolean>(false);
 
-  // for c back
-  const [cBackActivated, setCBackActivated] = useState<boolean>(false)
-
-  const goBack = () => {
+  const goBack = useCallback(() => {
     setCBackActivated(true)
     soundManager.play('cancel', () => navigate('/'))
-  }
+  }, [navigate]);
+
+  const goBackRef = useRef(goBack);
+  goBackRef.current = goBack;
 
   const handleKeyPress = useCallback((event: KeyboardEvent) => {
     if (event.key === 'c') {
-      goBack()
+      goBackRef.current();
       return;
     }
+    handleKeyNav(event.key);
+  }, [handleKeyNav]);
 
-    setSelectedDate(prev => {
-      let d = new Date(prev);
-
-      if (event.key === 'w' || event.key === 'ArrowUp') {
-        d.setDate(d.getDate() - 7)
-      }
-
-      if (event.key === 'a' || event.key === 'ArrowLeft') {
-        d.setDate(d.getDate() - 1)
-      }
-
-      if (event.key === 's' || event.key === 'ArrowDown') {
-        d.setDate(d.getDate() + 7)
-      }
-
-      if (event.key === 'd' || event.key === 'ArrowRight') {
-        d.setDate(d.getDate() + 1)
-      }
-
-      if (event.key === 'e') {
-        d = moveMonth(d, 1);
-      }
-
-      if (event.key === 'q') {
-        d = moveMonth(d, -1);
-      }
-
-      return clampDate(d);
-    })
-  }, [selectedDate, goBack, maxPastDate, maxFutureDate]);
-
-  // #region useeffect
-  // we want to handle key presses
   useEffect(() => {
     window.addEventListener("keydown", handleKeyPress);
 
     return () => {
       window.removeEventListener("keydown", handleKeyPress);
     };
-  }, []);
+  }, [handleKeyPress]);
 
-  const month = selectedDate.getMonth();
-  const year = selectedDate.getFullYear();
-
-  const queryClient = useQueryClient();
-
-  useEffect(() => {
-    queryClient.prefetchQuery({
-      queryKey: ['timeline', year, month + 1],
-      queryFn: () => timelineApi.getMonthEvents(year, month + 1)
-    });
-
-    queryClient.prefetchQuery({
-      queryKey: ['timeline', year, month - 1],
-      queryFn: () => timelineApi.getMonthEvents(year, month - 1)
-    });
-  }, [month, year]);
-
-  const { data: eventsData } = useQuery<Record<string, IEvent[]>>({
-    queryKey: ['timeline', year, month],
-    queryFn: () => timelineApi.getMonthEvents(year, month)
-  });
-
-  const events = useMemo(() => {
-    if (!eventsData) {
-      return new Map();
-    }
-    return new Map(Object.entries(eventsData));
-  }, [eventsData])
-
-  //sound for selection
+  //sound on date change
   useEffect(() => {
     if (!selectedDate) return;
 
@@ -185,50 +82,11 @@ const Timeline = () => {
       soundManager.play("cursor");
       previousDate.current = selectedDate;
     }
-  }, [selectedDate])
+  }, [selectedDate]);
 
   useEffect(() => {
     timelineApi.getObjectives();
   }, []);
-
-  // #endregion
-
-  const clampDate = (date: Date): Date => {
-    if (date < maxPastDate) return maxPastDate;
-    if (date > maxFutureDate) return maxFutureDate;
-    return date;
-  }
-
-  const moveMonth = (date: Date, delta: number): Date => {
-    const day = date.getDate();
-    const newMonth = date.getMonth() + delta;
-
-    const daysInTargetMonth = new Date(date.getFullYear(), newMonth + 1, 0).getDate();
-    if (day > daysInTargetMonth) {
-      date.setDate(daysInTargetMonth);
-    } else {
-      date.setDate(day);
-    }
-
-    date.setMonth(newMonth);
-    return date;
-  }
-
-  const onMonthChanged = (direction: number) => {
-    setSelectedDate(prev => {
-      let d = new Date(prev);
-      d = moveMonth(d, direction);
-      return clampDate(d);
-    });
-  }
-
-  const isOnMaxPastMonth = useMemo(() => {
-    return selectedDate.getFullYear() === maxPastDate.getFullYear() && selectedDate.getMonth() === maxPastDate.getMonth()
-  }, [selectedDate])
-
-  const isOnMaxFutureMonth = useMemo(() => {
-    return selectedDate.getFullYear() === maxFutureDate.getFullYear() && selectedDate.getMonth() === maxFutureDate.getMonth()
-  }, [selectedDate])
 
   return (
     <div className='w-full cursor-default select-none'>

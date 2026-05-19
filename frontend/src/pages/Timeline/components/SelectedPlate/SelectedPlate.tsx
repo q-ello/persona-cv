@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import "./SelectedPlate.css";
 
 export function SelectedPlate({ position }: { position: { x: number; y: number; w: number; h: number } | null }) {

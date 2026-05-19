@@ -1,5 +1,6 @@
+import { getGeneralString } from '@cv/shared';
 import clsx from 'clsx'
-import React from 'react';
+import React, { useMemo } from 'react';
 
 interface IDatePlateProps {
     pastSelected: boolean,
@@ -8,9 +9,11 @@ interface IDatePlateProps {
 }
 
 const DatePlate = (props: IDatePlateProps) => {
-    const {pastSelected, selectedDate, dayName} = props;
+    const { pastSelected, selectedDate, dayName } = props;
 
-    const dateRotate = `rotate(${pastSelected ? -3 : Math.floor(Math.random() * -5)}deg)`
+    const dateRotate = useMemo(() =>
+        `rotate(${pastSelected ? -3 : Math.floor(Math.random() * -5)}deg)`,
+        [pastSelected, getGeneralString(selectedDate)]);
 
     return (
         <div className={clsx("absolute text-3xl top-40 right-68 bg-black font-arsenal font-bold pl-25 pr-15 py-3 scale-y-90", pastSelected && 'text-neutral-400' || 'text-white')} style={{ transform: dateRotate }}>
