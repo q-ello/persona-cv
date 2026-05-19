@@ -1,6 +1,6 @@
-import CenterLog from '../../../../assets/images/center log.svg'
-import RightLog from '../../../../assets/images/right log.svg'
-import LeftLog from '../../../../assets/images/left log.svg'
+import CenterLog from '../../../../../assets/images/center log.svg'
+import RightLog from '../../../../../assets/images/right log.svg'
+import LeftLog from '../../../../../assets/images/left log.svg'
 import DailyLogText from './DailyLogText'
 import { motion } from 'motion/react'
 

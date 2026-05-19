@@ -1,9 +1,9 @@
 import { useMemo } from 'react'
-import WeekDay from '../WeekDay/WeekDay'
 import './CalendarGrid.css'
-import DayCell from './DayCell';
+import DayCell from './DayCell/DayCell';
 import React from 'react';
 import { IEvent } from '@cv/shared';
+import WeekDay from './WeekDay/WeekDay';
 
 interface ICalendarProps {
     year: number,
