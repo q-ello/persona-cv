@@ -11,7 +11,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon src/index.ts",
+    "dev": "kill-port 3001 && nodemon src/index.ts",
     "test": "jest --reporters=default --reporters=jest-stare",
     "test compilation": "npx jest --detectOpenHandles --verbose",
     "build": "tsc"
@@ -28,6 +28,7 @@
     "@types/supertest": "^7.2.0",
     "jest": "^30.3.0",
     "jest-stare": "^2.5.3",
+    "kill-port": "^2.0.1",
     "nodemon": "^3.1.14",
     "supertest": "^7.2.2",
     "ts-jest": "^29.4.9",
