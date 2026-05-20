@@ -30,7 +30,7 @@ export const createNotionService = (notion: Client,  deps: INotionConfig) => {
                 }
             });
 
-            const objectives: IObjective[] = (await Promise.all(
+            let objectives: IObjective[] = (await Promise.all(
                 response.results.map(async (result) => {
 
                     if (!("properties" in result)) {
@@ -83,6 +83,14 @@ export const createNotionService = (notion: Client,  deps: INotionConfig) => {
                         url: GetPropertyValue(urlProp)
                     };
                 }))).filter((obj): obj is IObjective => obj !== null);
+
+            console.log(objectives)
+
+            //rendering more than 7 objectives is painful so we should slice it
+            if (objectives.length > 7)
+            {
+                objectives = objectives.slice(0, 7);
+            }
 
             return objectives;
         } catch (error) {
