@@ -88,20 +88,20 @@ describe("/events route", () => {
     });
 });
 
-describe("/objectives route", () => {
-    it("returns objectives from Notion", async () => {
+describe("/priorities route", () => {
+    it("returns priorities from Notion", async () => {
         const { app, notionService } = createTestApp();
 
-        const mockObjectives = [
-            { id: "1", title: "Objective 1", description: "Desc 1", date: "2024-01-01" },
-            { id: "2", title: "Objective 2", description: "Desc 2", date: "2024-02-01" }
+        const mockPriorities = [
+            { id: "1", title: "Priority 1", description: "Desc 1", date: "2024-01-01" },
+            { id: "2", title: "Priority 2", description: "Desc 2", date: "2024-02-01" }
         ];
 
-        notionService.getNotionObjectives.mockResolvedValue(mockObjectives);
+        notionService.getNotionPriorities.mockResolvedValue(mockPriorities);
 
-        const res = await request(app).get("/api/timeline/objectives");
+        const res = await request(app).get("/api/timeline/priorities");
 
         expect(res.status).toBe(200);
-        expect(res.body).toEqual(mockObjectives);
+        expect(res.body).toEqual(mockPriorities);
     });
 });

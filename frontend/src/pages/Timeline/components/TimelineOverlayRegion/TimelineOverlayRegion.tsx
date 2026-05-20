@@ -2,20 +2,19 @@ import { AnimatePresence } from 'motion/react';
 import DailyLog from './DailyLog/DailyLog';
 
 interface ITimelineOverlayRegion {
-    pastSelected: boolean
+    pastSelected: boolean;
+    cBackIsActivated: boolean;
 }
 
 const TimelineOverlayRegion = (props: ITimelineOverlayRegion) => {
     const {
-        pastSelected
+        pastSelected,
+        cBackIsActivated
     } = props;
     return (
-        <>
-            {/* logs if it is the past */}
-            <AnimatePresence>
-                {pastSelected && <DailyLog />}
-            </AnimatePresence>
-        </>
+        <AnimatePresence>
+            {!cBackIsActivated && pastSelected && <DailyLog key="daily-log" />}
+        </AnimatePresence>
     )
 }
 

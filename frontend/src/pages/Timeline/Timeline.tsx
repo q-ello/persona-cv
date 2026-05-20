@@ -3,7 +3,6 @@ import CBack from '../../components/CBack/CBack'
 import './Timeline.css'
 import { useNavigate } from 'react-router-dom'
 import { soundManager } from '../../services/sound/soundManager'
-import { timelineApi } from '../../services/api/api'
 import useDateNavigation from './hooks/useDateNavigation'
 import useCellPosition from './hooks/useCellPosition'
 import useTimelineData from './hooks/useTimelineData'
@@ -11,6 +10,10 @@ import TimelineLeftRegion from './components/TimelineLeftRegion/TimelineLeftRegi
 import TimelineRightRegion from './components/TimelineRightRegion/TimelineRightRegion'
 import TimelineScene from './components/TimelineScene/TimelineScene'
 import TimelineOverlayRegion from './components/TimelineOverlayRegion/TimelineOverlayRegion'
+import usePriorities from './hooks/usePriorities'
+
+import FontHelper from '../../devtools/FontHelper/FontHelper'
+import img_log from '../../assets/images/image log.png'
 
 const Timeline = () => {
   const {
@@ -31,13 +34,14 @@ const Timeline = () => {
   const year = selectedDate.getFullYear();
 
   const { events } = useTimelineData(year, month);
+  const { priorities, prioritiesLoading } = usePriorities();
 
   const navigate = useNavigate();
   const [cBackActivated, setCBackActivated] = useState<boolean>(false);
 
   const goBack = useCallback(() => {
-    setCBackActivated(true)
-    soundManager.play('cancel', () => navigate('/'))
+    setCBackActivated(true);
+    soundManager.play('cancel', () => navigate('/'));
   }, [navigate]);
 
   const goBackRef = useRef(goBack);
@@ -69,10 +73,6 @@ const Timeline = () => {
     }
   }, [selectedDate]);
 
-  useEffect(() => {
-    timelineApi.getObjectives();
-  }, []);
-
   return (
     <TimelineScene>
       <TimelineLeftRegion
@@ -92,11 +92,17 @@ const Timeline = () => {
         isOnMaxFutureMonth={isOnMaxFutureMonth}
         onMonthChanged={onMonthChanged}
         events={events}
+        priorities={priorities}
+        prioritiesLoading={prioritiesLoading}
+        cBackIsActivated={cBackActivated}
       />
-      <TimelineOverlayRegion pastSelected={pastSelected} />
-
-      {/* <div className="absolute top-10 left-10">
-          <FontHelper text='Showa Day' size={2} imgSize={[600, 200]} imgPosition={[90, 25]} imgUrl={img_event} />
+      <TimelineOverlayRegion
+        pastSelected={pastSelected}
+        cBackIsActivated={cBackActivated}
+      />
+{/* 
+      <div className="absolute top-10 left-10">
+          <FontHelper text='Met Ryuji' size={2} imgSize={[400, 200]} imgPosition={[80, 75]} imgUrl={img_log} />
         </div> */}
       {/* c back */}
       <CBack isActivated={cBackActivated} onClick={goBack} />
