@@ -92,11 +92,12 @@ const Timeline = () => {
         isOnMaxFutureMonth={isOnMaxFutureMonth}
         onMonthChanged={onMonthChanged}
         events={events}
+        priorities={priorities}
+        prioritiesLoading={prioritiesLoading}
+        cBackIsActivated={cBackActivated}
       />
       <TimelineOverlayRegion
         pastSelected={pastSelected}
-        priorities={priorities}
-        prioritiesLoading={prioritiesLoading}
         cBackIsActivated={cBackActivated}
       />
 {/* 

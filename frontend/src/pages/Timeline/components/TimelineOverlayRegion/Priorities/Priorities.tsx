@@ -9,6 +9,7 @@ import { useMemo } from "react";
 interface IPrioritiesProps {
   priorities: IPriority[];
   prioritiesLoading: boolean;
+  pastSelected: boolean;
 }
 
 //seeded randomness. for now here, maybe will move somewhere else
@@ -30,7 +31,7 @@ function pseudoRandom(seed: number) {
 const Priorities = (props: IPrioritiesProps) => {
   const {
     priorities,
-    prioritiesLoading
+    prioritiesLoading,
   } = props;
 
   const randomTransforms = useMemo(() =>
@@ -72,7 +73,7 @@ const Priorities = (props: IPrioritiesProps) => {
           <img
             src={PrioritiesNote}
             alt=""
-            className='relative w-130 h-130'
+            className={clsx('relative w-130 h-130')}
           />
           <div className="absolute top-0 left-0 bottom-0 right-0 pt-22">
             <PrioritiesText />
