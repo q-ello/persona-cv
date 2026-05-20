@@ -1,5 +1,5 @@
 import { Client } from "@notionhq/client";
-import { IObjective } from '@cv/shared';
+import { IPriority } from '@cv/shared';
 import { INotionConfig } from "../../types/config.types";
 
 export const createNotionService = (notion: Client,  deps: INotionConfig) => {
@@ -20,17 +20,17 @@ export const createNotionService = (notion: Client,  deps: INotionConfig) => {
         }
     }
 
-    const getNotionObjectives = async (): Promise<IObjective[]> => {
+    const getNotionPriorities = async (): Promise<IPriority[]> => {
         try {
             const response = await notion!.dataSources.query({
-                data_source_id: deps.objectivesDatasourceId,
+                data_source_id: deps.prioritiesDatasourceId,
                 filter: {
                     property: "Completed",
                     checkbox: { equals: false }
                 }
             });
 
-            let objectives: IObjective[] = (await Promise.all(
+            let priorities: IPriority[] = (await Promise.all(
                 response.results.map(async (result) => {
 
                     if (!("properties" in result)) {
@@ -82,25 +82,25 @@ export const createNotionService = (notion: Client,  deps: INotionConfig) => {
                         object: GetPropertyValue(nameProp.title[0]),
                         url: GetPropertyValue(urlProp)
                     };
-                }))).filter((obj): obj is IObjective => obj !== null);
+                }))).filter((obj): obj is IPriority => obj !== null);
 
-            console.log(objectives)
+            console.log(priorities)
 
-            //rendering more than 7 objectives is painful so we should slice it
-            if (objectives.length > 7)
+            //rendering more than 7 priorities is painful so we should slice it
+            if (priorities.length > 7)
             {
-                objectives = objectives.slice(0, 7);
+                priorities = priorities.slice(0, 7);
             }
 
-            return objectives;
+            return priorities;
         } catch (error) {
-            console.error("Error fetching objectives from Notion:", error);
-            throw new Error("Failed to fetch objectives from Notion");
+            console.error("Error fetching priorities from Notion:", error);
+            throw new Error("Failed to fetch priorities from Notion");
         }
     };
 
     return {
-        getNotionObjectives
+        getNotionPriorities: getNotionPriorities
     }
 
 }

@@ -9,9 +9,9 @@ describe("Integration: Notion", () => {
             auth: requireEnvVariable("NOTION_SECRET")
         });
 
-        const service = createNotionService(notion, { secret: requireEnvVariable("NOTION_SECRET"), objectivesDatasourceId: requireEnvVariable("NOTION_OBJECTIVES_DATASOURCE_ID") });
+        const service = createNotionService(notion, { secret: requireEnvVariable("NOTION_SECRET"), prioritiesDatasourceId: requireEnvVariable("NOTION_PRIORITIES_DATASOURCE_ID") });
 
-        const result = await service.getNotionObjectives();
+        const result = await service.getNotionPriorities();
 
         expect(Array.isArray(result)).toBe(true);
         expect(result[0]).toHaveProperty("nameEng");

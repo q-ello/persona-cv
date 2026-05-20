@@ -1,4 +1,4 @@
-export interface IObjective
+export interface IPriority
 {
     nameEng: string,
     nameRu: string

@@ -1,7 +1,7 @@
 
 export interface INotionConfig {
     secret: string;
-    objectivesDatasourceId: string;
+    prioritiesDatasourceId: string;
 }
 
 export interface IGoogleCalendarConfig {

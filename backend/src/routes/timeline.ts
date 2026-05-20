@@ -12,13 +12,13 @@ export const createTimelineRouter = (notionService: ReturnType<typeof createNoti
 ) => {
     const router = express.Router();
 
-    router.get('/objectives', async (req, res) => {
+    router.get('/priorities', async (req, res) => {
         try {
-            const response = await notionService.getNotionObjectives();
+            const response = await notionService.getNotionPriorities();
             res.json(response);
         } catch (error) {
-            console.error("Error fetching objectives from Notion:", error);
-            res.status(500).json({ error: "Failed to fetch objectives from Notion" });
+            console.error("Error fetching priorities from Notion:", error);
+            res.status(500).json({ error: "Failed to fetch priorities from Notion" });
         }
     });
 
@@ -53,7 +53,7 @@ export const createTimelineRouter = (notionService: ReturnType<typeof createNoti
 
     router.get('/health', async (req, res) => {
         try {
-            await notionService.getNotionObjectives();
+            await notionService.getNotionPriorities();
             res.json({ status: "ok" });
         } catch {
             res.status(500).json({ status: "fail" });

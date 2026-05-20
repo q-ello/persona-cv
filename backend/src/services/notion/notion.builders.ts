@@ -1,4 +1,4 @@
-type NotionObjectiveQuery = {
+type NotionPriorityQuery = {
     properties?: {
         NameEn: { type: string, plain_text: string },
         NameRu: { type: string, plain_text: string },
@@ -8,11 +8,11 @@ type NotionObjectiveQuery = {
     }
 }
 
-export const createNotionObjectiveQuery = (overrides: NotionObjectiveQuery = {}): NotionObjectiveQuery => ({
+export const createNotionPriorityQuery = (overrides: NotionPriorityQuery = {}): NotionPriorityQuery => ({
     ...overrides
 });
 
-type NotionObjectivePage = {
+type NotionPriorityPage = {
     properties?: {
         Name: {
             title: [{ type: string, plain_text: string }]
@@ -24,6 +24,6 @@ type NotionObjectivePage = {
     }
 }
 
-export const createNotionObjectivePage = (overrides: NotionObjectivePage = {}): NotionObjectivePage => ({
+export const createNotionPriorityPage = (overrides: NotionPriorityPage = {}): NotionPriorityPage => ({
     ...overrides
 });

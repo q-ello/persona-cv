@@ -10,7 +10,8 @@ import TimelineLeftRegion from './components/TimelineLeftRegion/TimelineLeftRegi
 import TimelineRightRegion from './components/TimelineRightRegion/TimelineRightRegion'
 import TimelineScene from './components/TimelineScene/TimelineScene'
 import TimelineOverlayRegion from './components/TimelineOverlayRegion/TimelineOverlayRegion'
-import useObjectives from './hooks/useObjectives'
+import usePriorities from './hooks/usePriorities'
+
 import FontHelper from '../../devtools/FontHelper/FontHelper'
 import img_log from '../../assets/images/image log.png'
 
@@ -33,14 +34,14 @@ const Timeline = () => {
   const year = selectedDate.getFullYear();
 
   const { events } = useTimelineData(year, month);
-  const { objectives, objectivesLoading } = useObjectives();
+  const { priorities, prioritiesLoading } = usePriorities();
 
   const navigate = useNavigate();
   const [cBackActivated, setCBackActivated] = useState<boolean>(false);
 
   const goBack = useCallback(() => {
-    setCBackActivated(true)
-    soundManager.play('cancel', () => navigate('/'))
+    setCBackActivated(true);
+    soundManager.play('cancel', () => navigate('/'));
   }, [navigate]);
 
   const goBackRef = useRef(goBack);
@@ -94,8 +95,9 @@ const Timeline = () => {
       />
       <TimelineOverlayRegion
         pastSelected={pastSelected}
-        objectives={objectives}
-        objectivesLoading={objectivesLoading}
+        priorities={priorities}
+        prioritiesLoading={prioritiesLoading}
+        cBackIsActivated={cBackActivated}
       />
 {/* 
       <div className="absolute top-10 left-10">

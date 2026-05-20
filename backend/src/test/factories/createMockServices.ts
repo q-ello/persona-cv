@@ -1,7 +1,7 @@
 export const createMockServices = (overrides: Partial<any> = {}) => {
     const services = {
         notionService: {
-            getNotionObjectives: jest.fn().mockResolvedValue([])
+            getNotionPriorities: jest.fn().mockResolvedValue([])
         },
         googleCalendarService: {
             getGoogleCalendarEvents: jest.fn().mockResolvedValue([])

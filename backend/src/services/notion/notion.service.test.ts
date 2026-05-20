@@ -1,12 +1,12 @@
-import { createNotionObjectivePage, createNotionObjectiveQuery } from "./notion.builders";
+import { createNotionPriorityPage, createNotionPriorityQuery } from "./notion.builders";
 import { createNotionTestService } from "./notion.service.factory";
 
 describe("NotionService", () => {
-    it("maps valid response to objectives", async () => {
+    it("maps valid response to priorities", async () => {
 
         const { service } = createNotionTestService({
             queryResult: [
-                createNotionObjectiveQuery(
+                createNotionPriorityQuery(
                     {
                         properties: {
                             NameEn: { type: "text", plain_text: "Eng Name" },
@@ -18,7 +18,7 @@ describe("NotionService", () => {
                     }
                 )
             ],
-            pageResult: createNotionObjectivePage({
+            pageResult: createNotionPriorityPage({
                 properties: {
                     Name: {
                         title: [{ type: "text", plain_text: "Object Name" }]
@@ -31,7 +31,7 @@ describe("NotionService", () => {
             })
         });
 
-        const result = await service.getNotionObjectives();
+        const result = await service.getNotionPriorities();
 
         expect(result).toEqual([
             {
@@ -50,7 +50,7 @@ describe("NotionService", () => {
             ]
         });
 
-        const result = await service.getNotionObjectives();
+        const result = await service.getNotionPriorities();
 
         expect(result).toEqual([]);
     });
@@ -58,7 +58,7 @@ describe("NotionService", () => {
     it("skips items without relation", async () => {
         const { service } = createNotionTestService({
             queryResult: [
-                createNotionObjectiveQuery(
+                createNotionPriorityQuery(
                 {
                     properties: {
                         NameEn: { type: "text", plain_text: "Eng Name" },
@@ -71,13 +71,13 @@ describe("NotionService", () => {
             ]
         });
 
-        const result = await service.getNotionObjectives();
+        const result = await service.getNotionPriorities();
 
         expect(result).toEqual([]);
     });
 
     it("cuts items length to 7 if longer", async () => {
-        const dummyObjective = createNotionObjectiveQuery({
+        const dummyPriority = createNotionPriorityQuery({
             properties: {
                 NameEn: { type: "text", plain_text: "Eng Name" },
                 NameRu: { type: "text", plain_text: "Ru Name" },
@@ -87,11 +87,11 @@ describe("NotionService", () => {
             }
         });
 
-        const dummyArray = new Array(8).fill(dummyObjective);
+        const dummyArray = new Array(8).fill(dummyPriority);
 
         const { service } = createNotionTestService({
             queryResult: dummyArray,
-            pageResult: createNotionObjectivePage({
+            pageResult: createNotionPriorityPage({
                 properties: {
                     Name: {
                         title: [{ type: "text", plain_text: "Object Name" }]
@@ -103,7 +103,7 @@ describe("NotionService", () => {
                 }
             })
         });
-        const result = await service.getNotionObjectives();
+        const result = await service.getNotionPriorities();
         expect(result.length).toBe(7);
     })
 });
