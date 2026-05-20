@@ -1,3 +1,5 @@
+import { IEvent, IObjective } from "@cv/shared";
+
 const API = `${import.meta.env.VITE_API_URL}/api`;
 
 async function client(url: string) {
@@ -7,7 +9,7 @@ async function client(url: string) {
 }
 
 export const timelineApi = {
-  getObjectives: () => client("/timeline/objectives"),
+  getObjectives: () : Promise<IObjective[]> => client("/timeline/objectives"),
 
-  getMonthEvents: (year: number, month: number) => client(`/timeline/events?month=${month}&year=${year}`)
+  getMonthEvents: (year: number, month: number) : Promise<Record<string, IEvent[]>> => client(`/timeline/events?month=${month}&year=${year}`)
 }
