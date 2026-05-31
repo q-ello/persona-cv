@@ -9,7 +9,6 @@ import { useMemo } from "react";
 interface IPrioritiesProps {
   priorities: IPriority[];
   prioritiesLoading: boolean;
-  pastSelected: boolean;
 }
 
 //seeded randomness. for now here, maybe will move somewhere else
