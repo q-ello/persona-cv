@@ -5,7 +5,8 @@ import DatePlate from './DatePlate/DatePlate'
 import Events from './Events/Events'
 import { getGeneralString, IEvent, IPriority } from '@cv/shared'
 import { AnimatePresence } from 'motion/react'
-import Priorities from '../TimelineOverlayRegion/Priorities/Priorities'
+import Priorities from './Priorities/Priorities'
+import { localize } from '../../../../services/localization/localization'
 
 interface ITimelineRightRegionProps {
     pastSelected: boolean;
@@ -18,16 +19,6 @@ interface ITimelineRightRegionProps {
     prioritiesLoading: boolean;
     cBackIsActivated: boolean;
 }
-
-// just manual map
-const monthNames: Map<string, string[]> = new Map([
-    ["ru", ['ЯНВ', 'ФЕВ', 'МАРТ', 'АПР', 'МАЙ', 'ИЮНЬ', 'ИЮЛЬ', 'АВГ', 'СЕН', 'ОКТ', 'НОЯ', 'ДЕК']],
-    ["eng", ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']]
-]);
-const weekdayNames: Map<string, string[]> = new Map([
-    ["ru", ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']],
-    ["eng", ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']]
-]);
 
 const TimelineRightRegion = (props: ITimelineRightRegionProps) => {
     const {
@@ -49,7 +40,7 @@ const TimelineRightRegion = (props: ITimelineRightRegionProps) => {
                 }></div >
                 {/* month */}
                 <Month
-                    month={monthNames.get("eng")?.[selectedDate.getMonth()] ?? "???"}
+                    month={localize("date.months.short")[selectedDate.getMonth()] ?? "???"}
                     bgColor={'bg-white'}
                     qEnabled={!isOnMaxPastMonth}
                     eEnabled={!isOnMaxFutureMonth}
@@ -63,7 +54,7 @@ const TimelineRightRegion = (props: ITimelineRightRegionProps) => {
                     <DatePlate
                         pastSelected={pastSelected}
                         selectedDate={selectedDate}
-                        dayName={weekdayNames.get("eng")?.[selectedDate.getDay()]}
+                        dayName={localize("date.weekdays.short")[selectedDate.getDay()]}
                     />}
 
                 {/* events */}
@@ -71,7 +62,7 @@ const TimelineRightRegion = (props: ITimelineRightRegionProps) => {
                     <Events events={events.get(getGeneralString(selectedDate))!} />}
 
                 {/* which plans do you want to view */}
-                <div className={clsx("absolute text-black font-helvetica text-2xl bottom-23 left-20 right-0 -skew-y-5 -skew-x-5 font-black scale-x-95 -rotate-5 white-outline")}>
+                <div className={clsx("absolute text-black font-inter text-2xl bottom-23 left-20 right-0 -skew-y-5 -skew-x-5 font-black scale-x-95 -rotate-5 white-outline")}>
                     Which plans do you want to view?
                 </div>
 

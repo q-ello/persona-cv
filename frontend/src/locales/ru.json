@@ -1,0 +1,32 @@
+{
+  "priority.project": "Проект: {name}",
+  "priority.chinese": "Китайский: {name}",
+  "priority.study": "Учёба: {name}",
+  "priority.read": "Прочитать {name}",
+  "priority.play": "Пройти {name}",
+  "priority.watch": "Посмотреть {name}",
+  "priority.art": "Арт: {name}",
+  "priority.nothing": "Пока нечего делать",
+  
+  "activity.watched": "Посмотрела",
+  "activity.worked": "Работала над",
+  "activity.studied_for": "Готовилась к",
+  "activity.played": "Играла в",
+  "activity.read": "Читала",
+  "activity.studied": "Изучала",
+  
+  "detail.unit.single": "юнит",
+  "detail.unit.range": "юниты",
+  "detail.chapter.single": "глава",
+  "detail.chapter.range": "главы",
+  "detail.series.single": "серия",
+  "detail.series.range": "серии",
+
+  "detail.video.one": "ролик",
+  "detail.video.few": "ролика",
+  "detail.video.many": "роликов",
+
+  "date.months.short": ["ЯНВ", "ФЕВ", "МАРТ", "АПР", "МАЙ", "ИЮНЬ", "ИЮЛЬ", "АВГ", "СЕН", "ОКТ", "НОЯ", "ДЕК"],
+  "date.weekdays.short": ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
+  "date.weekdays.calendar": ["Вс", "Пн", "ВТ", "Ср", "ЧТ", "Пт", "СБ"]
+}

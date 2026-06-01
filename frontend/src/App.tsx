@@ -8,6 +8,8 @@ import Projects from './pages/Projects/Projects'
 import { useEffect } from 'react'
 import { soundManager } from './services/sound/soundManager'
 import { UISounds } from './services/sound/sounds'
+import LanguageRedirect from './components/LanguageRedirect/LanguageRedirect'
+import LanguageProvider from './components/LanguageProvider/LanguageProvider'
 
 function App() {
   useEffect(() => {
@@ -21,11 +23,16 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<MainMenu />} />
-      <Route path="/timeline" element={<Timeline />} />
-      <Route path="/confidants" element={<Confidants />} />
-      <Route path="/settings" element={<Settings />} />
-      <Route path="/projects" element={<Projects/>}/>
+      <Route path='/' element={<LanguageRedirect />} />
+
+      <Route path='/:lang' element={<LanguageProvider />}>
+        <Route index element={<MainMenu />} />
+        <Route path="timeline" element={<Timeline />} />
+        <Route path="confidants" element={<Confidants />} />
+        <Route path="settings" element={<Settings />} />
+        <Route path="projects" element={<Projects />} />
+      </Route>
+      <Route path='*' element={<LanguageRedirect />} />
     </Routes>
   )
 }

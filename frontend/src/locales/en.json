@@ -1,0 +1,32 @@
+{
+  "priority.project": "Project: {name}",
+  "priority.chinese": "Chinese: {name}",
+  "priority.study": "Study {name}",
+  "priority.read": "Read {name}",
+  "priority.play": "Play {name}",
+  "priority.watch": "Watch: {name}",
+  "priority.art": "Art: {name}",
+  "priority.nothing": "Nothing to do so far",
+  
+  "activity.watched": "Watched",
+  "activity.worked": "Worked on",
+  "activity.studied_for": "Studied for",
+  "activity.played": "Played",
+  "activity.read": "Read",
+  "activity.studied": "Studied",
+
+  "detail.unit.single": "unit",
+  "detail.unit.range": "units",
+  "detail.chapter.single": "chapter",
+  "detail.chapter.range": "chapters",
+  "detail.series.single": "episode",
+  "detail.series.range": "episodes",
+  
+  "detail.video.one": "video",
+  "detail.video.few": "videos",
+  "detail.video.many": "videos",
+
+  "date.months.short": ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"],
+  "date.weekdays.short": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+  "date.weekdays.calendar": ["SuN", "MoN", "TUE", "WeD", "THu", "FRi", "SAT"]
+}

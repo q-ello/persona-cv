@@ -1,7 +1,8 @@
 export interface IPriority
 {
-    nameEng: string,
-    nameRu: string
-    object: string,
-    url: string
+    priorityKey: string;
+    objectName: string;
+    objectLocalizationKey?: string | null;
+    url?: string;
+    checked: boolean;
 }
