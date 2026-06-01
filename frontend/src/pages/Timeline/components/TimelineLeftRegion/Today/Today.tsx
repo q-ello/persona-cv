@@ -10,7 +10,7 @@ const Today = ({ position, number }: { position: { x: number; y: number; w: numb
             style={{ left: position.x + position.w * 0.5, top: position.y + position.h * 0.5 - 15 }}
 
         >
-            TO<span className='font-helvetica font-black scale-x-60 inline-block -mx-2 -translate-y-1'>D</span>AY
+            TO<span className='font-inter font-black scale-x-60 inline-block -mx-2 -translate-y-1'>D</span>AY
         </div>
     )
 }
