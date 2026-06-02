@@ -1,5 +1,3 @@
-import { json } from "stream/consumers";
-import { createNagerService } from "./nager.service";
 import { createNagerTestService } from "./nager.service.factory";
 
 describe('getHolidaysEvents', () => {

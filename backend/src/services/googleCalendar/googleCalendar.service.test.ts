@@ -1,4 +1,3 @@
-import { createGoogleCalendarService } from "./googleCalendar.service";
 import { EEventState } from "@cv/shared";
 import { createGoogleCalendarTestService } from "./googleCalendar.service.factory";
 import { createGoogleCalendarEvent } from "./googleCalendar.builders";

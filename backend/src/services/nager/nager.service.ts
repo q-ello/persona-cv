@@ -1,4 +1,4 @@
-import { EEventState, EEventType, getGeneralString, getMonthFromDateString, IEvent, IHoliday } from '@cv/shared';
+import { EEventState, EEventType, getMonthFromDateString, IEvent, IHoliday } from '@cv/shared';
 import { IRawEvent } from '../../types/events.types';
 
 export const createNagerService = (fetchFn: typeof fetch) => {

@@ -14,9 +14,11 @@ describe("Integration: Notion", () => {
         const result = await service.getNotionPriorities();
 
         expect(Array.isArray(result)).toBe(true);
-        expect(result[0]).toHaveProperty("nameEng");
-        expect(result[0]).toHaveProperty("nameRu");
-        expect(result[0]).toHaveProperty("object");
+        expect(result[0]).toHaveProperty("priorityKey");
+        expect(result[0]).toHaveProperty("objectName");
+        expect(result[0]).toHaveProperty("objectLocalizationKey");
         expect(result[0]).toHaveProperty("url");
+        expect(result[0]).toHaveProperty("checked");
+        expect(typeof result[0].checked).toBe("boolean");
     });
 });

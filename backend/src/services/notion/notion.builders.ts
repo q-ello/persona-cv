@@ -1,7 +1,7 @@
 type NotionPriorityQuery = {
     properties?: {
-        NameEn: { type: string, plain_text: string },
-        NameRu: { type: string, plain_text: string },
+        PriorityKey?: { type: string, plain_text: string },
+        Completed?: { type: string, checkbox: boolean },
         Object: {
             relation?: [{ id?: string; }?]
         }
@@ -14,10 +14,13 @@ export const createNotionPriorityQuery = (overrides: NotionPriorityQuery = {}): 
 
 type NotionPriorityPage = {
     properties?: {
-        Name: {
-            title: [{ type: string, plain_text: string }]
+        Name?: {
+            title: Array<{ type: string, plain_text: string }>
         },
-        URL: {
+        LocalizationKey?: {
+            rich_text: Array<{ type: string, plain_text: string }>
+        },
+        URL?: {
             type: string,
             url: string
         }

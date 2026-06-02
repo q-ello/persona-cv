@@ -4,17 +4,17 @@ import { INotionConfig } from "../../types/config.types";
 
 export const createNotionService = (notion: Client, deps: INotionConfig) => {
     const GetPropertyValue = (property: any): string => {
-        if (!("type" in property)) {
+        if (!property || typeof property !== "object" || !("type" in property)) {
             return "";
         }
 
         switch (property.type) {
             case "select":
-                return property.select?.name || null;
+                return property.select?.name || "";
             case "text":
-                return property.plain_text || null;
+                return property.plain_text || "";
             case "url":
-                return property.url || null;
+                return property.url || "";
             case "checkbox":
                 return property.checkbox ? "Yes" : "No";
             default:
@@ -73,15 +73,13 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
                     const urlProp = objectProperties.URL;
                     const localizationKeyProp = objectProperties.LocalizationKey;
 
-                    if (!("title" in nameProp && Array.isArray(nameProp.title))) {
+                    if (!nameProp || !("title" in nameProp && Array.isArray(nameProp.title))) {
                         return null;
                     }
 
-                    if (!("rich_text" in localizationKeyProp && Array.isArray(localizationKeyProp.rich_text))) {
+                    if (!localizationKeyProp || !("rich_text" in localizationKeyProp && Array.isArray(localizationKeyProp.rich_text))) {
                         return null;
                     }
-
-                    console.log(properties.Completed);
 
                     //#endregion
 
@@ -95,8 +93,8 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
                 }))).filter((obj): obj is IPriority => obj !== null);
 
             const uncheckedPriorities = priorities.filter(p => !p.checked);
-            if (uncheckedPriorities.length > 7) {
-                priorities = priorities.slice(0, 7);
+            if (uncheckedPriorities.length >= 7) {
+                priorities = uncheckedPriorities.slice(0, 7);
             }
             else if (uncheckedPriorities.length < 7) {
                 const checkedPriorities = priorities.filter(p => p.checked);
