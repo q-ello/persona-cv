@@ -1,11 +1,11 @@
 {
-  "priority.project": "Проект: {name}",
-  "priority.chinese": "Китайский: {name}",
-  "priority.study": "Учёба: {name}",
-  "priority.read": "Прочитать {name}",
-  "priority.play": "Пройти {name}",
-  "priority.watch": "Посмотреть {name}",
-  "priority.art": "Арт: {name}",
+  "priority.project": "Проект:",
+  "priority.chinese": "Китайский:",
+  "priority.study": "Учёба:",
+  "priority.read": "Прочитать",
+  "priority.play": "Пройти",
+  "priority.watch": "Посмотреть",
+  "priority.art": "Арт:",
   "priority.nothing": "Пока нечего делать",
   
   "activity.watched": "Посмотрела",

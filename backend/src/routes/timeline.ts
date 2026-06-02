@@ -14,7 +14,7 @@ export const createTimelineRouter = (notionService: ReturnType<typeof createNoti
 
     router.get('/priorities', async (req, res) => {
         try {
-            const response = await notionService.getNotionPriorities();
+            const response = await notionService.getNotionPriorities(req.headers["accept-language"] as string);
             res.json(response);
         } catch (error) {
             console.error("Error fetching priorities from Notion:", error);

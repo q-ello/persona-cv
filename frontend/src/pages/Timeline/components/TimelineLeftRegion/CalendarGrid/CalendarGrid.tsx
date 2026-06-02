@@ -72,14 +72,18 @@ const CalendarGrid = (props: ICalendarProps) => {
             translation: [[6, 0], [0, 9], [-15, 0]],
             scale: [[0.9, 1.3], [0.7, 1], [0.8, 1.2]]
         },
-    ]
+    ];
+
+    const localizedWeekdays = useMemo(() => {
+        return [0, 1, 2, 3, 4, 5, 6].map(index => localize("date.weekdays.calendar")[index].split(""));
+    }, []);
 
     return (
         <div className="grid-container h-full w-full py-20 pl-80 pr-70 -rotate-5 text-center -skew-y-1">
             <div className="grid grid-cols-7">
                 {/* headers */}
-                {[0, 1, 2, 3, 4, 5, 6].map(index =>
-                    <WeekDay day={localize("date.weekdays.calendar")[index].split("")} transformData={weekdayTransformData[index]} key={index}/>
+                {localizedWeekdays.map((day, index) =>
+                    <WeekDay day={day} transformData={weekdayTransformData[index]} key={index}/>
                 )}
                 {/* days */}
                 {daysNumbers.map((number, index) => {

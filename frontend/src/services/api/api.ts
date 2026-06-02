@@ -1,15 +1,18 @@
 import { IEvent, IPriority } from "@cv/shared";
+import { languageStorage } from "../localization/languageStore";
 
 const API = `${import.meta.env.VITE_API_URL}/api`;
 
 async function client(url: string) {
-  const res = await fetch(`${API}${url}`);
+  const res = await fetch(`${API}${url}`, {
+    headers: { "accept-language": languageStorage.getLanguage() }
+  });
   if (!res.ok) throw new Error('API error');
   return res.json();
 }
 
 export const timelineApi = {
-  getPriorities: () : Promise<IPriority[]> => client("/timeline/priorities"),
+  getPriorities: (): Promise<IPriority[]> => client("/timeline/priorities"),
 
-  getMonthEvents: (year: number, month: number) : Promise<Record<string, IEvent[]>> => client(`/timeline/events?month=${month}&year=${year}`)
+  getMonthEvents: (year: number, month: number): Promise<Record<string, IEvent[]>> => client(`/timeline/events?month=${month}&year=${year}`)
 }

@@ -7,6 +7,7 @@ import { getGeneralString, IEvent, IPriority } from '@cv/shared'
 import { AnimatePresence } from 'motion/react'
 import Priorities from './Priorities/Priorities'
 import { localize } from '../../../../services/localization/localization'
+import { useMemo } from 'react'
 
 interface ITimelineRightRegionProps {
     pastSelected: boolean;
@@ -32,6 +33,15 @@ const TimelineRightRegion = (props: ITimelineRightRegionProps) => {
         prioritiesLoading,
         cBackIsActivated
     } = props;
+
+    const localizedMonths = useMemo(() => {
+        return localize("date.months.short");
+    }, []);
+
+    const localizedWeekdays = useMemo(() => {
+        return localize("date.weekdays.short");
+    }, []);
+
     return (
         <>
             <div className={clsx('w-full h-full pointer-events-none', pastSelected && 'brightness-80')}>
@@ -40,7 +50,7 @@ const TimelineRightRegion = (props: ITimelineRightRegionProps) => {
                 }></div >
                 {/* month */}
                 <Month
-                    month={localize("date.months.short")[selectedDate.getMonth()] ?? "???"}
+                    month={localizedMonths[selectedDate.getMonth()]}
                     bgColor={'bg-white'}
                     qEnabled={!isOnMaxPastMonth}
                     eEnabled={!isOnMaxFutureMonth}
@@ -54,7 +64,7 @@ const TimelineRightRegion = (props: ITimelineRightRegionProps) => {
                     <DatePlate
                         pastSelected={pastSelected}
                         selectedDate={selectedDate}
-                        dayName={localize("date.weekdays.short")[selectedDate.getDay()]}
+                        dayName={localizedWeekdays[selectedDate.getDay()]}
                     />}
 
                 {/* events */}

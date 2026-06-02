@@ -22,7 +22,7 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
         }
     }
 
-    const getNotionPriorities = async (): Promise<IPriority[]> => {
+    const getNotionPriorities = async (locale: string = "en"): Promise<IPriority[]> => {
         try {
             const response = await notion!.dataSources.query({
                 data_source_id: deps.prioritiesDatasourceId,
@@ -83,10 +83,13 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
 
                     //#endregion
 
+                    //todo
+                    const localizedName = localizationKeyProp.rich_text.length > 0 ? GetPropertyValue(localizationKeyProp.rich_text[0]) : GetPropertyValue(nameProp.title[0]);
+                    const objectName = locale === "ru" ? localizedName : GetPropertyValue(nameProp.title[0]);
+
                     return {
                         priorityKey: GetPropertyValue(properties.PriorityKey),
-                        objectName: GetPropertyValue(nameProp.title[0]),
-                        objectLocalizationKey: localizationKeyProp.rich_text.length > 0 ? GetPropertyValue(localizationKeyProp.rich_text[0]) : null,
+                        objectName: objectName,
                         url: GetPropertyValue(urlProp),
                         checked: GetPropertyValue(properties.Completed) === "Yes"
                     };
@@ -110,7 +113,7 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
     };
 
     return {
-        getNotionPriorities: getNotionPriorities
+        getNotionPriorities
     }
 
 }

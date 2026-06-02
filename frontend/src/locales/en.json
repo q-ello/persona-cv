@@ -1,11 +1,11 @@
 {
-  "priority.project": "Project: {name}",
-  "priority.chinese": "Chinese: {name}",
-  "priority.study": "Study {name}",
-  "priority.read": "Read {name}",
-  "priority.play": "Play {name}",
-  "priority.watch": "Watch: {name}",
-  "priority.art": "Art: {name}",
+  "priority.project": "Project:",
+  "priority.chinese": "Chinese:",
+  "priority.study": "Study",
+  "priority.read": "Read",
+  "priority.play": "Play",
+  "priority.watch": "Watch",
+  "priority.art": "Art:",
   "priority.nothing": "Nothing to do so far",
   
   "activity.watched": "Watched",

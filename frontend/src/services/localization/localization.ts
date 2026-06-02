@@ -12,24 +12,47 @@ export const LANGUAGES = ["en", "ru"] as const;
 
 export type Language = typeof LANGUAGES[number];
 
-type LocalizationKey = keyof typeof en | keyof typeof ru;
+type LocalizationKey = keyof typeof en;
 
-export function isLanguage(value: string): value is Language 
-{
+export function isLanguage(value: string): value is Language {
     return LANGUAGES.includes(value as Language);
 }
 
-export function localize(key: LocalizationKey, params?: any)
-{
+export function localize(key: string, params?: any) {
+    console.log("localize", { key, params });
+
     const lang = languageStorage.getLanguage();
 
     const locale = localization[lang];
 
-    if (key in locale)
-    {
-        return locale[key];
+    const locKey = key as LocalizationKey;
+
+    let result: string | string[];
+
+    if (locKey in locale) {
+        result = locale[locKey];
     }
-    return localization.en[key];
+    else if (locKey in localization.en) {
+        result = localization.en[locKey];
+    }
+    else {
+        result = key;
+    }
+
+    if (Array.isArray(result)) {
+        return result;
+    }
+
+    let resultStr = result as string;
+
+    if (params) {
+        Object.keys(params).forEach(paramKey => {
+            const regex = new RegExp(`{${paramKey}}`, 'g');
+            resultStr = resultStr.replace(regex, params[paramKey]);
+        });
+    }
+
+    return resultStr;
 }
 
 export function localizeEvent(event: IEvent) {

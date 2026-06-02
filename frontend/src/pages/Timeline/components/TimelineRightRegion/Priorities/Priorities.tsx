@@ -36,7 +36,7 @@ const Priorities = (props: IPrioritiesProps) => {
 
   const randomTransforms = useMemo(() =>
     priorities?.map(obj => {
-      const base = hashString(obj.object);
+      const base = hashString(obj.objectName);
       return {
         x: pseudoRandom(base)() * 30,
         y: pseudoRandom(base + 1)() * 5 - 2,
@@ -49,8 +49,28 @@ const Priorities = (props: IPrioritiesProps) => {
     []
   );
 
+  const localizedProperties = useMemo(() => {
+    return priorities?.map((priority, index) => {
+      const isChecked = priority.checked;
+      const objectName = priority.objectName;
+
+      const objectNameComponent = isChecked || !priority.url
+        ? (<span className="font-medium">{objectName}</span>)
+        : (<Link to={priority.url} target="_blank" className="text-neutral-600 hover:text-red-800">{objectName}</Link>);
+      return (
+        <li
+          key={priority.objectName}
+          className={clsx("text-left", isChecked && "line-through text-neutral-500")}
+          style={{ transform: `translateX(${randomTransforms[index].x}px) translateY(${randomTransforms[index].y}px) rotate(${randomTransforms[index].rot}deg) ` }}
+        >
+          {localize(`priority.${priority.priorityKey}`)} {objectNameComponent}
+        </li>)
+    }
+    );
+  }, [priorities, randomTransforms]);
+
   return (
-    <div className='absolute right-50 bottom-15 -rotate-5 text-black'>
+    <div className='absolute right-50 bottom-15 -rotate-5 text-black pointer-events-auto'>
       <motion.div
         initial={{ translateX: 750, translateY: -500, rotate: -90 }}
         animate={{ translateX: [750, -5, 0], translateY: [-500, 3, 0], rotate: [-90, 15, 0], transition: { duration: 0.5, times: [0, 0.75, 1] } }}
@@ -80,17 +100,10 @@ const Priorities = (props: IPrioritiesProps) => {
             <div className="w-fit max-w-80 mx-auto mt-2 font-cooper font-bold -skew-x-3">
               {
                 (priorities?.length > 0 || prioritiesLoading)
-                && <ul className="list-disc marker:text-red-700 text-xl">
-                  {priorities?.map((priority, index) =>
-                    <li
-                      key={priority.object}
-                      className={clsx("text-left")}
-                      style={{ transform: `translateX(${randomTransforms[index].x}px) translateY(${randomTransforms[index].y}px) rotate(${randomTransforms[index].rot}deg) ` }}
-                    >
-                      {priority.nameEng} {priority.url ? <Link to={priority.url} target="_blank" className="text-neutral-600 hover:text-red-800">{priority.object}</Link> : <span>{priority.object}</span>}
-                    </li>)}
-                </ul>
-                || <div className="-rotate-5 text-5xl text-neutral-500 pt-8 -skew-x-3">{localize("priority.nothing")}</div>
+                  ? <ul className="list-disc marker:text-red-700 text-xl">
+                    {localizedProperties}
+                  </ul>
+                  : <div className="-rotate-5 text-5xl text-neutral-500 pt-8 -skew-x-3">{localize("priority.nothing")}</div>
               }
             </div>
           </div>
