@@ -7,6 +7,7 @@ import { createGoogleCalendarService } from "./services/googleCalendar/googleCal
 import cors from "cors";
 import { createNotionService } from "./services/notion/notion.service";
 import { createNagerService } from "./services/nager/nager.service";
+import { createLocalizationService } from "./services/localization/localization.service";
 
 dotenv.config();
 loadConfig();
@@ -15,6 +16,8 @@ const notionClient = new Client({ auth: config.notion.secret });
 const notionService = createNotionService(notionClient, config.notion);
 const googleCalendarService = createGoogleCalendarService(config.googleCalendar, fetch);
 const nagerService = createNagerService(fetch);
+const localizationService = createLocalizationService(notionService);
+localizationService.init();
 
 const app = express();
 const PORT = 3001;
@@ -23,7 +26,7 @@ app.use(cors({
   origin: "http://localhost:5173",
 }));
 
-app.use("/api/timeline", createTimelineRouter(notionService, googleCalendarService, nagerService));
+app.use("/api/timeline", createTimelineRouter(notionService, googleCalendarService, nagerService, localizationService));
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

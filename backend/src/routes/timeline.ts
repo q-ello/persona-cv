@@ -1,21 +1,42 @@
 import express from 'express';
-import { IEvent } from '@cv/shared';
+import { IEvent, IPriority, Language } from '@cv/shared';
 import { createNotionService } from '../services/notion/notion.service';
 import { createGoogleCalendarService } from '../services/googleCalendar/googleCalendar.service';
 import { createNagerService } from '../services/nager/nager.service';
 import { mergeEvents } from '../utils';
+import { createLocalizationService } from '../services/localization/localization.service';
 
 
-export const createTimelineRouter = (notionService: ReturnType<typeof createNotionService>,
+export const createTimelineRouter = (
+    notionService: ReturnType<typeof createNotionService>,
     googleCalendarService: ReturnType<typeof createGoogleCalendarService>,
-    nagerService: ReturnType<typeof createNagerService>
+    nagerService: ReturnType<typeof createNagerService>,
+    localizationService: ReturnType<typeof createLocalizationService>
 ) => {
     const router = express.Router();
 
     router.get('/priorities', async (req, res) => {
         try {
-            const response = await notionService.getNotionPriorities(req.headers["accept-language"] as string);
-            res.json(response);
+            const rawPriorities = await notionService.getNotionPriorities();
+            const locale = req.headers["accept-language"] as Language;
+            const localizedPriorities: IPriority[] = await Promise.all(rawPriorities.map(async rawPriority => {
+                let objectName;
+                if (rawPriority.localizationKey)
+                {
+                    objectName = await localizationService.asyncLocalize(`object.${rawPriority.localizationKey}`, locale);
+                }
+                else
+                {
+                    objectName = rawPriority.objectName;
+                }
+                return {
+                priorityKey: rawPriority.priorityKey,
+                objectName: objectName,
+                url: rawPriority.url,
+                checked: rawPriority.checked
+            }}));
+            
+            res.json(localizedPriorities);
         } catch (error) {
             console.error("Error fetching priorities from Notion:", error);
             res.status(500).json({ error: "Failed to fetch priorities from Notion" });

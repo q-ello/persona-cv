@@ -20,7 +20,7 @@ export const createNotionTestService = ({
         }
     };
 
-    const service = createNotionService(notionMock as any, { secret: "", prioritiesDatasourceId: "" });
+    const service = createNotionService(notionMock as any, { secret: "", prioritiesDatasourceId: "", localizationDatasourceId: "" });
 
     return { service, notionMock };
 }

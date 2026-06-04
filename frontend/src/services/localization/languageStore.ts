@@ -1,4 +1,4 @@
-import { Language } from "./localization";
+import { Language } from "@cv/shared";
 
 export const languageStorage = {
     getLanguage(): Language {

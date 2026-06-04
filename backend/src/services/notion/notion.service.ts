@@ -1,8 +1,14 @@
 import { Client } from "@notionhq/client";
-import { IPriority } from '@cv/shared';
+import { IPriority, LANGUAGES } from '@cv/shared';
 import { INotionConfig } from "../../types/config.types";
+import { LocalizationCache, LocalizationEntry } from "../localization/localization.service";
+
+type IRawPriority = IPriority & {localizationKey : string};
+
+export const maxPrioritiesNumber = 6;
 
 export const createNotionService = (notion: Client, deps: INotionConfig) => {
+
     const GetPropertyValue = (property: any): string => {
         if (!property || typeof property !== "object" || !("type" in property)) {
             return "";
@@ -17,12 +23,16 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
                 return property.url || "";
             case "checkbox":
                 return property.checkbox ? "Yes" : "No";
+            case "title":
+                return GetPropertyValue(property.title[0]);
+            case "rich_text":
+                return GetPropertyValue(property.rich_text[0])
             default:
                 return "";
         }
     }
 
-    const getNotionPriorities = async (locale: string = "en"): Promise<IPriority[]> => {
+    const getNotionPriorities = async (): Promise<IRawPriority[]> => {
         try {
             const response = await notion!.dataSources.query({
                 data_source_id: deps.prioritiesDatasourceId,
@@ -32,8 +42,8 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
                 }]
             });
 
-            let priorities: IPriority[] = (await Promise.all(
-                response.results.map(async (result): Promise<IPriority | null> => {
+            let priorities: IRawPriority[] = (await Promise.all(
+                response.results.map(async (result): Promise<IRawPriority | null> => {
 
                     if (!("properties" in result)) {
                         return null;
@@ -83,23 +93,20 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
 
                     //#endregion
 
-                    //todo
-                    const localizedName = localizationKeyProp.rich_text.length > 0 ? GetPropertyValue(localizationKeyProp.rich_text[0]) : GetPropertyValue(nameProp.title[0]);
-                    const objectName = locale === "ru" ? localizedName : GetPropertyValue(nameProp.title[0]);
-
                     return {
                         priorityKey: GetPropertyValue(properties.PriorityKey),
-                        objectName: objectName,
+                        objectName: GetPropertyValue(nameProp),
+                        localizationKey: GetPropertyValue(localizationKeyProp),
                         url: GetPropertyValue(urlProp),
                         checked: GetPropertyValue(properties.Completed) === "Yes"
                     };
-                }))).filter((obj): obj is IPriority => obj !== null);
+                }))).filter((obj): obj is IRawPriority => obj !== null);
 
             const uncheckedPriorities = priorities.filter(p => !p.checked);
-            if (uncheckedPriorities.length >= 7) {
-                priorities = uncheckedPriorities.slice(0, 7);
+            if (uncheckedPriorities.length >= maxPrioritiesNumber) {
+                priorities = uncheckedPriorities.slice(0, maxPrioritiesNumber);
             }
-            else if (uncheckedPriorities.length < 7) {
+            else if (uncheckedPriorities.length < maxPrioritiesNumber) {
                 const checkedPriorities = priorities.filter(p => p.checked);
                 const additionalCheckedPriorities = checkedPriorities.slice(0, Math.min(priorities.length, 7) - uncheckedPriorities.length);
                 priorities = [...uncheckedPriorities, ...additionalCheckedPriorities];
@@ -112,8 +119,48 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
         }
     };
 
+    const getAllLocalizations = async (): Promise<LocalizationCache> => {
+        try {
+            const response = await notion!.dataSources.query({
+                data_source_id: deps.localizationDatasourceId,
+            });
+
+            let localization: LocalizationCache = new Map();
+
+            await Promise.all(
+                response.results.map(async (result): Promise<void> => {
+
+                    if (!("properties" in result)) {
+                        return;
+                    }
+
+                    const properties = result.properties;
+
+                    const keyProp = properties.Key;
+
+                    const key = GetPropertyValue(keyProp);
+
+                    let record: Partial<LocalizationEntry> = {};
+
+                    for (const lang of LANGUAGES)
+                    {
+                        const langProp = properties[lang];
+                        record[lang] = GetPropertyValue(langProp);
+                    }
+
+                    localization.set(key, record as LocalizationEntry);
+                }));
+
+            return localization;
+        } catch (error) {
+            console.error("Error fetching localization from Notion:", error);
+            throw new Error("Failed to fetch localization from Notion");
+        }
+    }
+
     return {
-        getNotionPriorities
+        getNotionPriorities,
+        getAllLocalizations
     }
 
 }

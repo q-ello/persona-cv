@@ -4,7 +4,8 @@ import {requireEnvVariable} from "./utils";
 export const config : IConfig = {
     notion: {
         secret: "",
-        prioritiesDatasourceId: ""
+        prioritiesDatasourceId: "",
+        localizationDatasourceId: ""
     },
     googleCalendar: {
         apiKey: "",
@@ -16,7 +17,8 @@ export const config : IConfig = {
 export const loadConfig = () => {
     config.notion = {
         secret: requireEnvVariable("NOTION_SECRET"),
-        prioritiesDatasourceId: requireEnvVariable("NOTION_PRIORITIES_DATASOURCE_ID")
+        prioritiesDatasourceId: requireEnvVariable("NOTION_PRIORITIES_DATASOURCE_ID"),
+        localizationDatasourceId: requireEnvVariable("NOTION_LOCALIZATION_DATASOURCE_ID")
     }
 
     config.googleCalendar = {

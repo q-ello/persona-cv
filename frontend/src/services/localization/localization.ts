@@ -1,4 +1,4 @@
-import { IEvent } from '@cv/shared';
+import { IEvent, Language, LANGUAGES } from '@cv/shared';
 import en from '../../locales/en.json'
 import ru from '../../locales/ru.json'
 import { languageStorage } from './languageStore';
@@ -7,10 +7,6 @@ const localization = {
     en,
     ru
 }
-
-export const LANGUAGES = ["en", "ru"] as const;
-
-export type Language = typeof LANGUAGES[number];
 
 type LocalizationKey = keyof typeof en;
 

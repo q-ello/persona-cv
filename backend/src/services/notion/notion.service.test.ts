@@ -1,4 +1,5 @@
 import { createNotionPriorityPage, createNotionPriorityQuery } from "./notion.builders";
+import { maxPrioritiesNumber } from "./notion.service";
 import { createNotionTestService } from "./notion.service.factory";
 
 describe("NotionService", () => {
@@ -82,17 +83,17 @@ describe("NotionService", () => {
         expect(result).toEqual([]);
     });
 
-    it("cuts items length to 7 if longer", async () => {
+    it("cuts items length to maxPrioritiesNumber if longer", async () => {
         const dummyPriority = createValidPriorityQuery();
 
-        const dummyArray = new Array(8).fill(dummyPriority);
+        const dummyArray = new Array(maxPrioritiesNumber + 1).fill(dummyPriority);
 
         const { service } = createNotionTestService({
             queryResult: dummyArray,
             pageResult: validPriorityPage
         });
         const result = await service.getNotionPriorities();
-        expect(result.length).toBe(7);
+        expect(result.length).toBe(maxPrioritiesNumber);
     })
 
     it("prioritizes unchecked items over checked items", async () => {
@@ -114,4 +115,6 @@ describe("NotionService", () => {
         expect(result.map(priority => priority.checked)).toEqual([false, true]);
         expect(result[0].priorityKey).toBe("Unchecked Priority");
     });
+
+    //todo: check that getAllLocalization returns a LocalizationCache
 });
