@@ -1,4 +1,5 @@
-import { IEvent } from "@cv/shared";
+import { IEvent, Language } from "@cv/shared";
+import { IRawEvent } from "./types/events.types";
 
 export const requireEnvVariable = (name: string): string => {
     const value = process.env[name];
@@ -9,8 +10,9 @@ export const requireEnvVariable = (name: string): string => {
 };
 
 export const mergeEvents = (
-    googleEvents: { date: string, event: IEvent }[],
-    nagerEvents: { date: string, event: IEvent }[]
+    locale: Language,
+    googleEvents: IRawEvent[],
+    nagerEvents: IRawEvent[]
 ): Record<string, IEvent[]> => {
 
     const eventsRecord: Record<string, IEvent[]> = {};
@@ -20,8 +22,15 @@ export const mergeEvents = (
         else eventsRecord[key] = [event];
     };
 
-    googleEvents.forEach(({ date, event }) => addToMap(date, event));
-    nagerEvents.forEach(({ date, event }) => addToMap(date, event));
+    [...googleEvents, ...nagerEvents].forEach(rawEvent => addToMap(rawEvent.date, {
+        state: rawEvent.state,
+        eventText: locale === "ru" && rawEvent.eventRu || rawEvent.eventEng,
+        type: rawEvent.type
+    }));
 
     return eventsRecord;
 };
+
+export const getLocale = (req: any): Language => {
+    return req.headers["accept-language"] as Language
+}

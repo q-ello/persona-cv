@@ -1,4 +1,4 @@
-import { IEvent, Language, LANGUAGES } from '@cv/shared';
+import { Language, LANGUAGES } from '@cv/shared';
 import en from '../../locales/en.json'
 import ru from '../../locales/ru.json'
 import { languageStorage } from './languageStore';
@@ -49,14 +49,4 @@ export function localize(key: string, params?: any) {
     }
 
     return resultStr;
-}
-
-export function localizeEvent(event: IEvent) {
-    const lang = languageStorage.getLanguage();
-
-    if (lang === "ru") {
-        return event.eventRu;
-    }
-
-    return event.eventEng;
 }

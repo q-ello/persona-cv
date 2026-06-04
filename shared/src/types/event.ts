@@ -30,7 +30,6 @@ export enum EEventType
 export interface IEvent
 {
     state: EEventState,
-    eventEng: string,
-    eventRu: string,
+    eventText: string,
     type: EEventType
 }

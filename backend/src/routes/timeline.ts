@@ -3,7 +3,7 @@ import { IEvent, IPriority, Language } from '@cv/shared';
 import { createNotionService } from '../services/notion/notion.service';
 import { createGoogleCalendarService } from '../services/googleCalendar/googleCalendar.service';
 import { createNagerService } from '../services/nager/nager.service';
-import { mergeEvents } from '../utils';
+import { getLocale, mergeEvents as mergeAndLocalizeEvents } from '../utils';
 import { createLocalizationService } from '../services/localization/localization.service';
 
 
@@ -18,7 +18,7 @@ export const createTimelineRouter = (
     router.get('/priorities', async (req, res) => {
         try {
             const rawPriorities = await notionService.getNotionPriorities();
-            const locale = req.headers["accept-language"] as Language;
+            const locale = getLocale(req);
             const localizedPriorities: IPriority[] = await Promise.all(rawPriorities.map(async rawPriority => {
                 let objectName;
                 if (rawPriority.localizationKey)
@@ -61,7 +61,7 @@ export const createTimelineRouter = (
                 nagerService.getHolidaysEvents(yearNum, monthNum)
             ]);
 
-            const eventsRecord: Record<string, IEvent[]> = mergeEvents(googleEvents, nagerEvents);
+            const eventsRecord: Record<string, IEvent[]> = mergeAndLocalizeEvents(getLocale(req), googleEvents, nagerEvents);
 
             res.json(eventsRecord);
 
