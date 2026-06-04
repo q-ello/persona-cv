@@ -42,6 +42,10 @@ const TimelineRightRegion = (props: ITimelineRightRegionProps) => {
         return localize("date.weekdays.short");
     }, []);
 
+    const localizedPlansLine = useMemo(() => {
+        return localize("calendar.which_plans");
+    }, [])
+
     return (
         <>
             <div className={clsx('w-full h-full pointer-events-none', pastSelected && 'brightness-80')}>
@@ -73,7 +77,7 @@ const TimelineRightRegion = (props: ITimelineRightRegionProps) => {
 
                 {/* which plans do you want to view */}
                 <div className={clsx("absolute text-black font-inter text-2xl bottom-23 left-20 right-0 -skew-y-5 -skew-x-5 font-black scale-x-95 -rotate-5 white-outline")}>
-                    Which plans do you want to view?
+                    {localizedPlansLine}
                 </div>
 
                 <AnimatePresence>

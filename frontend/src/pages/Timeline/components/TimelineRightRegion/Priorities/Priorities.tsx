@@ -55,7 +55,7 @@ const Priorities = (props: IPrioritiesProps) => {
       const objectName = priority.objectName;
 
       const objectNameComponent = isChecked || !priority.url
-        ? (<span className="font-medium">{objectName}</span>)
+        ? (<span>{objectName}</span>)
         : (<Link to={priority.url} target="_blank" className="text-neutral-600 hover:text-red-800">{objectName}</Link>);
       return (
         <li
@@ -68,6 +68,14 @@ const Priorities = (props: IPrioritiesProps) => {
     }
     );
   }, [priorities, randomTransforms]);
+
+  const localizedPrioritiesNothing = useMemo(() => {
+    return localize("priorities.nothing");
+  }, [])
+
+  const localizedPrioritiesLabel = useMemo(() => {
+    return localize("priorities.label");
+  }, [])
 
   return (
     <div className='absolute right-50 bottom-15 -rotate-5 text-black pointer-events-auto'>
@@ -96,14 +104,14 @@ const Priorities = (props: IPrioritiesProps) => {
             className={clsx('relative w-130 h-130')}
           />
           <div className="absolute top-0 left-0 bottom-0 right-0 pt-22">
-            <PrioritiesText />
+            <PrioritiesText prioritiesLabel={localizedPrioritiesLabel as string}/>
             <div className="w-fit max-w-80 mx-auto mt-2 font-cooper font-bold -skew-x-3">
               {
                 (priorities?.length > 0 || prioritiesLoading)
                   ? <ul className="list-disc marker:text-red-700 text-xl">
                     {localizedProperties}
                   </ul>
-                  : <div className="-rotate-5 text-5xl text-neutral-500 pt-8 -skew-x-3">{localize("priority.nothing")}</div>
+                  : <div className="-rotate-5 text-5xl text-neutral-500 pt-8 -skew-x-3">{localizedPrioritiesNothing}</div>
               }
             </div>
           </div>

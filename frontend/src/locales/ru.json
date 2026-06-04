@@ -6,7 +6,9 @@
   "priority.play": "Пройти",
   "priority.watch": "Посмотреть",
   "priority.art": "Арт:",
-  "priority.nothing": "Пока нечего делать",
+  
+  "priorities.nothing": "Пока нечего делать",
+  "priorities.label": "Приоритеты",
   
   "activity.watched": "Посмотрела",
   "activity.worked": "Работала над",
@@ -28,5 +30,7 @@
 
   "date.months.short": ["ЯНВ", "ФЕВ", "МАРТ", "АПР", "МАЙ", "ИЮНЬ", "ИЮЛЬ", "АВГ", "СЕН", "ОКТ", "НОЯ", "ДЕК"],
   "date.weekdays.short": ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"],
-  "date.weekdays.calendar": ["Вс", "Пн", "ВТ", "Ср", "ЧТ", "Пт", "СБ"]
+  "date.weekdays.calendar": ["Вс", "Пн", "ВТ", "Ср", "ЧТ", "Пт", "СБ"],
+
+  "calendar.which_plans": "Какие планы ты хочешь посмотреть?"
 }

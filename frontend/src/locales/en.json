@@ -6,7 +6,9 @@
   "priority.play": "Play",
   "priority.watch": "Watch",
   "priority.art": "Art:",
-  "priority.nothing": "Nothing to do so far",
+  
+  "priorities.nothing": "Nothing to do so far",
+  "priorities.label": "Priorities",
   
   "activity.watched": "Watched",
   "activity.worked": "Worked on",
@@ -28,5 +30,7 @@
 
   "date.months.short": ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"],
   "date.weekdays.short": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-  "date.weekdays.calendar": ["SuN", "MoN", "TUE", "WeD", "THu", "FRi", "SAT"]
+  "date.weekdays.calendar": ["SuN", "MoN", "TUE", "WeD", "THu", "FRi", "SAT"],
+
+  "calendar.which_plans": "Which plans do you want to view?"
 }
