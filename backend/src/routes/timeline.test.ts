@@ -90,18 +90,24 @@ describe("/events route", () => {
 
 describe("/priorities route", () => {
     it("returns priorities from Notion", async () => {
-        const { app, notionService } = createTestApp();
+        const { app, notionService, localizationService } = createTestApp();
 
-        const mockPriorities = [
-            { id: "1", title: "Priority 1", description: "Desc 1", date: "2024-01-01" },
-            { id: "2", title: "Priority 2", description: "Desc 2", date: "2024-02-01" }
+        const mockRawPriorities = [
+            { priorityKey: "Priority 1", objectName: "Object 1", localizationKey: "object-1", url: "https://example.com/1", checked: false },
+            { priorityKey: "Priority 2", objectName: "Object 2", localizationKey: "object-2", url: "https://example.com/2", checked: true }
         ];
 
-        notionService.getNotionPriorities.mockResolvedValue(mockPriorities);
+        notionService.getNotionPriorities.mockResolvedValue(mockRawPriorities);
+        localizationService.asyncLocalize
+            .mockResolvedValueOnce("Localized Object 1")
+            .mockResolvedValueOnce("Localized Object 2");
 
         const res = await request(app).get("/api/timeline/priorities");
 
         expect(res.status).toBe(200);
-        expect(res.body).toEqual(mockPriorities);
+        expect(res.body).toEqual([
+            { priorityKey: "Priority 1", objectName: "Localized Object 1", url: "https://example.com/1", checked: false },
+            { priorityKey: "Priority 2", objectName: "Localized Object 2", url: "https://example.com/2", checked: true }
+        ]);
     });
 });

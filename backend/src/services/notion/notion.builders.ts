@@ -15,9 +15,11 @@ export const createNotionPriorityQuery = (overrides: NotionPriorityQuery = {}): 
 type NotionPriorityPage = {
     properties?: {
         Name?: {
+            type?: string,
             title: Array<{ type: string, plain_text: string }>
         },
         LocalizationKey?: {
+            type?: string,
             rich_text: Array<{ type: string, plain_text: string }>
         },
         URL?: {

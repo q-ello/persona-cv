@@ -1,6 +1,8 @@
 import { createNagerService } from "./nager.service";
 
-describe('Nager Integration', () => {
+const describeIntegration = process.env.RUN_INTEGRATION_TESTS === "true" ? describe : describe.skip;
+
+describeIntegration('Nager Integration', () => {
     it('fetches real holidays data', async () => {
         const service = createNagerService(fetch);
 

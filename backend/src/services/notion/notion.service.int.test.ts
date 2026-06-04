@@ -1,7 +1,9 @@
 import { createNotionService } from "./notion.service";
 import { requireEnvVariable } from "../../utils";
 
-describe("Integration: Notion", () => {
+const describeIntegration = process.env.RUN_INTEGRATION_TESTS === "true" ? describe : describe.skip;
+
+describeIntegration("Integration: Notion", () => {
     it("fetches real priorities data", async () => {
         const Client = require("@notionhq/client").Client;
 
@@ -21,7 +23,7 @@ describe("Integration: Notion", () => {
         expect(Array.isArray(result)).toBe(true);
         expect(result[0]).toHaveProperty("priorityKey");
         expect(result[0]).toHaveProperty("objectName");
-        expect(result[0]).toHaveProperty("objectLocalizationKey");
+        expect(result[0]).toHaveProperty("localizationKey");
         expect(result[0]).toHaveProperty("url");
         expect(result[0]).toHaveProperty("checked");
         expect(typeof result[0].checked).toBe("boolean");

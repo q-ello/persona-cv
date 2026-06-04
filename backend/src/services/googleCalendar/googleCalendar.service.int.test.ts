@@ -1,7 +1,9 @@
 import { requireEnvVariable } from "../../utils";
 import { createGoogleCalendarService } from "../googleCalendar/googleCalendar.service";
 
-describe("Integration: Google Calendar", () => {
+const describeIntegration = process.env.RUN_INTEGRATION_TESTS === "true" ? describe : describe.skip;
+
+describeIntegration("Integration: Google Calendar", () => {
     it("should fetch real events from Google Calendar", async () => {
         const service = createGoogleCalendarService({ apiKey: requireEnvVariable("GOOGLE_CALENDAR_API_KEY"), commonCalendarId: requireEnvVariable("GOOGLE_COMMON_CALENDAR_ID"), deadlinesCalendarId: requireEnvVariable("GOOGLE_DEADLINES_CALENDAR_ID") }, fetch);
 

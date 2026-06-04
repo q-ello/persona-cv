@@ -17,9 +17,11 @@ describe("NotionService", () => {
     const validPriorityPage = createNotionPriorityPage({
         properties: {
             Name: {
+                type: "title",
                 title: [{ type: "text", plain_text: "Object Name" }]
             },
             LocalizationKey: {
+                type: "rich_text",
                 rich_text: [{ type: "text", plain_text: "object.localization.key" }]
             },
             URL: {
@@ -44,7 +46,7 @@ describe("NotionService", () => {
             {
                 priorityKey: "Priority Key",
                 objectName: "Object Name",
-                objectLocalizationKey: "object.localization.key",
+                localizationKey: "object.localization.key",
                 url: "http://example.com",
                 checked: false
             }
