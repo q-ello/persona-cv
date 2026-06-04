@@ -1,8 +1,8 @@
 
 export interface INotionConfig {
     secret: string;
-    prioritiesDatasourceId: string;
-    localizationDatasourceId: string;
+    prioritiesDatabaseId: string;
+    localizationDatabaseId: string;
 }
 
 export interface IGoogleCalendarConfig {

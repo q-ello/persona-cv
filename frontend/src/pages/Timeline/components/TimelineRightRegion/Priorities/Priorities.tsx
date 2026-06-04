@@ -15,6 +15,9 @@ interface IPrioritiesProps {
 //seeded randomness. for now here, maybe will move somewhere else
 function hashString(str: string) {
   let hash = 0;
+  if (!str)
+    return 0;
+
   for (let i = 0; i < str.length; i++) {
     hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
   }

@@ -7,6 +7,7 @@ export type LocalizationCache = Map<string, LocalizationEntry>
 
 export const createLocalizationService = (notionService: ReturnType<typeof createNotionService>) => {
     let cachedLocales: LocalizationCache = new Map();
+    let lastFetchedTime: Date;
 
     const init = () => {
         console.log("Started initializing localization cache");
@@ -15,14 +16,25 @@ export const createLocalizationService = (notionService: ReturnType<typeof creat
         setInterval(() => reload(), 24*60*60*1000)
     }
 
-    const reload = () => {
-        refreshCache();
+    const reload = async () => {
+        await refreshCache();
     }
 
     const refreshCache = async () => {
         try {
-            cachedLocales = await notionService.getAllLocalizations();
-            console.log(`Refreshed ${cachedLocales.size} localization keys`);
+            const freshLocales = await notionService.getAllLocalizations(lastFetchedTime);
+            lastFetchedTime = new Date();
+
+            if (freshLocales.size > 0)
+            {
+                cachedLocales = freshLocales;
+                console.log(`Refreshed ${cachedLocales.size} localization keys`);
+            }
+            else
+            {
+                console.log("Didn't refresh locales: database didn't change from the last fetch");
+            }
+
         }
         catch (e) {
             console.log("Cache wasn't refreshed:", e);
@@ -38,8 +50,23 @@ export const createLocalizationService = (notionService: ReturnType<typeof creat
 
         //if we didn't find that let's try refreshing
         await refreshCache();
-        return cachedLocales.get(key)?.[locale] || cachedLocales.get(key)?.en || key;
+        const trueResult = cachedLocales.get(key)?.[locale];
+        if (trueResult)
+        {
+            return trueResult;
+        }
+
+        const enResult = cachedLocales.get(key)?.en;
+        if (enResult)
+        {
+            console.warn(`No ${locale} locale for the key ${key}. Falling back to english one`);
+            return enResult;
+        }
+
+        console.warn(`No locales for the key ${key}. Returning the key back`);
+
+        return key.split(".").pop() as string; 
     }
 
-    return {init, asyncLocalize}
+    return {init, asyncLocalize, reload}
 }

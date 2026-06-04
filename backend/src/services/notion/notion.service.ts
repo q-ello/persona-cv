@@ -3,7 +3,7 @@ import { IPriority, LANGUAGES } from '@cv/shared';
 import { INotionConfig } from "../../types/config.types";
 import { LocalizationCache, LocalizationEntry } from "../localization/localization.service";
 
-type IRawPriority = IPriority & {localizationKey : string};
+type IRawPriority = IPriority & { localizationKey: string };
 
 export const maxPrioritiesNumber = 6;
 
@@ -32,10 +32,14 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
         }
     }
 
-    const getNotionPriorities = async (): Promise<IRawPriority[]> => {
+    const getPriorities = async (): Promise<IRawPriority[]> => {
         try {
+            const databaseResponse: any = await notion.databases.retrieve({
+                database_id: deps.prioritiesDatabaseId
+            })
+
             const response = await notion!.dataSources.query({
-                data_source_id: deps.prioritiesDatasourceId,
+                data_source_id: databaseResponse.data_sources[0].id,
                 sorts: [{
                     property: "Last edited time",
                     direction: "descending"
@@ -119,10 +123,18 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
         }
     };
 
-    const getAllLocalizations = async (): Promise<LocalizationCache> => {
+    const getAllLocalizations = async (lastFetchedTime: Date): Promise<LocalizationCache> => {
         try {
+            const databaseResponse: any = await notion!.databases.retrieve({
+                database_id: deps.localizationDatabaseId
+            })
+
+            if (lastFetchedTime && lastFetchedTime > new Date(databaseResponse.last_edited_time)) {
+                return new Map();
+            }
+
             const response = await notion!.dataSources.query({
-                data_source_id: deps.localizationDatasourceId,
+                data_source_id: databaseResponse.data_sources[0].id,
             });
 
             let localization: LocalizationCache = new Map();
@@ -142,8 +154,7 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
 
                     let record: Partial<LocalizationEntry> = {};
 
-                    for (const lang of LANGUAGES)
-                    {
+                    for (const lang of LANGUAGES) {
                         const langProp = properties[lang];
                         record[lang] = GetPropertyValue(langProp);
                     }
@@ -159,7 +170,7 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
     }
 
     return {
-        getNotionPriorities,
+        getNotionPriorities: getPriorities,
         getAllLocalizations
     }
 

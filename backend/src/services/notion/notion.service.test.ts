@@ -117,4 +117,5 @@ describe("NotionService", () => {
     });
 
     //todo: check that getAllLocalization returns a LocalizationCache
+    //todo: check that getAllLocalization returns empty map if db didn't change
 });

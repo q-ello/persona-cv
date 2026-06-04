@@ -8,6 +8,7 @@ import cors from "cors";
 import { createNotionService } from "./services/notion/notion.service";
 import { createNagerService } from "./services/nager/nager.service";
 import { createLocalizationService } from "./services/localization/localization.service";
+import { createLocalesRouter } from "./routes/locales";
 
 dotenv.config();
 loadConfig();
@@ -27,6 +28,7 @@ app.use(cors({
 }));
 
 app.use("/api/timeline", createTimelineRouter(notionService, googleCalendarService, nagerService, localizationService));
+app.use("/api/locales", createLocalesRouter(localizationService));
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
