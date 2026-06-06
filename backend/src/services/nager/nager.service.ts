@@ -1,4 +1,4 @@
-import { EEventState, EEventType, getGeneralString, getMonthFromDateString, IEvent, IHoliday } from '@cv/shared';
+import { EEventState, EEventType, getMonthFromDateString, IEvent, IHoliday } from '@cv/shared';
 import { IRawEvent } from '../../types/events.types';
 
 export const createNagerService = (fetchFn: typeof fetch) => {
@@ -28,10 +28,9 @@ export const createNagerService = (fetchFn: typeof fetch) => {
 
             const eventEng: string = item.name;
             const eventRu: string = item.localName ?? eventEng;
-            const date: string = item.date;
-            const event: IEvent = { eventEng, eventRu, type: EEventType.Holiday, state: EEventState.Single }
+            const event: IRawEvent = { date: item.date, eventEng, eventRu, type: EEventType.Holiday, state: EEventState.Single }
 
-            return { date, event };
+            return event;
         })).filter((event: IRawEvent | null): event is IRawEvent => event !== null);
 
         return events;

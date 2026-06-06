@@ -4,6 +4,8 @@ import DayCell from './DayCell/DayCell';
 import React from 'react';
 import { IEvent } from '@cv/shared';
 import WeekDay from './WeekDay/WeekDay';
+import { localize } from '../../../../../services/localization/localization';
+import { useLanguage } from '../../../../../services/localization/languageStore';
 
 interface ICalendarProps {
     year: number,
@@ -13,8 +15,14 @@ interface ICalendarProps {
     onCellLayout?: (date: string, rect: DOMRect) => void
 }
 
+export interface IWeekdayTransform {
+    rotation: number[];
+    translation: number[][];
+    scale: number[][];
+}
+
 const CalendarGrid = (props: ICalendarProps) => {
-    const { year, month, events, onDateHovered, onCellLayout } = props
+    const { year, month, events, onDateHovered, onCellLayout } = props;
     const daysNumbers: string[] = useMemo(() => {
         const days: string[] = []
         const firstWeekDay = new Date(year, month, 1).getDay()
@@ -25,21 +33,61 @@ const CalendarGrid = (props: ICalendarProps) => {
         for (let i = 0; i < daysInMonth; i++)
             days.push((i + 1).toString())
         return days
-    }, [year, month])
+    }, [year, month]);
 
-    const now = new Date()
+    const now = new Date();
+
+    const weekdayTransformData: IWeekdayTransform[] = [
+        {
+            rotation: [-5, 0, 5],
+            translation: [[0, 0], [0, -5], [3, 0]],
+            scale: [[1, 1.3], [1, 1.3], [1, 1.2]]
+        },
+        {
+            rotation: [-3, 2, 3],
+            translation: [[0, 0], [2, 0], [0, 0]],
+            scale: [[1, 1.3], [1, 1.3], [1, 1.3]]
+        },
+        {
+            rotation: [-4, 2, 0],
+            translation: [[5, 0], [0, 4], [-3, 0]],
+            scale: [[1, 1.3], [0.9, 1.2], [0.8, 1.2]]
+        },
+        {
+            rotation: [-4, 0, 2],
+            translation: [[5, 0], [0, 3], [-4, 0]],
+            scale: [[0.9, 1.3], [1, 1.3], [0.9, 1.3]]
+        },
+        {
+            rotation: [0, -2, -4],
+            translation: [[3, 0], [0, 5], [0, 0]],
+            scale: [[1, 1.3], [0.9, 1.2], [1, 1.3]]
+        },
+        {
+            rotation: [-3, -2, 0],
+            translation: [[0, 5], [0, 0], [0, 4]],
+            scale: [[0.9, 1.2], [0.8, 1.1], [1, 1.2]]
+        },
+        {
+            rotation: [-3, 0, 6],
+            translation: [[6, 0], [0, 9], [-15, 0]],
+            scale: [[0.9, 1.3], [0.7, 1], [0.8, 1.2]]
+        },
+    ];
+
+    const lang = useLanguage();
+
+    const localizedWeekdays = useMemo(() => {
+        return [0, 1, 2, 3, 4, 5, 6].map(index => localize(lang, "date.weekdays.calendar")[index].split(""));
+    }, [lang]);
 
     return (
         <div className="grid-container h-full w-full py-20 pl-80 pr-70 -rotate-5 text-center -skew-y-1">
             <div className="grid grid-cols-7">
                 {/* headers */}
-                <WeekDay day={['S', 'u', 'N']} rotates={[-5, 0, 5]} translates={[[0, 0], [0, -5], [3, 0]]} scales={[[1, 1.3], [1, 1.3], [1, 1.2]]} />
-                <WeekDay day={['M', 'o', 'N']} rotates={[-3, -2, 3]} translates={[[0, 0], [2, 0], [0, 0]]} scales={[[1, 1.3], [1, 1.3], [1, 1.3]]} />
-                <WeekDay day={['T', 'U', 'E']} rotates={[-4, 2, 0]} translates={[[5, 0], [0, 4], [-3, 0]]} scales={[[1, 1.3], [0.9, 1.2], [0.8, 1.2]]} />
-                <WeekDay day={['W', 'e', 'D']} rotates={[-4, 0, 2]} translates={[[5, 0], [0, 3], [-4, 0]]} scales={[[0.9, 1.3], [1, 1.3], [0.9, 1.3]]} />
-                <WeekDay day={['T', 'H', 'u']} rotates={[0, -2, -4]} translates={[[3, 0], [0, 5], [0, 0]]} scales={[[1, 1.3], [0.9, 1.2], [1, 1.3]]} />
-                <WeekDay day={['F', 'R', 'i']} rotates={[-3, -2, 0]} translates={[[0, 5], [0, 0], [0, 4]]} scales={[[0.9, 1.2], [0.8, 1.1], [1, 1.2]]} />
-                <WeekDay day={['S', 'A', 'T']} rotates={[-3, 0, 6]} translates={[[6, 0], [0, 9], [-15, 0]]} scales={[[0.9, 1.3], [0.7, 1], [0.8, 1.2]]} />
+                {localizedWeekdays.map((day, index) =>
+                    <WeekDay day={day} transformData={weekdayTransformData[index]} key={index}/>
+                )}
                 {/* days */}
                 {daysNumbers.map((number, index) => {
                     if (!number) return <div key={index}></div>;

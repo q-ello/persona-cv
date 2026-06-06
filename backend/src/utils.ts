@@ -1,4 +1,5 @@
-import { IEvent } from "@cv/shared";
+import { IEvent, isLanguage, Language } from "@cv/shared";
+import { IRawEvent } from "./types/events.types";
 
 export const requireEnvVariable = (name: string): string => {
     const value = process.env[name];
@@ -8,9 +9,10 @@ export const requireEnvVariable = (name: string): string => {
     return value;
 };
 
-export const mergeEvents = (
-    googleEvents: { date: string, event: IEvent }[],
-    nagerEvents: { date: string, event: IEvent }[]
+export const mergeAndLocalizeEvents = (
+    locale: Language,
+    googleEvents: IRawEvent[],
+    nagerEvents: IRawEvent[]
 ): Record<string, IEvent[]> => {
 
     const eventsRecord: Record<string, IEvent[]> = {};
@@ -20,8 +22,20 @@ export const mergeEvents = (
         else eventsRecord[key] = [event];
     };
 
-    googleEvents.forEach(({ date, event }) => addToMap(date, event));
-    nagerEvents.forEach(({ date, event }) => addToMap(date, event));
+    [...googleEvents, ...nagerEvents].forEach(rawEvent => {
+        addToMap(rawEvent.date, {
+            state: rawEvent.state,
+            //google calendar is a real constraint so any language that is not ru just has to fall back to english
+            eventText: (locale && locale === "ru") ? rawEvent.eventRu : rawEvent.eventEng,
+            type: rawEvent.type
+        })
+    }
+    );
 
     return eventsRecord;
 };
+
+export const getLocale = (req: any): Language => {
+    const value = req.headers["accept-language"];
+    return isLanguage(value) ? value : "en";
+}

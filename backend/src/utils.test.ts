@@ -1,11 +1,12 @@
 import { getGeneralString } from "@cv/shared";
-import { mergeEvents, requireEnvVariable } from "./utils";
+import { mergeAndLocalizeEvents, requireEnvVariable } from "./utils";
+import { createRawEvent } from "./routes/timeline/timeline.builders";
 
 describe("utility functions", () => {
     it("merges events by date", () => {
-        const result = mergeEvents(
-            [{ date: "2026-04-10", event: { eventEng: "A" } as any }],
-            [{ date: "2026-04-10", event: { eventEng: "B" } as any }]
+        const result = mergeAndLocalizeEvents("en",
+            [createRawEvent({date: "2026-04-10", eventEng: "A"})],
+            [createRawEvent({ date: "2026-04-10", eventEng: "B"})]
         );
 
         expect(result["2026-04-10"]).toHaveLength(2);

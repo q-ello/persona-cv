@@ -1,9 +1,8 @@
-import { EEventState, EEventType, IEvent } from '@cv/shared';
+import { EEventState, EEventType, getGeneralString, IEvent } from '@cv/shared';
 import { IRawEvent } from '../../types/events.types';
 import { IGoogleCalendarConfig } from '../../types/config.types';
-import { getGeneralString} from "@cv/shared"
 
-export const createGoogleCalendarService = (deps: IGoogleCalendarConfig, fetchFn : typeof fetch) => {
+export const createGoogleCalendarService = (deps: IGoogleCalendarConfig, fetchFn: typeof fetch) => {
     const getGoogleCalendarEvents = async (year: number, month: number): Promise<IRawEvent[]> => {
         const rawEvents: IRawEvent[] = [];
 
@@ -32,9 +31,11 @@ export const createGoogleCalendarService = (deps: IGoogleCalendarConfig, fetchFn
                 if (item.start.dateTime) {
                     const eventStart: Date = new Date(item.start.dateTime)
                     const eventState: EEventState = EEventState.Single
-                    const newEvent: IEvent = { eventEng, eventRu, type: eventType, state: eventState }
-                    const date = getGeneralString(eventStart);
-                    rawEvents.push({ date, event: newEvent });
+                    const newEvent: IRawEvent = {
+                        eventEng, eventRu, type: eventType, state: eventState,
+                        date: getGeneralString(eventStart)
+                    }
+                    rawEvents.push(newEvent);
                 }
                 // if event is going for days we need to add every day into the map
                 else if (item.start.date) {
@@ -45,9 +46,11 @@ export const createGoogleCalendarService = (deps: IGoogleCalendarConfig, fetchFn
                     eventEnd.setDate(eventEnd.getDate() - 1)
 
                     const eventState: EEventState = eventStart.toDateString() === eventEnd.toDateString() ? EEventState.Single : EEventState.Start
-                    const newEvent: IEvent = { eventEng, eventRu, type: eventType, state: eventState }
-                    const date = getGeneralString(eventStart);
-                    rawEvents.push({ date, event: newEvent });
+                    const newEvent: IRawEvent = {
+                        eventEng, eventRu, type: eventType, state: eventState,
+                        date: getGeneralString(eventStart)
+                    }
+                    rawEvents.push(newEvent);
 
                     //if the start end end are the same then it is a single event, no need to make everything else
                     if (eventStart.toDateString() === eventEnd.toDateString()) {
@@ -57,13 +60,13 @@ export const createGoogleCalendarService = (deps: IGoogleCalendarConfig, fetchFn
                     let d: Date = new Date(eventStart)
                     d.setDate(d.getDate() + 1)
                     while (d.toDateString() != eventEnd.toDateString()) {
-                        const middleEvent = { eventEng, eventRu, type: eventType, state: EEventState.Middle }
-                        rawEvents.push({ date: getGeneralString(d), event: middleEvent })
-                        d.setDate(d.getDate() + 1)
+                        const middleRawEvent = { date: getGeneralString(d), eventEng, eventRu, type: eventType, state: EEventState.Middle };
+                        rawEvents.push(middleRawEvent);
+                        d.setDate(d.getDate() + 1);
                     }
 
-                    const finalEvent = { eventEng, eventRu, type: eventType, state: EEventState.End }
-                    rawEvents.push({ date: getGeneralString(d), event: finalEvent })
+                    const finalEvent = { date: getGeneralString(d), eventEng, eventRu, type: eventType, state: EEventState.End };
+                    rawEvents.push(finalEvent);
                 }
             })
         }

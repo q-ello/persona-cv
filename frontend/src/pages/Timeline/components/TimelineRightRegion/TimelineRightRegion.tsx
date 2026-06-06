@@ -5,7 +5,10 @@ import DatePlate from './DatePlate/DatePlate'
 import Events from './Events/Events'
 import { getGeneralString, IEvent, IPriority } from '@cv/shared'
 import { AnimatePresence } from 'motion/react'
-import Priorities from '../TimelineOverlayRegion/Priorities/Priorities'
+import Priorities from './Priorities/Priorities'
+import { localize } from '../../../../services/localization/localization'
+import { useMemo } from 'react'
+import { useLanguage } from '../../../../services/localization/languageStore'
 
 interface ITimelineRightRegionProps {
     pastSelected: boolean;
@@ -19,16 +22,6 @@ interface ITimelineRightRegionProps {
     cBackIsActivated: boolean;
 }
 
-// just manual map
-const monthNames: Map<string, string[]> = new Map([
-    ["ru", ['ЯНВ', 'ФЕВ', 'МАРТ', 'АПР', 'МАЙ', 'ИЮНЬ', 'ИЮЛЬ', 'АВГ', 'СЕН', 'ОКТ', 'НОЯ', 'ДЕК']],
-    ["eng", ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']]
-]);
-const weekdayNames: Map<string, string[]> = new Map([
-    ["ru", ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']],
-    ["eng", ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']]
-]);
-
 const TimelineRightRegion = (props: ITimelineRightRegionProps) => {
     const {
         pastSelected,
@@ -41,6 +34,21 @@ const TimelineRightRegion = (props: ITimelineRightRegionProps) => {
         prioritiesLoading,
         cBackIsActivated
     } = props;
+
+    const lang = useLanguage();
+
+    const localizedMonths = useMemo(() => {
+        return localize(lang, "date.months.short");
+    }, [lang]);
+
+    const localizedWeekdays = useMemo(() => {
+        return localize(lang, "date.weekdays.short");
+    }, [lang]);
+
+    const localizedPlansLine = useMemo(() => {
+        return localize(lang, "calendar.which_plans");
+    }, [lang]);
+
     return (
         <>
             <div className={clsx('w-full h-full pointer-events-none', pastSelected && 'brightness-80')}>
@@ -49,7 +57,7 @@ const TimelineRightRegion = (props: ITimelineRightRegionProps) => {
                 }></div >
                 {/* month */}
                 <Month
-                    month={monthNames.get("eng")?.[selectedDate.getMonth()] ?? "???"}
+                    month={localizedMonths[selectedDate.getMonth()]}
                     bgColor={'bg-white'}
                     qEnabled={!isOnMaxPastMonth}
                     eEnabled={!isOnMaxFutureMonth}
@@ -63,7 +71,7 @@ const TimelineRightRegion = (props: ITimelineRightRegionProps) => {
                     <DatePlate
                         pastSelected={pastSelected}
                         selectedDate={selectedDate}
-                        dayName={weekdayNames.get("eng")?.[selectedDate.getDay()]}
+                        dayName={localizedWeekdays[selectedDate.getDay()]}
                     />}
 
                 {/* events */}
@@ -71,8 +79,8 @@ const TimelineRightRegion = (props: ITimelineRightRegionProps) => {
                     <Events events={events.get(getGeneralString(selectedDate))!} />}
 
                 {/* which plans do you want to view */}
-                <div className={clsx("absolute text-black font-helvetica text-2xl bottom-23 left-20 right-0 -skew-y-5 -skew-x-5 font-black scale-x-95 -rotate-5 white-outline")}>
-                    Which plans do you want to view?
+                <div className={clsx("absolute text-black font-inter text-2xl bottom-23 left-20 right-0 -skew-y-5 -skew-x-5 font-black scale-x-95 -rotate-5 white-outline")}>
+                    {localizedPlansLine}
                 </div>
 
                 <AnimatePresence>

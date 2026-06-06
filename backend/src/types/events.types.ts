@@ -1,7 +1,10 @@
-import { IEvent } from "@cv/shared";
+import { EEventState, EEventType, IEvent } from "@cv/shared";
 
 export interface IRawEvent
 {
     date: string,
-    event: IEvent
+    eventRu: string,
+    eventEng: string,
+    state: EEventState;
+    type: EEventType;
 }

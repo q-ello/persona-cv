@@ -3,15 +3,8 @@
   "compilerOptions": {
     "composite": true
   },
-  "references": [
-    {
-      "path": "./tsconfig.app.json"
-    },
-    {
-      "path": "./tsconfig.node.json"
-    }
-  ],
   "include": [
     "environment.d.ts"
   ],
+  "extends": "./tsconfig.app.json"
 }

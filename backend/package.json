@@ -12,8 +12,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "kill-port 3001 && nodemon src/index.ts",
-    "test": "jest --reporters=default --reporters=jest-stare",
-    "test compilation": "npx jest --detectOpenHandles --verbose",
+    "test": "jest --rootDir=src",
     "build": "tsc"
   },
   "keywords": [],

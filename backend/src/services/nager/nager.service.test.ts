@@ -1,5 +1,3 @@
-import { json } from "stream/consumers";
-import { createNagerService } from "./nager.service";
 import { createNagerTestService } from "./nager.service.factory";
 
 describe('getHolidaysEvents', () => {
@@ -14,8 +12,8 @@ describe('getHolidaysEvents', () => {
         const result = await service.getHolidaysEvents(2024, 1); // February
 
         expect(result.length).toBe(1);
-        expect(result[0].event.eventEng).toBe('Valentine\'s Day');
-        expect(result[0].event.eventRu).toBe('День святого Валентина');
+        expect(result[0].eventEng).toBe('Valentine\'s Day');
+        expect(result[0].eventRu).toBe('День святого Валентина');
     });
 
     it('returns empty array if no holidays in the month', async () => {

@@ -10,7 +10,8 @@ interface FontHelperProps
 }
 
 const FontHelper = (props: FontHelperProps) => {
-    const {text="hi", size=6, imgSize=[300, 100], imgPosition=[25, 75], imgUrl=image} = props
+    const {text="hi", size=6, imgSize=[300, 100], imgPosition=[25, 75], imgUrl=image} = props;
+    const textWithRussian = text + " лмао";
   return (
     <div>
       <div 
@@ -19,20 +20,21 @@ const FontHelper = (props: FontHelperProps) => {
           fontSize: `${size}em`
         }}
       >
-        <div className="font-badaboom">badaboom: {text}</div>
-        <div className="font-anime">anime ace: {text}</div>
-        <div className="font-arsenal">arsenal: {text} {text.toUpperCase()}</div>
-        <div className="font-bubblegum">bubblegum superstar: {text}</div>
-        <div className="font-calaboose">calaboose: {text}</div>
-        <div className="font-casad">casad: {text} {text.toUpperCase()}</div>
-        <div className="font-cooper font-black">cooper black: {text} {text.toUpperCase()}</div>
-        <div className="font-cooper font-bold">cooper bold: {text} {text.toUpperCase()}</div>
-        <div className="font-cooper">cooper medium: {text} {text.toUpperCase()}</div>
-        <div className="font-earwig">earwig factory: {text} {text.toUpperCase()}</div>
-        <div className="font-gunny">gunny rewritten: {text} {text.toUpperCase()}</div>
-        <div className="font-helvetica font-bold">helvetica: {text} {text.toUpperCase()}</div>
-        <div className="font-milker">milker: {text}</div>
-        <div className="font-moon">moon: {text}</div>
+        <div className="font-badaboom">badaboom: {textWithRussian}</div>
+        <div className="font-anime">anime ace: {textWithRussian}</div>
+        <div className="font-arsenal">arsenal: {textWithRussian} {textWithRussian.toUpperCase()}</div>
+        <div className="font-bubblegum">bubblegum superstar: {textWithRussian}</div>
+        <div className="font-calaboose">calaboose: {textWithRussian}</div>
+        <div className="font-casad">casad: {textWithRussian} {textWithRussian.toUpperCase()}</div>
+        <div className="font-cooper font-black">cooper black: {textWithRussian} {textWithRussian.toUpperCase()}</div>
+        <div className="font-cooper font-bold">cooper bold: {textWithRussian} {textWithRussian.toUpperCase()}</div>
+        <div className="font-cooper">cooper medium: {textWithRussian} {textWithRussian.toUpperCase()}</div>
+        <div className="font-earwig">earwig factory: {textWithRussian} {textWithRussian.toUpperCase()}</div>
+        <div className="font-gunny">gunny rewritten: {textWithRussian} {textWithRussian.toUpperCase()}</div>
+        <div className="font-inter font-bold">inter: {textWithRussian} {textWithRussian.toUpperCase()}</div>
+        <div className="font-milker">milker: {textWithRussian}</div>
+        <div className="font-moon">moon: {textWithRussian}</div>
+        <div className="font-gridbox">gridbox: {textWithRussian} {textWithRussian.toUpperCase()}</div>
       </div>
       <img 
         src={imgUrl} 
