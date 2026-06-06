@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import clsx from "clsx";
 import { useMemo } from "react";
 import { localize } from "../../../../../services/localization/localization";
+import { useLanguage } from "../../../../../services/localization/languageStore";
 
 interface IPrioritiesProps {
   priorities: IPriority[];
@@ -52,6 +53,8 @@ const Priorities = (props: IPrioritiesProps) => {
     []
   );
 
+  const lang = useLanguage();
+
   const localizedProperties = useMemo(() => {
     return priorities?.map((priority, index) => {
       const isChecked = priority.checked;
@@ -66,19 +69,19 @@ const Priorities = (props: IPrioritiesProps) => {
           className={clsx("text-left", isChecked && "line-through text-neutral-500")}
           style={{ transform: `translateX(${randomTransforms[index].x}px) translateY(${randomTransforms[index].y}px) rotate(${randomTransforms[index].rot}deg) ` }}
         >
-          {localize(`priority.${priority.priorityKey}`)} {objectNameComponent}
+          {localize(lang, `priority.${priority.priorityKey}`)} {objectNameComponent}
         </li>)
     }
     );
-  }, [priorities, randomTransforms]);
+  }, [priorities, randomTransforms, lang]);
 
   const localizedPrioritiesNothing = useMemo(() => {
-    return localize("priorities.nothing");
-  }, [])
+    return localize(lang, "priorities.nothing");
+  }, [lang])
 
   const localizedPrioritiesLabel = useMemo(() => {
-    return localize("priorities.label");
-  }, [])
+    return localize(lang, "priorities.label");
+  }, [lang])
 
   return (
     <div className='absolute right-50 bottom-15 -rotate-5 text-black pointer-events-auto'>

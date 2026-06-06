@@ -1,9 +1,11 @@
 import clsx from 'clsx';
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Language } from '@cv/shared';
-import { languageStorage } from '../../../../../services/localization/languageStore';
+import { useLanguage } from '../../../../../services/localization/languageStore';
 
 const Today = ({ position, number }: { position: { x: number; y: number; w: number; h: number } | null, number: string }) => {
+    const locale = useLanguage();
+   
     if (!position) return null;
 
     const todayLocalizedSpans: Map<Language, React.ReactElement> = new Map([
@@ -11,7 +13,6 @@ const Today = ({ position, number }: { position: { x: number; y: number; w: numb
         ["ru", <span className='scale-x-50'>СЕГОДНЯ</span>]
     ]);
 
-    const locale = useMemo(() => languageStorage.getLanguage(), []);
 
     return (
         <div
@@ -25,4 +26,4 @@ const Today = ({ position, number }: { position: { x: number; y: number; w: numb
     )
 }
 
-export default React.memo(Today, (prev, next) => prev.position === next.position && prev.number === next.number);
+export default React.memo(Today);

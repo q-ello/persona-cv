@@ -1,6 +1,5 @@
 import { Language } from "@cv/shared";
-import { useMemo } from "react";
-import { languageStorage } from "../../../../../services/localization/languageStore";
+import { useLanguage } from "../../../../../services/localization/languageStore";
 
 const DailyLogText = () => {
   const dailyLogLocalized: Map<Language, React.ReactElement> = new Map([
@@ -23,7 +22,7 @@ const DailyLogText = () => {
     ]
   ]);
 
-  const locale = useMemo(() => languageStorage.getLanguage(), []);
+  const locale = useLanguage();
 
   return (
     dailyLogLocalized.get(locale)

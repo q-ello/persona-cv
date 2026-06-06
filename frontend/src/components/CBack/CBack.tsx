@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import clsx from 'clsx'
 import { localize } from '../../services/localization/localization';
+import { useLanguage } from '../../services/localization/languageStore';
 
 interface ICBackProps {
     isActivated: boolean,
@@ -17,7 +18,8 @@ const CBack = ({ isActivated, onClick }: ICBackProps) => {
         'rotate-7 -translate-x-1 translate-y-0.5'
     ];
 
-    const localizedBack = useMemo(() => localize('ui.back'), []) as string;
+    const lang = useLanguage();
+    const localizedBack = useMemo(() => localize(lang, 'ui.back'), [lang]) as string;
 
     return (
         <button className={clsx("absolute bottom-5 right-100", isActivated && 'scale-120')} onClick={onClick} >

@@ -8,6 +8,7 @@ import { AnimatePresence } from 'motion/react'
 import Priorities from './Priorities/Priorities'
 import { localize } from '../../../../services/localization/localization'
 import { useMemo } from 'react'
+import { useLanguage } from '../../../../services/localization/languageStore'
 
 interface ITimelineRightRegionProps {
     pastSelected: boolean;
@@ -34,17 +35,19 @@ const TimelineRightRegion = (props: ITimelineRightRegionProps) => {
         cBackIsActivated
     } = props;
 
+    const lang = useLanguage();
+
     const localizedMonths = useMemo(() => {
-        return localize("date.months.short");
-    }, []);
+        return localize(lang, "date.months.short");
+    }, [lang]);
 
     const localizedWeekdays = useMemo(() => {
-        return localize("date.weekdays.short");
-    }, []);
+        return localize(lang, "date.weekdays.short");
+    }, [lang]);
 
     const localizedPlansLine = useMemo(() => {
-        return localize("calendar.which_plans");
-    }, [])
+        return localize(lang, "calendar.which_plans");
+    }, [lang]);
 
     return (
         <>

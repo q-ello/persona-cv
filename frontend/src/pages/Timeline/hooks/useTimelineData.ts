@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
 import { timelineApi } from "../../../services/api/api";
 import { IEvent } from "@cv/shared";
+import { useLanguage } from "../../../services/localization/languageStore";
 
 const resolveNearMonthData = (year: number, month: number, direction: number) => {
     const newDate = new Date(year, month + direction, 1);
@@ -11,23 +12,25 @@ const resolveNearMonthData = (year: number, month: number, direction: number) =>
 const useTimelineData = (year: number, month: number) => {
     const queryClient = useQueryClient();
 
+    const lang = useLanguage();
+
     useEffect(() => {
         const { year: nextYear, month: nextMonth } = resolveNearMonthData(year, month, 1);
         const { year: prevYear, month: prevMonth } = resolveNearMonthData(year, month, -1);
         queryClient.prefetchQuery({
-            queryKey: ['timeline', nextYear, nextMonth],
-            queryFn: () => timelineApi.getMonthEvents(nextYear, nextMonth)
+            queryKey: ['timeline', lang, nextYear, nextMonth],
+            queryFn: () => timelineApi.getMonthEvents(lang, nextYear, nextMonth)
         });
 
         queryClient.prefetchQuery({
-            queryKey: ['timeline', prevYear, prevMonth],
-            queryFn: () => timelineApi.getMonthEvents(prevYear, prevMonth)
+            queryKey: ['timeline', lang, prevYear, prevMonth],
+            queryFn: () => timelineApi.getMonthEvents(lang, prevYear, prevMonth)
         });
-    }, [month, year, queryClient]);
+    }, [lang, month, year, queryClient]);
 
     const { data: eventsData } = useQuery<Record<string, IEvent[]>>({
-        queryKey: ['timeline', year, month],
-        queryFn: () => timelineApi.getMonthEvents(year, month)
+        queryKey: ['timeline', lang, year, month],
+        queryFn: () => timelineApi.getMonthEvents(lang, year, month)
     });
 
     const events = useMemo(() => {

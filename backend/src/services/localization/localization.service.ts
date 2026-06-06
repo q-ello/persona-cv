@@ -21,6 +21,7 @@ export const createLocalizationService = (notionService: ReturnType<typeof creat
 
     const refreshCache = async () => {
         try {
+            //first call will be with time = undefined. that is how it is designed, so we compare lastEditedTime only when we do have cache
             const freshLocales = await notionService.getAllLocalizations(lastFetchedTime);
             lastFetchedTime = new Date();
 

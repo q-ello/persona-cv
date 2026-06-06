@@ -1,17 +1,22 @@
 import { Outlet, useParams } from "react-router-dom";
 import LanguageRedirect from "../LanguageRedirect/LanguageRedirect";
-import { isLanguage } from "../../services/localization/localization";
-import { languageStorage } from "../../services/localization/languageStore";
+import { isLanguage } from "@cv/shared";
+import { useEffect } from "react";
+import { languageStore } from "../../services/localization/languageStore";
 
 const LanguageProvider = () => {
-    const {lang} = useParams();
+    const { lang } = useParams();
+    const validLang = lang && isLanguage(lang) ? lang : null;
 
-    if (!lang || !isLanguage(lang))
-    {
+    useEffect(() => {
+        if (validLang) {
+            languageStore.setLanguage(validLang);
+        }
+    }, [validLang]);
+
+    if (!validLang) {
         return <LanguageRedirect />;
     }
-
-    languageStorage.setLanguage(lang);
 
     return <Outlet />;
 }

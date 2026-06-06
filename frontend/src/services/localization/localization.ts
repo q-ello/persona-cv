@@ -1,7 +1,6 @@
-import { Language, LANGUAGES } from '@cv/shared';
+import { Language } from '@cv/shared';
 import en from '../../locales/en.json'
 import ru from '../../locales/ru.json'
-import { languageStorage } from './languageStore';
 
 const localization = {
     en,
@@ -10,15 +9,8 @@ const localization = {
 
 type LocalizationKey = keyof typeof en;
 
-export function isLanguage(value: string): value is Language {
-    return LANGUAGES.includes(value as Language);
-}
-
-export function localize(key: string, params?: any) {
-    const lang = languageStorage.getLanguage();
-
+export function localize(lang: Language, key: string, params?: any) {
     const locale = localization[lang];
-
     const locKey = key as LocalizationKey;
 
     let result: string | string[];

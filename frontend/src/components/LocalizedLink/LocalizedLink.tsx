@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom';
-import { languageStorage } from '../../services/localization/languageStore';
+import { useLanguage } from '../../services/localization/languageStore';
 
 interface ILocalizedLinkProps {
     to: string;
@@ -8,7 +8,7 @@ interface ILocalizedLinkProps {
 }
 
 const LocalizedLink = ({ to, children }: ILocalizedLinkProps) => {
-    const lang = languageStorage.getLanguage();
+    const lang = useLanguage();
 
     return (
         <Link to={`/${lang}${to}`}>

@@ -5,6 +5,7 @@ import React from 'react';
 import { IEvent } from '@cv/shared';
 import WeekDay from './WeekDay/WeekDay';
 import { localize } from '../../../../../services/localization/localization';
+import { useLanguage } from '../../../../../services/localization/languageStore';
 
 interface ICalendarProps {
     year: number,
@@ -74,9 +75,11 @@ const CalendarGrid = (props: ICalendarProps) => {
         },
     ];
 
+    const lang = useLanguage();
+
     const localizedWeekdays = useMemo(() => {
-        return [0, 1, 2, 3, 4, 5, 6].map(index => localize("date.weekdays.calendar")[index].split(""));
-    }, []);
+        return [0, 1, 2, 3, 4, 5, 6].map(index => localize(lang, "date.weekdays.calendar")[index].split(""));
+    }, [lang]);
 
     return (
         <div className="grid-container h-full w-full py-20 pl-80 pr-70 -rotate-5 text-center -skew-y-1">

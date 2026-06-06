@@ -16,6 +16,8 @@ export const createTimelineRouter = (
     const router = express.Router();
 
     router.get('/priorities', async (req, res) => {
+        console.log("starting GET priorities handling")
+
         try {
             const rawPriorities = await notionService.getNotionPriorities();
             const locale = getLocale(req);
@@ -36,6 +38,8 @@ export const createTimelineRouter = (
                 checked: rawPriority.checked
             }}));
             
+            console.log(`Returned priorities: ${localizedPriorities.length} items`)
+
             res.json(localizedPriorities);
         } catch (error) {
             console.error("Error fetching priorities from Notion:", error);
@@ -44,6 +48,7 @@ export const createTimelineRouter = (
     });
 
     router.get('/events', async (req, res) => {
+        console.log("Starting to handle GET events request...");
         try {
             const { month, year } = req.query;
             if (!month || !year) {
@@ -63,8 +68,8 @@ export const createTimelineRouter = (
 
             const eventsRecord: Record<string, IEvent[]> = mergeAndLocalizeEvents(getLocale(req), googleEvents, nagerEvents);
 
+            console.log(`Returning events: ${[...googleEvents, ...nagerEvents].length} items`)
             res.json(eventsRecord);
-
         } catch (error) {
             console.error("Error fetching events:", error);
             res.status(500).json({ error: "Failed to fetch events" });
@@ -73,8 +78,10 @@ export const createTimelineRouter = (
     });
 
     router.get('/health', async (req, res) => {
+        console.log("Starting to handle GET health request");
         try {
             await notionService.getNotionPriorities();
+            console.log("Everything's ok");
             res.json({ status: "ok" });
         } catch {
             res.status(500).json({ status: "fail" });

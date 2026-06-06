@@ -38,7 +38,7 @@ const TimelineLeftRegion = (props: ITimelineLeftRegionProps) => {
         <>
             {/* black screen */}
             <div className="absolute top-0 left-[-10%] w-[80%] h-full bg-black -skew-x-[23deg] overflow-hidden" >
-                <div className="container top-0 right-0 left-0 right-0 absolute skew-x-[23deg] h-screen" ref={gridRef}>
+                <div className="container top-0 right-0 left-0 absolute skew-x-[23deg] h-screen" ref={gridRef}>
                     {/* Command */}
                     <div className="-bottom-7 absolute right-75 pb-15 opacity-25">
                         <Command />

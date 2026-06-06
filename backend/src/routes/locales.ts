@@ -6,8 +6,8 @@ export const createLocalesRouter = (localizationService: ReturnType<typeof creat
     const router = express.Router();
 
     router.get('/', async (_, res) => {
+        console.log("Reloading localization after request...")
         try {
-            console.log("Reloading localization after request...")
             await localizationService.reload();
             
             res.json("Locales are reloaded successfully");
