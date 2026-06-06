@@ -1,6 +1,7 @@
 import request from "supertest";
-import { IEvent } from "@cv/shared";
-import { createTestApp } from "../test/factories/createTestApp";
+import { EEventState, EEventType, IEvent } from "@cv/shared";
+import { createTestApp } from "../../test/factories/createTestApp";
+import { createRawEvent } from "./timeline.builders";
 
 describe("/events route", () => {
 
@@ -21,17 +22,23 @@ describe("/events route", () => {
         const { app, googleCalendarService, nagerService } = createTestApp();
 
         googleCalendarService.getGoogleCalendarEvents.mockResolvedValue([
-            {
+            createRawEvent({
                 date: "2025-05-10",
-                event: { eventEng: "Google Event", eventRu: "Google Event", type: "Common", state: "Single" }
-            }
+                eventEng: "Google Event", 
+                eventRu: "Google Event", 
+                type: EEventType.Common, 
+                state: EEventState.Single
+            })
         ]);
 
         nagerService.getHolidaysEvents.mockResolvedValue([
-            {
+            createRawEvent({
                 date: "2025-05-10",
-                event: { eventEng: "Holiday", eventRu: "Holiday", type: "Holiday", state: "Single" }
-            }
+                eventEng: "Holiday", 
+                eventRu: "Holiday", 
+                type: EEventType.Holiday, 
+                state: EEventState.Single
+            })
         ]);
 
         const res = await request(app).get("/api/timeline/events?month=4&year=2025");
@@ -71,11 +78,12 @@ describe("/events route", () => {
         const { app, googleCalendarService, nagerService } = createTestApp();
 
         googleCalendarService.getGoogleCalendarEvents.mockResolvedValue([
-            { date: "2026-04-10", event: { eventEng: "A", eventRu: "A", type: "Common", state: "Single" } }
+            createRawEvent({ date: "2026-04-10", eventEng: "A", eventRu: "A", type: EEventType.Common, state: EEventState.Single})
+            
         ]);
 
         nagerService.getHolidaysEvents.mockResolvedValue([
-            { date: "2026-04-10", event: { eventEng: "B", eventRu: "B", type: "Holiday", state: "Single" } }
+            createRawEvent({ date: "2026-04-10", eventEng: "B", eventRu: "B", type: EEventType.Holiday, state: EEventState.Single})
         ]);
 
         const res = await request(app)
@@ -83,8 +91,8 @@ describe("/events route", () => {
 
         const events: IEvent[] = res.body["2026-04-10"];
 
-        expect(events.map((e: IEvent) => e.eventEng)).toContain("A");
-        expect(events.map((e: IEvent) => e.eventEng)).toContain("B");
+        expect(events.map((e: IEvent) => e.eventText)).toContain("A");
+        expect(events.map((e: IEvent) => e.eventText)).toContain("B");
     });
 });
 

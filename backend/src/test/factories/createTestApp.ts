@@ -1,6 +1,7 @@
 import { createMockServices } from "./createMockServices";
 import express from "express";
-import { createTimelineRouter } from "../../routes/timeline";
+import { createTimelineRouter } from "../../routes/timeline/timeline";
+import { createLocalesRouter } from "../../routes/locales";
 
 export const createTestApp = (serviceOverrides?: Partial<any>) => {
     const services = createMockServices(serviceOverrides);
@@ -10,6 +11,10 @@ export const createTestApp = (serviceOverrides?: Partial<any>) => {
         services.notionService,
         services.googleCalendarService,
         services.nagerService,
+        services.localizationService
+    ));
+
+    app.use("/api/locales", createLocalesRouter(
         services.localizationService
     ));
 

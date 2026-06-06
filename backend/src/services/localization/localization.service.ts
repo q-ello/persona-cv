@@ -2,7 +2,6 @@ import { Language } from "@cv/shared";
 import { createNotionService } from "../notion/notion.service";
 
 export type LocalizationEntry = Record<Language, string>
-
 export type LocalizationCache = Map<string, LocalizationEntry>
 
 export const createLocalizationService = (notionService: ReturnType<typeof createNotionService>) => {

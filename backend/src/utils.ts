@@ -9,7 +9,7 @@ export const requireEnvVariable = (name: string): string => {
     return value;
 };
 
-export const mergeEvents = (
+export const mergeAndLocalizeEvents = (
     locale: Language,
     googleEvents: IRawEvent[],
     nagerEvents: IRawEvent[]
@@ -22,11 +22,14 @@ export const mergeEvents = (
         else eventsRecord[key] = [event];
     };
 
-    [...googleEvents, ...nagerEvents].forEach(rawEvent => addToMap(rawEvent.date, {
-        state: rawEvent.state,
-        eventText: locale === "ru" && rawEvent.eventRu || rawEvent.eventEng,
-        type: rawEvent.type
-    }));
+    [...googleEvents, ...nagerEvents].forEach(rawEvent => {
+        addToMap(rawEvent.date, {
+            state: rawEvent.state,
+            eventText: (locale && locale === "ru") ? rawEvent.eventRu : rawEvent.eventEng,
+            type: rawEvent.type
+        })
+    }
+    );
 
     return eventsRecord;
 };

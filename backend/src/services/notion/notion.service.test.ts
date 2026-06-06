@@ -1,54 +1,39 @@
-import { createNotionPriorityPage, createNotionPriorityQuery } from "./notion.builders";
+import { createNotionLocalizationQuery, createNotionObjectPage, createNotionPriorityQuery } from "./notion.builders";
 import { maxPrioritiesNumber } from "./notion.service";
 import { createNotionTestService } from "./notion.service.factory";
 
 describe("NotionService", () => {
-    const createValidPriorityQuery = (overrides = {}) => createNotionPriorityQuery({
-        properties: {
-            PriorityKey: { type: "text", plain_text: "Priority Key" },
-            Completed: { type: "checkbox", checkbox: false },
-            Object: {
-                relation: [{ id: "page-1" }]
-            },
-            ...overrides
-        }
-    });
-
-    const validPriorityPage = createNotionPriorityPage({
-        properties: {
-            Name: {
-                type: "title",
-                title: [{ type: "text", plain_text: "Object Name" }]
-            },
-            LocalizationKey: {
-                type: "rich_text",
-                rich_text: [{ type: "text", plain_text: "object.localization.key" }]
-            },
-            URL: {
-                type: "url",
-                url: "http://example.com"
-            }
-        }
-    });
-
+    //#region priorities
     it("maps valid response to priorities", async () => {
+        const priorityKey = "Test Priority Key";
+        const objectName = "Test Object Name";
+        const localizationKey = "object.localization.key";
+        const url = "Test url";
+        const checked = true;
 
         const { service } = createNotionTestService({
             queryResult: [
-                createValidPriorityQuery()
+                createNotionPriorityQuery({
+                    priorityKey,
+                    completed: checked,
+                })
             ],
-            pageResult: validPriorityPage
+            pageResult: createNotionObjectPage({
+                objectName,
+                localizationKey,
+                url
+            })
         });
 
         const result = await service.getNotionPriorities();
 
         expect(result).toEqual([
             {
-                priorityKey: "Priority Key",
-                objectName: "Object Name",
-                localizationKey: "object.localization.key",
-                url: "http://example.com",
-                checked: false
+                priorityKey,
+                objectName,
+                localizationKey,
+                url,
+                checked
             }
         ]);
     });
@@ -68,7 +53,7 @@ describe("NotionService", () => {
     it("skips items without relation", async () => {
         const { service } = createNotionTestService({
             queryResult: [
-                createNotionPriorityQuery({
+                ({
                     properties: {
                         PriorityKey: { type: "text", plain_text: "Priority Key" },
                         Completed: { type: "checkbox", checkbox: false },
@@ -86,30 +71,30 @@ describe("NotionService", () => {
     });
 
     it("cuts items length to maxPrioritiesNumber if longer", async () => {
-        const dummyPriority = createValidPriorityQuery();
+        const dummyPriority = createNotionPriorityQuery();
 
         const dummyArray = new Array(maxPrioritiesNumber + 1).fill(dummyPriority);
 
         const { service } = createNotionTestService({
             queryResult: dummyArray,
-            pageResult: validPriorityPage
+            pageResult: createNotionObjectPage()
         });
         const result = await service.getNotionPriorities();
         expect(result.length).toBe(maxPrioritiesNumber);
     })
 
     it("prioritizes unchecked items over checked items", async () => {
-        const checkedPriority = createValidPriorityQuery({
-            Completed: { type: "checkbox", checkbox: true }
+        const checkedPriority = createNotionPriorityQuery({
+            completed: true
         });
-        const uncheckedPriority = createValidPriorityQuery({
-            PriorityKey: { type: "text", plain_text: "Unchecked Priority" },
-            Completed: { type: "checkbox", checkbox: false }
+        const uncheckedPriority = createNotionPriorityQuery({
+            priorityKey: "Unchecked Priority",
+            completed: false
         });
 
         const { service } = createNotionTestService({
             queryResult: [checkedPriority, uncheckedPriority],
-            pageResult: validPriorityPage
+            pageResult: createNotionObjectPage()
         });
 
         const result = await service.getNotionPriorities();
@@ -118,6 +103,53 @@ describe("NotionService", () => {
         expect(result[0].priorityKey).toBe("Unchecked Priority");
     });
 
-    //todo: check that getAllLocalization returns a LocalizationCache
-    //todo: check that getAllLocalization returns empty map if db didn't change
+    //#endregion
+
+    //#region localization
+    it("makes a localization cache", async () => {
+        const keyName = "Test Key";
+        const enLocalization = "Test Eng Localization";
+        const ruLocalization = "Test Ru Localization";
+
+        const localization = createNotionLocalizationQuery({
+            keyName,
+            enLocalization,
+            ruLocalization,
+        });
+
+        const { service } = createNotionTestService({
+            queryResult: [localization]
+        });
+
+        const result = await service.getAllLocalizations();
+
+        expect(result instanceof Map).toBe(true);
+        expect(result.size).toBe(1);
+
+        const firstEntry = result.entries().next();
+        expect(firstEntry.value?.[0]).toBe(keyName);
+        expect(firstEntry.value?.[1]).toHaveProperty("en");
+        expect(firstEntry.value?.[1]).toHaveProperty("ru");
+        expect(firstEntry.value?.[1].en).toBe(enLocalization);
+        expect(firstEntry.value?.[1].ru).toBe(ruLocalization);
+    });
+
+    it("skips empty keys", async () => {
+        const { service } = createNotionTestService({
+            queryResult: [
+                createNotionLocalizationQuery(),
+                createNotionLocalizationQuery({keyName: ""})
+            ]
+        });
+
+        const result = await service.getAllLocalizations();
+
+        expect(result instanceof Map).toBe(true);
+        expect(result.size).toBe(1);
+
+        const firstEntry = result.entries().next();
+        expect(firstEntry.value?.[0].length).toBeGreaterThan(0);
+    })
+
+    //#endregion
 });

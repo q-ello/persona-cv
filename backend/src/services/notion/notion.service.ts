@@ -123,7 +123,7 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
         }
     };
 
-    const getAllLocalizations = async (lastFetchedTime: Date): Promise<LocalizationCache> => {
+    const getAllLocalizations = async (lastFetchedTime?: Date): Promise<LocalizationCache> => {
         try {
             const databaseResponse: any = await notion!.databases.retrieve({
                 database_id: deps.localizationDatabaseId
@@ -151,6 +151,11 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
                     const keyProp = properties.Key;
 
                     const key = GetPropertyValue(keyProp);
+
+                    if (!key)
+                    {
+                        return;
+                    }
 
                     let record: Partial<LocalizationEntry> = {};
 

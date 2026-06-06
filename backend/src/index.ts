@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import express from "express";
 import {config, loadConfig} from "./config";
 import Client from "@notionhq/client/build/src/Client";
-import { createTimelineRouter } from "./routes/timeline";
+import { createTimelineRouter } from "./routes/timeline/timeline";
 import { createGoogleCalendarService } from "./services/googleCalendar/googleCalendar.service";
 import cors from "cors";
 import { createNotionService } from "./services/notion/notion.service";

@@ -18,7 +18,7 @@ describe("GoogleCalendarService", () => {
         const result = await service.getGoogleCalendarEvents(2025, 4);
 
         expect(result).toHaveLength(2);
-        expect(result[0].event.state).toBe(EEventState.Single);
+        expect(result[0].state).toBe(EEventState.Single);
     });
 
     it("splits multi-day events correctly", async () => {
@@ -37,7 +37,7 @@ describe("GoogleCalendarService", () => {
         // 3 days * 2 calendars = 6 entries
         expect(result).toHaveLength(6);
 
-        const states = result.map(e => e.event.state);
+        const states = result.map(e => e.state);
 
         expect(states).toContain(EEventState.Start);
         expect(states).toContain(EEventState.Middle);
@@ -57,7 +57,7 @@ describe("GoogleCalendarService", () => {
 
         const result = await service.getGoogleCalendarEvents(2025, 4);
 
-        expect(result[0].event.state).toBe(EEventState.Single);
+        expect(result[0].state).toBe(EEventState.Single);
     });
 
     it("skips items without summary", async () => {

@@ -1,10 +1,10 @@
 import express from 'express';
-import { IEvent, IPriority, Language } from '@cv/shared';
-import { createNotionService } from '../services/notion/notion.service';
-import { createGoogleCalendarService } from '../services/googleCalendar/googleCalendar.service';
-import { createNagerService } from '../services/nager/nager.service';
-import { getLocale, mergeEvents as mergeAndLocalizeEvents } from '../utils';
-import { createLocalizationService } from '../services/localization/localization.service';
+import { IEvent, IPriority } from '@cv/shared';
+import { createNotionService } from '../../services/notion/notion.service';
+import { createGoogleCalendarService } from '../../services/googleCalendar/googleCalendar.service';
+import { createNagerService } from '../../services/nager/nager.service';
+import { getLocale, mergeAndLocalizeEvents } from '../../utils';
+import { createLocalizationService } from '../../services/localization/localization.service';
 
 
 export const createTimelineRouter = (

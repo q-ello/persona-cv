@@ -1,9 +1,4 @@
 import express from 'express';
-import { IEvent, IPriority, Language } from '@cv/shared';
-import { createNotionService } from '../services/notion/notion.service';
-import { createGoogleCalendarService } from '../services/googleCalendar/googleCalendar.service';
-import { createNagerService } from '../services/nager/nager.service';
-import { mergeEvents } from '../utils';
 import { createLocalizationService } from '../services/localization/localization.service';
 
 //hidden route for manual reloading

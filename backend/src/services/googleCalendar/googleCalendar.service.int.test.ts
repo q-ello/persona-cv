@@ -1,5 +1,6 @@
 import { requireEnvVariable } from "../../utils";
 import { createGoogleCalendarService } from "../googleCalendar/googleCalendar.service";
+import { checkRawEventData } from "../nager/nager.service.int.test";
 
 const describeIntegration = process.env.RUN_INTEGRATION_TESTS === "true" ? describe : describe.skip;
 
@@ -8,8 +9,6 @@ describeIntegration("Integration: Google Calendar", () => {
         const service = createGoogleCalendarService({ apiKey: requireEnvVariable("GOOGLE_CALENDAR_API_KEY"), commonCalendarId: requireEnvVariable("GOOGLE_COMMON_CALENDAR_ID"), deadlinesCalendarId: requireEnvVariable("GOOGLE_DEADLINES_CALENDAR_ID") }, fetch);
 
         const result = await service.getGoogleCalendarEvents(2026, 3); // April 2026
-        expect(Array.isArray(result)).toBe(true);
-        expect(result[0]).toHaveProperty("date");
-        expect(result[0]).toHaveProperty("event");
+        checkRawEventData(result);
     });
 });
