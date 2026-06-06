@@ -15,8 +15,6 @@ export function isLanguage(value: string): value is Language {
 }
 
 export function localize(key: string, params?: any) {
-    console.log("localize", { key, params });
-
     const lang = languageStorage.getLanguage();
 
     const locale = localization[lang];
@@ -29,9 +27,11 @@ export function localize(key: string, params?: any) {
         result = locale[locKey];
     }
     else if (locKey in localization.en) {
+        console.warn(`Did not find localization for key ${key} in locale ${locale}. Falling back to english localization`)
         result = localization.en[locKey];
     }
     else {
+        console.warn(`Did not find any localization for key ${key}. Returning the key instead.`)
         result = key;
     }
 

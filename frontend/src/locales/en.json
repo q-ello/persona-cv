@@ -32,5 +32,7 @@
   "date.weekdays.short": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
   "date.weekdays.calendar": ["SuN", "MoN", "TUE", "WeD", "THu", "FRi", "SAT"],
 
-  "calendar.which_plans": "Which plans do you want to view?"
+  "calendar.which_plans": "Which plans do you want to view?",
+
+  "ui.back": "Back"
 }

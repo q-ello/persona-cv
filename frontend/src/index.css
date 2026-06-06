@@ -239,7 +239,13 @@
 /* none away from the moon */
 @font-face {
   font-family: Moon;
-  src: url("/src/assets/fonts/NoneAwayFromTheMoon/NoneAwayFromTheMoon-OjK3.ttf")
+  src: url("/src/assets/fonts/NoneAwayFromTheMoon/NoneAwayFromTheMoon-OjK3.ttf");
+}
+
+/* gridbox */
+@font-face {
+  font-family: GridBox;
+  src: url("/src/assets/fonts/gridbox/Gridbox.ttf");
 }
 
 
@@ -257,7 +263,8 @@
   --font-gunny: Gunny, "sans-serif";
   --font-inter: Inter, "sans-serif";
   --font-milker: Milker, "sans-serif";
-  --font-moon: Moon, "sans-serif";
+  --font-moon: Moon, GridBox, "sans-serif";
+  --font-gridbox: GridBox, "sans-serif";
 }
 
 :root {

@@ -1,33 +1,68 @@
-import React from 'react';
-import Back from '../../assets/images/Back.svg'
+import React, { useMemo } from 'react';
 import clsx from 'clsx'
+import { localize } from '../../services/localization/localization';
 
-interface ICBackProps
-{
+interface ICBackProps {
     isActivated: boolean,
     onClick: () => void
 }
 
-const CBack = ({isActivated, onClick}: ICBackProps) => {
+const CBack = ({ isActivated, onClick }: ICBackProps) => {
+
+    const stylePerComponent = [
+        'translate-y-0.5 translate-x-0.5 -rotate-8',
+        '-translate-y-0.5 scale-x-90',
+        '-translate-y-1 -translate-x-0.5 rotate-10',
+        'rotate-4 -translate-x-1',
+        'rotate-7 -translate-x-1 translate-y-0.5'
+    ];
+
+    const localizedBack = useMemo(() => localize('ui.back'), []) as string;
+
     return (
         <button className={clsx("absolute bottom-5 right-100", isActivated && 'scale-120')} onClick={onClick} >
             <span className="bg-black w-12 h-12 font-inter font-black text-white text-3xl py-1 inline-block mr-1">C</span>
-            <span
-                className="inline-block font-inter font-black text-white text-4xl relative -translate-y-1 p-1 pt-1 -rotate-2"
-            >
-                <img src={Back} alt="" className='absolute scale-x-135 scale-y-110 -top-0.5 right-0 rotate-3'/>
-                <span className='relative -rotate-5 inline-block translate-x-0.5'>
-                    <span className='inline-block -rotate-3 scale-y-110 translate-y-0.5 z-1'>B</span>
-                </span>
-                <span className='relative inline-block -translate-y-1 scale-x-90 rotate-3'>
-                    <span className='inline-block -rotate-3 scale-y-110 translate-y-0.5 z-1'>a</span>
-                </span>
-                <span className='relative inline-block -translate-y-1.5 -translate-x-0.5'>
-                    <span className='inline-block -rotate-3 scale-y-110 translate-y-0.5 z-1 rotate-10'>c</span>
-                </span>
-                <span className='relative inline-block rotate-7 -translate-x-1 -translate-y-0.5'>
-                    <span className='inline-block -rotate-3 scale-y-110 translate-y-0.5 z-1'>k</span>
-                </span>
+            <span className="inline-block font-inter font-black text-white text-4xl relative -translate-y-1 p-1 pt-1 -rotate-2 scale-y-110">
+                {/* for shadows */}
+                <div className='relative inset-0'>
+                    {/* for inner shadow */}
+                    <div className="relative">
+
+                        {/* shadows */}
+                        <div className="absolute inset-0">
+                            {localizedBack.split("").map((letter, index) => (
+                                <span
+                                    key={index}
+                                    className={clsx(
+                                        'inline-block text-black scale-140 -rotate-10 -skew-x-10 skew-y-7',
+                                        stylePerComponent[index]
+                                    )}
+                                >
+                                    {letter}
+                                    <div className={clsx(
+                                        'absolute inset-0 bg-black scale-x-75',
+                                        letter.toUpperCase() === letter ? 'scale-y-50' : 'translate-y-1 scale-y-40')} />
+                                </span>
+                            ))}
+                        </div>
+
+                        {/* letters */}
+                        <div className="relative">
+                            {localizedBack.split("").map((letter, index) => (
+                                <span
+                                    key={index}
+                                    className={clsx(
+                                        'inline-block text-white',
+                                        stylePerComponent[index]
+                                    )}
+                                >
+                                    {letter}
+                                </span>
+                            ))}
+                        </div>
+
+                    </div>
+                </div>
             </span>
         </button>
     )
