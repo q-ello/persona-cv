@@ -1,7 +1,11 @@
+export interface IObject {
+    objectName: string;
+    url?: string;
+}
+
 export interface IPriority
 {
     priorityKey: string;
-    objectName: string;
-    url?: string;
+    object: IObject;
     checked: boolean;
 }

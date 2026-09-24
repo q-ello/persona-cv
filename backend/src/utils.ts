@@ -1,4 +1,4 @@
-import { IEvent, isLanguage, Language } from "@cv/shared";
+import { EventResponse, IEvent, isLanguage, Language } from "@cv/shared";
 import { IRawEvent } from "./types/events.types";
 
 export const requireEnvVariable = (name: string): string => {
@@ -13,9 +13,9 @@ export const mergeAndLocalizeEvents = (
     locale: Language,
     googleEvents: IRawEvent[],
     nagerEvents: IRawEvent[]
-): Record<string, IEvent[]> => {
+): EventResponse => {
 
-    const eventsRecord: Record<string, IEvent[]> = {};
+    const eventsRecord: EventResponse = {};
 
     const addToMap = (key: string, event: IEvent) => {
         if (eventsRecord[key]) eventsRecord[key].push(event);

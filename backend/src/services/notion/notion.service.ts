@@ -99,9 +99,11 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
 
                     return {
                         priorityKey: GetPropertyValue(properties.PriorityKey),
-                        objectName: GetPropertyValue(nameProp),
+                        object: {
+                            objectName: GetPropertyValue(nameProp),
+                            url: GetPropertyValue(urlProp),
+                        },
                         localizationKey: GetPropertyValue(localizationKeyProp),
-                        url: GetPropertyValue(urlProp),
                         checked: GetPropertyValue(properties.Completed) === "Yes"
                     };
                 }))).filter((obj): obj is IRawPriority => obj !== null);

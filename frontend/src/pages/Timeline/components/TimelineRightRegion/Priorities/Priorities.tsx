@@ -1,6 +1,6 @@
 import { IPriority } from "@cv/shared";
 import { motion } from "motion/react";
-import PrioritiesNote from '../../../../../assets/images/priorities.svg'
+import PrioritiesNote from '../../../../../assets/images/priorities.svg';
 import PrioritiesText from "./PrioritiesText";
 import { Link } from "react-router-dom";
 import clsx from "clsx";
@@ -40,7 +40,7 @@ const Priorities = (props: IPrioritiesProps) => {
 
   const randomTransforms = useMemo(() =>
     priorities?.map(obj => {
-      const base = hashString(obj.objectName);
+      const base = hashString(obj.object.objectName);
       return {
         x: pseudoRandom(base)() * 30,
         y: pseudoRandom(base + 1)() * 5 - 2,
@@ -58,14 +58,14 @@ const Priorities = (props: IPrioritiesProps) => {
   const localizedProperties = useMemo(() => {
     return priorities?.map((priority, index) => {
       const isChecked = priority.checked;
-      const objectName = priority.objectName;
+      const objectName = priority.object.objectName;
 
-      const objectNameComponent = isChecked || !priority.url
+      const objectNameComponent = isChecked || !priority.object.url
         ? (<span>{objectName}</span>)
-        : (<Link to={priority.url} target="_blank" className="text-neutral-600 hover:text-red-800">{objectName}</Link>);
+        : (<Link to={priority.object.url} target="_blank" className="text-neutral-600 hover:text-red-800">{objectName}</Link>);
       return (
         <li
-          key={priority.objectName}
+          key={priority.object.objectName}
           className={clsx("text-left", isChecked && "line-through text-neutral-500")}
           style={{ transform: `translateX(${randomTransforms[index].x}px) translateY(${randomTransforms[index].y}px) rotate(${randomTransforms[index].rot}deg) ` }}
         >

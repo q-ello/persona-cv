@@ -33,3 +33,5 @@ export interface IEvent
     eventText: string,
     type: EEventType
 }
+
+export type EventResponse = Record<string, IEvent[]>;

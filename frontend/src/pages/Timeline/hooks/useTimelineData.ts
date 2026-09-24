@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
 import { timelineApi } from "../../../services/api/api";
-import { IEvent } from "@cv/shared";
+import { EventResponse, IEvent } from "@cv/shared";
 import { useLanguage } from "../../../services/localization/languageStore";
 
 const resolveNearMonthData = (year: number, month: number, direction: number) => {
@@ -28,7 +28,7 @@ const useTimelineData = (year: number, month: number) => {
         });
     }, [lang, month, year, queryClient]);
 
-    const { data: eventsData } = useQuery<Record<string, IEvent[]>>({
+    const { data: eventsData } = useQuery<EventResponse>({
         queryKey: ['timeline', lang, year, month],
         queryFn: () => timelineApi.getMonthEvents(lang, year, month)
     });

@@ -10,5 +10,10 @@
     },
     "dependencies": {
         "concurrently": "^9.2.1"
+    },
+    "allowScripts": {
+        "unrs-resolver": true,
+        "esbuild@0.27.2": true,
+        "esbuild@0.25.12": true
     }
 }

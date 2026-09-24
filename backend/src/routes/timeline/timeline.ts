@@ -1,5 +1,5 @@
 import express from 'express';
-import { IEvent, IPriority } from '@cv/shared';
+import { EventResponse, IEvent, IPriority } from '@cv/shared';
 import { createNotionService } from '../../services/notion/notion.service';
 import { createGoogleCalendarService } from '../../services/googleCalendar/googleCalendar.service';
 import { createNagerService } from '../../services/nager/nager.service';
@@ -29,12 +29,14 @@ export const createTimelineRouter = (
                 }
                 else
                 {
-                    objectName = rawPriority.objectName;
+                    objectName = rawPriority.object.objectName;
                 }
                 return {
                 priorityKey: rawPriority.priorityKey,
-                objectName: objectName,
-                url: rawPriority.url,
+                object: {
+                    objectName: objectName,
+                    url: rawPriority.object.url,
+                },
                 checked: rawPriority.checked
             }}));
             
@@ -66,7 +68,7 @@ export const createTimelineRouter = (
                 nagerService.getHolidaysEvents(yearNum, monthNum)
             ]);
 
-            const eventsRecord: Record<string, IEvent[]> = mergeAndLocalizeEvents(getLocale(req), googleEvents, nagerEvents);
+            const eventsRecord: EventResponse = mergeAndLocalizeEvents(getLocale(req), googleEvents, nagerEvents);
 
             console.log(`Returning events: ${[...googleEvents, ...nagerEvents].length} items`)
             res.json(eventsRecord);
