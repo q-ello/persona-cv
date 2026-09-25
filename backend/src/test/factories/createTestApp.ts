@@ -1,7 +1,7 @@
 import { createMockServices } from "./createMockServices";
 import express from "express";
 import { createTimelineRouter } from "../../routes/timeline/timeline";
-import { createLocalesRouter } from "../../routes/locales";
+import { createLocalesRouter } from "../../routes/locales/locales";
 
 export const createTestApp = (serviceOverrides?: Partial<any>) => {
     const services = createMockServices(serviceOverrides);

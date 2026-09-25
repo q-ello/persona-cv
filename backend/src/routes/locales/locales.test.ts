@@ -1,4 +1,4 @@
-import { createTestApp } from "../test/factories/createTestApp";
+import { createTestApp } from "../../test/factories/createTestApp";
 import request from "supertest";
 
 describe("/locales route", () => {

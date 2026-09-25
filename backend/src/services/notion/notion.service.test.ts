@@ -30,9 +30,8 @@ describe("NotionService", () => {
         expect(result).toEqual([
             {
                 priorityKey,
-                objectName,
+                object: {objectName, url},
                 localizationKey,
-                url,
                 checked
             }
         ]);

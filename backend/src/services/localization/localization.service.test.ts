@@ -144,4 +144,50 @@ describe("LocalizationService", () => {
 
         expect(result).toBe("Play");
     });
+
+    it("resolves params", async () => {
+        const { notionService } = createMockServices();
+
+        notionService.getAllLocalizations.mockResolvedValue(
+            new Map([
+                [
+                    "ui.play",
+                    {
+                        en: "Play {{value}}"
+                    }
+                ]
+            ])
+        );
+
+        const service = createLocalizationService(notionService);
+
+        await service.reload();
+
+        const result = await service.asyncLocalize("ui.play", "en", {value: "test"});
+
+        expect(result).toBe("Play test");
+    });
+
+    it("leaves placeholder if params don't match", async () => {
+        const { notionService } = createMockServices();
+
+        notionService.getAllLocalizations.mockResolvedValue(
+            new Map([
+                [
+                    "ui.play",
+                    {
+                        en: "Play {{value}}"
+                    }
+                ]
+            ])
+        );
+
+        const service = createLocalizationService(notionService);
+
+        await service.reload();
+
+        const result = await service.asyncLocalize("ui.play", "en", {val: "test"});
+
+        expect(result).toBe("Play {{value}}");
+    });
 })

@@ -1,3 +1,5 @@
+import { LocalizationParams } from "../../services/localization/localization.service";
+
 export const createMockServices = (overrides: Partial<any> = {}) => {
     const services = {
         notionService: {
@@ -6,7 +8,7 @@ export const createMockServices = (overrides: Partial<any> = {}) => {
         },
         localizationService: {
             init: jest.fn(),
-            asyncLocalize: jest.fn(async (key: string, _locale?: string) => key),
+            asyncLocalize: jest.fn(async (key: string, _locale?: string, params?: LocalizationParams) => key),
             reload: jest.fn().mockResolvedValue(undefined)
         },
         googleCalendarService: {

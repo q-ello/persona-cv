@@ -1,8 +1,9 @@
 import { Language } from "@cv/shared";
 import { createNotionService } from "../notion/notion.service";
 
-export type LocalizationEntry = Record<Language, string>
-export type LocalizationCache = Map<string, LocalizationEntry>
+export type LocalizationEntry = Record<Language, string>;
+export type LocalizationCache = Map<string, LocalizationEntry>;
+export type LocalizationParams = Record<string, string | number>;
 
 export const createLocalizationService = (notionService: ReturnType<typeof createNotionService>) => {
     let cachedLocales: LocalizationCache = new Map();
@@ -41,26 +42,26 @@ export const createLocalizationService = (notionService: ReturnType<typeof creat
         }
     }
 
-    const asyncLocalize = async (key: string, locale: Language): Promise<string> => {
+    const asyncLocalize = async (key: string, locale: Language, params: LocalizationParams = {}): Promise<string> => {
         const result = cachedLocales.get(key)?.[locale];
         if (result)
         {
-            return result;
+            return interpolate(result, params);
         }
 
         //if we didn't find that let's try refreshing
         await refreshCache();
-        const trueResult = cachedLocales.get(key)?.[locale];
+        let trueResult = cachedLocales.get(key)?.[locale];
         if (trueResult)
         {
-            return trueResult;
+            return interpolate(trueResult, params);
         }
 
         const enResult = cachedLocales.get(key)?.en;
         if (enResult)
         {
             console.warn(`No ${locale} locale for the key ${key}. Falling back to english one`);
-            return enResult;
+            return interpolate(enResult, params);
         }
 
         console.warn(`No locales for the key ${key}. Returning the key back`);
@@ -68,5 +69,11 @@ export const createLocalizationService = (notionService: ReturnType<typeof creat
         return key.split(".").pop() as string; 
     }
 
-    return {init, asyncLocalize, reload}
+    const interpolate = (template: string, params: LocalizationParams): string => {
+        return template.replace(/\{\{\s*([A-Za-z0-9_.-]+)\s*\}\}/g, (placeholder, key: string) => {
+            return Object.hasOwn(params, key) ? String(params[key]) : placeholder;
+        })
+    }
+
+    return {init, asyncLocalize, reload};
 }

@@ -29,9 +29,10 @@ describeIntegration("Integration: Notion", () => {
 
         expect(Array.isArray(result)).toBe(true);
         expect(result[0]).toHaveProperty("priorityKey");
-        expect(result[0]).toHaveProperty("objectName");
+        expect(result[0]).toHaveProperty("object");
+        expect(result[0]["object"]).toHaveProperty("objectName");
+        expect(result[0]["object"]).toHaveProperty("url");
         expect(result[0]).toHaveProperty("localizationKey");
-        expect(result[0]).toHaveProperty("url");
         expect(result[0]).toHaveProperty("checked");
         expect(typeof result[0].checked).toBe("boolean");
     });

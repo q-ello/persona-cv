@@ -8,7 +8,7 @@ import cors from "cors";
 import { createNotionService } from "./services/notion/notion.service";
 import { createNagerService } from "./services/nager/nager.service";
 import { createLocalizationService } from "./services/localization/localization.service";
-import { createLocalesRouter } from "./routes/locales";
+import { createLocalesRouter } from "./routes/locales/locales";
 
 dotenv.config();
 loadConfig();
