@@ -101,8 +101,8 @@ describe("/priorities route", () => {
         const { app, notionService, localizationService } = createTestApp();
 
         const mockRawPriorities = [
-            { priorityKey: "Priority 1", localizationKey: "object-1", object: {objectName: "Object 1", url: "https://example.com/1"}, checked: false },
-            { priorityKey: "Priority 2", localizationKey: "object-2", object: {objectName: "Object 2", url: "https://example.com/2"}, checked: true }
+            { priorityKey: "Priority 1", objectLocalizationKey: "object-1", object: {objectName: "Object 1", url: "https://example.com/1"}, checked: false },
+            { priorityKey: "Priority 2", objectLocalizationKey: "object-2", object: {objectName: "Object 2", url: "https://example.com/2"}, checked: true }
         ];
 
         notionService.getNotionPriorities.mockResolvedValue(mockRawPriorities);

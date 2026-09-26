@@ -14,9 +14,11 @@ describeIntegration("Integration: Notion", () => {
         const service = createNotionService(notion,
             {
                 secret: requireEnvVariable("NOTION_SECRET"),
-                prioritiesDatabaseId: requireEnvVariable("NOTION_PRIORITIES_DATABASE_ID"),
-                localizationDatabaseId: requireEnvVariable("NOTION_LOCALIZATION_DATABASE_ID"),
-                dailyLogDatabaseId: requireEnvVariable("NOTION_DAILY_LOG_DATABASE_ID")
+                prioritiesDbId: requireEnvVariable("NOTION_PRIORITIES_DATABASE_ID"),
+                localizationDbId: requireEnvVariable("NOTION_LOCALIZATION_DATABASE_ID"),
+                dailyLogDbId: requireEnvVariable("NOTION_DAILY_LOG_DATABASE_ID"),
+                objectDbId: requireEnvVariable("NOTION_OBJECT_DATABASE_ID"),
+                compoundActivitiesDbId: requireEnvVariable("NOTION_COMPOUND_ACTIVITIES_DATABASE_ID")
             });
         
         return {service};

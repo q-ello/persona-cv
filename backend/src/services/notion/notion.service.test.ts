@@ -11,19 +11,23 @@ describe("NotionService", () => {
         const objectLocalizationKey = "object.localization.key";
         const url = "Test url";
         const checked = true;
+        const objectId = "object-id";
 
         const { service } = createNotionTestService({
             queryResult: [
                 createNotionPriorityQuery({
                     priorityKey,
                     completed: checked,
+                    objectId
                 })
             ],
-            pageResult: createNotionObjectPage({
-                objectName,
-                objectLocalizationKey: objectLocalizationKey,
-                url
-            })
+            objectResultsById: {
+                [objectId]: createNotionObjectPage({
+                    objectName,
+                    objectLocalizationKey: objectLocalizationKey,
+                    url
+                })
+            }
         });
 
         const result = await service.getNotionPriorities();
@@ -31,7 +35,7 @@ describe("NotionService", () => {
         expect(result).toEqual([
             {
                 priorityKey,
-                object: {objectName, url},
+                object: { objectName, url },
                 objectLocalizationKey,
                 checked
             }
@@ -71,30 +75,38 @@ describe("NotionService", () => {
     });
 
     it("cuts items length to maxPrioritiesNumber if longer", async () => {
-        const dummyPriority = createNotionPriorityQuery();
+        const objectId = "object-id";
+        const dummyPriority = createNotionPriorityQuery({ objectId });
 
         const dummyArray = new Array(maxPrioritiesNumber + 1).fill(dummyPriority);
 
         const { service } = createNotionTestService({
             queryResult: dummyArray,
-            pageResult: createNotionObjectPage()
+            objectResultsById: {
+                [objectId]: createNotionObjectPage()
+            }
         });
         const result = await service.getNotionPriorities();
         expect(result.length).toBe(maxPrioritiesNumber);
     })
 
     it("prioritizes unchecked items over checked items", async () => {
+        const objectId = "object id";
         const checkedPriority = createNotionPriorityQuery({
-            completed: true
+            completed: true,
+            objectId
         });
         const uncheckedPriority = createNotionPriorityQuery({
             priorityKey: "Unchecked Priority",
-            completed: false
+            completed: false,
+            objectId
         });
 
         const { service } = createNotionTestService({
             queryResult: [checkedPriority, uncheckedPriority],
-            pageResult: createNotionObjectPage()
+            objectResultsById: {
+                [objectId]: createNotionObjectPage()
+            }
         });
 
         const result = await service.getNotionPriorities();
@@ -138,7 +150,7 @@ describe("NotionService", () => {
         const { service } = createNotionTestService({
             queryResult: [
                 createNotionLocalizationQuery(),
-                createNotionLocalizationQuery({keyName: ""})
+                createNotionLocalizationQuery({ keyName: "" })
             ]
         });
 
@@ -180,16 +192,18 @@ describe("NotionService", () => {
                     relevantToProject
                 })
             ],
-            pageResultsById: {
-                [activitiesId]: createNotionCompoundActivitiesPage({
-                    activityKey,
-                    detailsKey,
-                    format
-                }),
+            objectResultsById: {
                 [objectId]: createNotionObjectPage({
                     objectName,
                     objectLocalizationKey: localizationKey,
                     url
+                })
+            },
+            compoundActivitiesResultsById: {
+                [activitiesId]: createNotionCompoundActivitiesPage({
+                    activityKey,
+                    detailsKey,
+                    format
                 })
             }
         });
@@ -236,17 +250,17 @@ describe("NotionService", () => {
                             relation: []
                         },
                         Object: {
-                            relation: [{id: 'ok'}]
+                            relation: [{ id: 'ok' }]
                         },
                         RelevantToProject: { type: "checkbox", checkbox: false },
-                        DetailsValue: { type: "rich_text", rich_text: [{type: "text", plain_text: "Priority Key"}] },
-                        DateLogged: {type: "date", date: {start: "now"}}
+                        DetailsValue: { type: "rich_text", rich_text: [{ type: "text", plain_text: "Priority Key" }] },
+                        DateLogged: { type: "date", date: { start: "now" } }
                     }
                 })
             ]
         });
 
-        const result = await service.getNotionPriorities();
+        const result = await service.getDailyLogs();
 
         expect(result).toEqual([]);
     });

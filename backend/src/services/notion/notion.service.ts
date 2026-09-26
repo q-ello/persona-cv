@@ -17,11 +17,97 @@ type IRawDailyLogItem = {
     relevantToProject: boolean;
 }
 
+enum ERelationType {
+    Object = "Object",
+    CompoundActivities = "CompoundActivities"
+}
+
 export const maxPrioritiesNumber = 6;
 
 export const createNotionService = (notion: Client, deps: INotionConfig) => {
 
-    //#region helpers
+    const dbIdsByRelation: Record<ERelationType, string> = {
+        [ERelationType.Object]: deps.objectDbId,
+        [ERelationType.CompoundActivities]: deps.compoundActivitiesDbId
+    }
+
+    const cachedRelations: Record<ERelationType, Record<string, any>> = {
+        [ERelationType.Object]: {},
+        [ERelationType.CompoundActivities]: {}
+    };
+
+    const relationLoadPromises: Partial<Record<ERelationType, Promise<void>>> = {};
+
+    //#region relation
+
+    const getRelationId = (properties: any, relationName: ERelationType): any | null => {
+        const relationObject = properties[relationName];
+
+        if (!("relation" in relationObject && Array.isArray(relationObject.relation) && relationObject.relation.length > 0)) {
+            return null;
+        }
+
+        const relation = relationObject.relation;
+
+        if (!("id" in relation[0])) {
+            return null;
+        }
+
+        return relation[0].id;
+    }
+
+    const getRelationObjectById = async (relation: ERelationType, pageId: string) => {
+        if (cachedRelations[relation][pageId]) {
+            return cachedRelations[relation][pageId];
+        }
+
+        await ensureRelationCacheLoaded(relation);
+        return cachedRelations[relation][pageId];
+    }
+
+    const getRelationObject = async (relation: ERelationType, properties: any) => {
+        const pageId = getRelationId(properties, relation);
+        if (!pageId) {
+            return null;
+        }
+
+        return await getRelationObjectById(relation, pageId);
+    }
+
+    const loadRelationCache = async (relation: ERelationType): Promise<void> => {
+        const databaseResponse: any = await notion.databases.retrieve({
+            database_id: dbIdsByRelation[relation]
+        })
+
+        const response = await notion!.dataSources.query({
+            data_source_id: databaseResponse.data_sources[0].id
+        });
+
+        response.results.forEach(page => {
+            if (!("properties" in page)) {
+                return
+            }
+            cachedRelations[relation][page.id] = page.properties;
+        });
+
+        console.log(`Cached ${Object.keys(cachedRelations[relation]).length} of "${relation}" objects`);
+    }
+
+    const ensureRelationCacheLoaded = async (relation: ERelationType): Promise<void> => {
+        if (!relationLoadPromises[relation]) {
+            relationLoadPromises[relation] = loadRelationCache(relation);
+        }
+
+        try {
+            await relationLoadPromises[relation];
+        } catch (error) {
+            delete relationLoadPromises[relation];
+            throw error;
+        }
+    }
+
+    //#endregion
+
 
     const getPropertyValue = (property: any): string => {
         if (!property || typeof property !== "object" || !("type" in property)) {
@@ -48,56 +134,19 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
         }
     }
 
-    const getRelationProperties = async (properties: any, relationName: string): Promise<any | null> => {
-        const relationObject = properties[relationName];
+    const getObjectData = async (properties: any): Promise<{ object: IObject, objectLocalizationKey: string } | null> => {
+        const objectProperties = await getRelationObject(ERelationType.Object, properties);
 
-        if (!("relation" in relationObject && Array.isArray(relationObject.relation) && relationObject.relation.length > 0)) {
-            return null;
-        }
-
-        const relation = relationObject.relation;
-
-        if (!("id" in relation[0])) {
-            return null;
-        }
-        
-        const pageId = relation[0].id;
-
-        const pageResponse = await notion!.pages.retrieve({
-            page_id: pageId
-        });
-
-        if (!("properties" in pageResponse)) {
-            return null;
-        }
-
-        return pageResponse.properties;
-    }
-
-    const getPropertiesData = (properties: any, neededProperties: string[]): Record<string, string> => {
-        const result: Record<string, string> = {};
-
-        neededProperties.forEach(property => {
-            result[property] = getPropertyValue(properties[property]);
-        })
-
-        return result;
-    }
-
-    const getObjectData = async (properties: any): Promise<{object: IObject, objectLocalizationKey: string} | null> => {
-        const objectProperties = await getRelationProperties(properties, "Object");
         if (!objectProperties) {
             return null;
         }
 
-        const data = getPropertiesData(objectProperties, ["Name", "URL", "LocalizationKey"]);
-
         return {
             object: {
-                objectName: data["Name"],
-                url: data["URL"]
+                objectName: getPropertyValue(objectProperties.Name),
+                url: getPropertyValue(objectProperties.URL)
             },
-            objectLocalizationKey: data["LocalizationKey"]
+            objectLocalizationKey: getPropertyValue(objectProperties.LocalizationKey)
         }
     }
 
@@ -106,7 +155,7 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
     const getPriorities = async (): Promise<IRawPriority[]> => {
         try {
             const databaseResponse: any = await notion.databases.retrieve({
-                database_id: deps.prioritiesDatabaseId
+                database_id: deps.prioritiesDbId
             })
 
             const response = await notion!.dataSources.query({
@@ -159,7 +208,7 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
     const getAllLocalizations = async (lastFetchedTime?: Date): Promise<LocalizationCache> => {
         try {
             const databaseResponse: any = await notion!.databases.retrieve({
-                database_id: deps.localizationDatabaseId
+                database_id: deps.localizationDbId
             })
 
             if (lastFetchedTime && lastFetchedTime > new Date(databaseResponse.last_edited_time)) {
@@ -185,8 +234,7 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
 
                     const key = getPropertyValue(keyProp);
 
-                    if (!key)
-                    {
+                    if (!key) {
                         return;
                     }
 
@@ -210,7 +258,7 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
     const getDailyLogs = async (): Promise<IRawDailyLogItem[]> => {
         try {
             const databaseResponse: any = await notion!.databases.retrieve({
-                database_id: deps.dailyLogDatabaseId
+                database_id: deps.dailyLogDbId
             });
 
             const response = await notion!.dataSources.query({
@@ -226,29 +274,30 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
                     const properties = result.properties;
 
 
-                    const compoundActivitiesProperties = await getRelationProperties(properties, "CompoundActivities");
+                    const compoundActivitiesProperties = await getRelationObject(ERelationType.CompoundActivities, properties);
                     if (!compoundActivitiesProperties) {
                         return null;
                     }
-                    const compoundActivitiesData = getPropertiesData(compoundActivitiesProperties, ["ActivityKey", "DetailsKey", "Format"]);
-                    
+
                     const objectData = await getObjectData(properties);
 
                     return {
-                        activityKey: compoundActivitiesData["ActivityKey"], 
+                        activityKey: getPropertyValue(compoundActivitiesProperties.ActivityKey),
                         ...objectData,
-                        detailsKey: compoundActivitiesData["DetailsKey"], 
+                        detailsKey: getPropertyValue(compoundActivitiesProperties.DetailsKey),
                         detailsValue: getPropertyValue(properties.DetailsValue),
-                        format: compoundActivitiesData["Format"] as DetailFormatType,
+                        format: getPropertyValue(compoundActivitiesProperties.Format) as DetailFormatType,
                         dateLogged: getGeneralString(new Date(getPropertyValue(properties.DateLogged))),
                         relevantToProject: getPropertyValue(properties.RelevantToProject) === "Yes"
                     }
                 }))).filter(item => item !== null);
-                return dailyLogs;
+
+            console.log(`Got ${dailyLogs.length} notion daily logs`);
+            return dailyLogs;
 
         } catch (error) {
-            console.error("Error fetching localization from Notion:", error);
-            throw new Error("Failed to fetch localization from Notion");
+            console.error("Error fetching daily logs from Notion:", error);
+            throw new Error("Failed to fetch daily logs from Notion");
         }
     }
 

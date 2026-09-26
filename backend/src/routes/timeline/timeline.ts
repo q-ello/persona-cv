@@ -23,9 +23,9 @@ export const createTimelineRouter = (
             const locale = getLocale(req);
             const localizedPriorities: IPriority[] = await Promise.all(rawPriorities.map(async rawPriority => {
                 let objectName;
-                if (rawPriority.localizationKey)
+                if (rawPriority.objectLocalizationKey)
                 {
-                    objectName = await localizationService.asyncLocalize(`object.${rawPriority.localizationKey}`, locale);
+                    objectName = await localizationService.asyncLocalize(`object.${rawPriority.objectLocalizationKey}`, locale);
                 }
                 else
                 {
