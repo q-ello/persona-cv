@@ -3,6 +3,7 @@ export interface INotionConfig {
     secret: string;
     prioritiesDatabaseId: string;
     localizationDatabaseId: string;
+    dailyLogDatabaseId: string;
 }
 
 export interface IGoogleCalendarConfig {

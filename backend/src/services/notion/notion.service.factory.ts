@@ -3,12 +3,14 @@ import { createNotionService } from "./notion.service";
 type CreateNotionFactoryOptions = {
     queryResult?: any[];
     pageResult?: any;
+    pageResultsById?: Record<string, any>;
     databaseResult?: any;
 }
 
 export const createNotionTestService = ({
     queryResult = [],
     pageResult = {},
+    pageResultsById = {},
     databaseResult = { data_sources: [{ id: "data-source-1" }] }
 }: CreateNotionFactoryOptions = {}) => {
     const notionMock = {
@@ -21,11 +23,11 @@ export const createNotionTestService = ({
             })
         },
         pages: {
-            retrieve: jest.fn().mockResolvedValue(pageResult)
+            retrieve: jest.fn(({page_id}: {page_id: string}) => Promise.resolve(pageResultsById[page_id] ?? pageResult))
         }
     };
 
-    const service = createNotionService(notionMock as any, { secret: "", prioritiesDatabaseId: "", localizationDatabaseId: "" });
+    const service = createNotionService(notionMock as any, { secret: "", prioritiesDatabaseId: "", localizationDatabaseId: "", dailyLogDatabaseId: "" });
 
     return { service, notionMock };
 }

@@ -15,7 +15,8 @@ describeIntegration("Integration: Notion", () => {
             {
                 secret: requireEnvVariable("NOTION_SECRET"),
                 prioritiesDatabaseId: requireEnvVariable("NOTION_PRIORITIES_DATABASE_ID"),
-                localizationDatabaseId: requireEnvVariable("NOTION_LOCALIZATION_DATABASE_ID")
+                localizationDatabaseId: requireEnvVariable("NOTION_LOCALIZATION_DATABASE_ID"),
+                dailyLogDatabaseId: requireEnvVariable("NOTION_DAILY_LOG_DATABASE_ID")
             });
         
         return {service};
@@ -32,7 +33,7 @@ describeIntegration("Integration: Notion", () => {
         expect(result[0]).toHaveProperty("object");
         expect(result[0]["object"]).toHaveProperty("objectName");
         expect(result[0]["object"]).toHaveProperty("url");
-        expect(result[0]).toHaveProperty("localizationKey");
+        expect(result[0]).toHaveProperty("objectLocalizationKey");
         expect(result[0]).toHaveProperty("checked");
         expect(typeof result[0].checked).toBe("boolean");
     });
@@ -55,5 +56,24 @@ describeIntegration("Integration: Notion", () => {
         const result = await service.getAllLocalizations(new Date());
 
         expect(result.size).toBe(0);
+    });
+
+    it("fetches real daily log data", async () => {
+
+        const {service} = createRealNotion();
+
+        const result = await service.getDailyLogs();
+
+        expect(Array.isArray(result)).toBe(true);
+        expect(result[0]).toHaveProperty("activityKey");
+        expect(result[0]).toHaveProperty("object");
+        expect(result[0]["object"]).toHaveProperty("objectName");
+        expect(result[0]["object"]).toHaveProperty("url");
+        expect(result[0]).toHaveProperty("objectLocalizationKey");
+        expect(result[0]).toHaveProperty("detailsKey");
+        expect(result[0]).toHaveProperty("detailsValue");
+        expect(result[0]).toHaveProperty("format");
+        expect(result[0]).toHaveProperty("dateLogged");
+        expect(typeof result[0].relevantToProject).toBe("boolean");
     });
 });

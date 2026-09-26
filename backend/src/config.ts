@@ -5,7 +5,8 @@ export const config : IConfig = {
     notion: {
         secret: "",
         prioritiesDatabaseId: "",
-        localizationDatabaseId: ""
+        localizationDatabaseId: "",
+        dailyLogDatabaseId: ""
     },
     googleCalendar: {
         apiKey: "",
@@ -18,7 +19,8 @@ export const loadConfig = () => {
     config.notion = {
         secret: requireEnvVariable("NOTION_SECRET"),
         prioritiesDatabaseId: requireEnvVariable("NOTION_PRIORITIES_DATABASE_ID"),
-        localizationDatabaseId: requireEnvVariable("NOTION_LOCALIZATION_DATABASE_ID")
+        localizationDatabaseId: requireEnvVariable("NOTION_LOCALIZATION_DATABASE_ID"),
+        dailyLogDatabaseId: requireEnvVariable("NOTION_DAILY_LOG_DATABASE_ID")
     }
 
     config.googleCalendar = {

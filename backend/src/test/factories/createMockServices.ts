@@ -4,7 +4,8 @@ export const createMockServices = (overrides: Partial<any> = {}) => {
     const services = {
         notionService: {
             getNotionPriorities: jest.fn().mockResolvedValue([]),
-            getAllLocalizations: jest.fn().mockResolvedValue(new Map())
+            getAllLocalizations: jest.fn().mockResolvedValue(new Map()),
+            getDailyLogs: jest.fn().mockResolvedValue([])
         },
         localizationService: {
             init: jest.fn(),

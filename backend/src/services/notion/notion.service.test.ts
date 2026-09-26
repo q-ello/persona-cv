@@ -1,4 +1,5 @@
-import { createNotionLocalizationQuery, createNotionObjectPage, createNotionPriorityQuery } from "./notion.builders";
+import { getGeneralString } from "@cv/shared";
+import { createNotionCompoundActivitiesPage, createNotionDailyLogQuery, createNotionLocalizationQuery, createNotionObjectPage, createNotionPriorityQuery } from "./notion.builders";
 import { maxPrioritiesNumber } from "./notion.service";
 import { createNotionTestService } from "./notion.service.factory";
 
@@ -7,7 +8,7 @@ describe("NotionService", () => {
     it("maps valid response to priorities", async () => {
         const priorityKey = "Test Priority Key";
         const objectName = "Test Object Name";
-        const localizationKey = "object.localization.key";
+        const objectLocalizationKey = "object.localization.key";
         const url = "Test url";
         const checked = true;
 
@@ -20,7 +21,7 @@ describe("NotionService", () => {
             ],
             pageResult: createNotionObjectPage({
                 objectName,
-                localizationKey,
+                objectLocalizationKey: objectLocalizationKey,
                 url
             })
         });
@@ -31,7 +32,7 @@ describe("NotionService", () => {
             {
                 priorityKey,
                 object: {objectName, url},
-                localizationKey,
+                objectLocalizationKey,
                 checked
             }
         ]);
@@ -150,5 +151,104 @@ describe("NotionService", () => {
         expect(firstEntry.value?.[0].length).toBeGreaterThan(0);
     })
 
+    //#endregion
+
+    //#region daily logs
+    it("maps valid response to daily logs", async () => {
+        const objectId = "test object";
+        const activitiesId = "test activities";
+
+        const detailsValue = "Test details value";
+        const dateLogged = new Date();
+        const relevantToProject = true;
+
+        const activityKey = "Test Activity Key";
+        const detailsKey = "Test details key";
+        const format = "text";
+
+        const objectName = "Test Object Name";
+        const localizationKey = "object.localization.key";
+        const url = "Test url";
+
+        const { service } = createNotionTestService({
+            queryResult: [
+                createNotionDailyLogQuery({
+                    compoundActivitiesId: activitiesId,
+                    objectId,
+                    detailsValue,
+                    dateLogged,
+                    relevantToProject
+                })
+            ],
+            pageResultsById: {
+                [activitiesId]: createNotionCompoundActivitiesPage({
+                    activityKey,
+                    detailsKey,
+                    format
+                }),
+                [objectId]: createNotionObjectPage({
+                    objectName,
+                    objectLocalizationKey: localizationKey,
+                    url
+                })
+            }
+        });
+
+        const result = await service.getDailyLogs();
+
+        const dateString = getGeneralString(dateLogged);
+
+        expect(result).toEqual([
+            {
+                activityKey,
+                object: {
+                    objectName,
+                    url
+                },
+                objectLocalizationKey: localizationKey,
+                detailsKey,
+                detailsValue,
+                format,
+                dateLogged: dateString,
+                relevantToProject
+            }
+        ]);
+    });
+
+    it("filters out invalid results for daily logs", async () => {
+        const { service } = createNotionTestService({
+            queryResult: [
+                { noProperties: true } // invalid
+            ]
+        });
+
+        const result = await service.getDailyLogs();
+
+        expect(result).toEqual([]);
+    });
+
+    it("skips daily logs without compound activities relation", async () => {
+        const { service } = createNotionTestService({
+            queryResult: [
+                ({
+                    properties: {
+                        CompoundActivities: {
+                            relation: []
+                        },
+                        Object: {
+                            relation: [{id: 'ok'}]
+                        },
+                        RelevantToProject: { type: "checkbox", checkbox: false },
+                        DetailsValue: { type: "rich_text", rich_text: [{type: "text", plain_text: "Priority Key"}] },
+                        DateLogged: {type: "date", date: {start: "now"}}
+                    }
+                })
+            ]
+        });
+
+        const result = await service.getNotionPriorities();
+
+        expect(result).toEqual([]);
+    });
     //#endregion
 });
