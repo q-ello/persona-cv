@@ -1,7 +1,6 @@
 import request from "supertest";
-import { EEventState, EEventType, IEvent } from "@cv/shared";
+import { EEventState, EEventType, EventResponse } from "@cv/shared";
 import { createTestApp } from "../../test/factories/createTestApp";
-import { createRawEvent } from "./timeline.builders";
 
 describe("/events route", () => {
 
@@ -18,36 +17,6 @@ describe("/events route", () => {
         expect(response.body).toEqual({});
     });
 
-    it("merges google and holiday events correctly", async () => {
-        const { app, googleCalendarService, nagerService } = createTestApp();
-
-        googleCalendarService.getGoogleCalendarEvents.mockResolvedValue([
-            createRawEvent({
-                date: "2025-05-10",
-                eventEng: "Google Event", 
-                eventRu: "Google Event", 
-                type: EEventType.Common, 
-                state: EEventState.Single
-            })
-        ]);
-
-        nagerService.getHolidaysEvents.mockResolvedValue([
-            createRawEvent({
-                date: "2025-05-10",
-                eventEng: "Holiday", 
-                eventRu: "Holiday", 
-                type: EEventType.Holiday, 
-                state: EEventState.Single
-            })
-        ]);
-
-        const res = await request(app).get("/api/timeline/events?month=4&year=2025");
-
-        expect(res.status).toBe(200);
-
-        expect(res.body["2025-05-10"]).toHaveLength(2);
-    });
-
     it("returns 400 for invalid month", async () => {
         const { app } = createTestApp();
 
@@ -57,42 +26,35 @@ describe("/events route", () => {
         expect(res.status).toBe(400);
     });
 
-    it("calls both services", async () => {
-        const googleMock = jest.fn().mockResolvedValue([]);
-        const nagerMock = jest.fn().mockResolvedValue([]);
-
-        const { app } = createTestApp({
-            googleCalendarService: { getGoogleCalendarEvents: googleMock },
-            nagerService: { getHolidaysEvents: nagerMock }
-        });
+    it("passes locale and date parameters to the event service and returns its response", async () => {
+        const { app, eventService } = createTestApp();
+        const events: EventResponse = {
+            "2026-04-10": [{ eventText: "Событие", type: EEventType.Common, state: EEventState.Single }]
+        };
+        eventService.getEvents.mockResolvedValue(events);
 
         const res = await request(app)
-            .get("/api/timeline/events?month=4&year=2026");
+            .get("/api/timeline/events?month=3&year=2026")
+            .set("Accept-Language", "ru");
 
         expect(res.status).toBe(200);
-        expect(googleMock).toHaveBeenCalled();
-        expect(nagerMock).toHaveBeenCalled();
+        expect(eventService.getEvents).toHaveBeenCalledWith("ru", 3, 2026);
+        expect(res.body).toEqual(events);
     });
 
-    it("handles multiple events on same date without overwriting", async () => {
-        const { app, googleCalendarService, nagerService } = createTestApp();
+    it("returns 500 when the event service fails", async () => {
+        const { app, eventService } = createTestApp();
+        eventService.getEvents.mockRejectedValue(new Error("Events unavailable"));
+        const log = jest.spyOn(console, "error").mockImplementation(() => {});
 
-        googleCalendarService.getGoogleCalendarEvents.mockResolvedValue([
-            createRawEvent({ date: "2026-04-10", eventEng: "A", eventRu: "A", type: EEventType.Common, state: EEventState.Single})
-            
-        ]);
+        try {
+            const res = await request(app).get("/api/timeline/events?month=3&year=2026");
 
-        nagerService.getHolidaysEvents.mockResolvedValue([
-            createRawEvent({ date: "2026-04-10", eventEng: "B", eventRu: "B", type: EEventType.Holiday, state: EEventState.Single})
-        ]);
-
-        const res = await request(app)
-            .get("/api/timeline/events?month=3&year=2026");
-
-        const events: IEvent[] = res.body["2026-04-10"];
-
-        expect(events.map((e: IEvent) => e.eventText)).toContain("A");
-        expect(events.map((e: IEvent) => e.eventText)).toContain("B");
+            expect(res.status).toBe(500);
+            expect(res.body).toEqual({ error: "Failed to fetch events" });
+        } finally {
+            log.mockRestore();
+        }
     });
 });
 

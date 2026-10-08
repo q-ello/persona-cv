@@ -9,8 +9,7 @@ export const createTestApp = (serviceOverrides?: Partial<any>) => {
 
     app.use("/api/timeline", createTimelineRouter(
         services.notionService,
-        services.googleCalendarService,
-        services.nagerService,
+        services.eventService,
         services.localizationService
     ));
 

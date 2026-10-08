@@ -62,9 +62,10 @@ export const createTimelineRouter = (
                 return res.status(400).json({ error: "Invalid month or year format" });
             }
 
-            const events = eventService.getEvents(getLocale(req), monthNum, yearNum);
+            const events = await eventService.getEvents(getLocale(req), monthNum, yearNum);
 
-            console.log(`Returning events: ${events.length} items`)
+            const eventCount = Object.values(events).reduce((count, dailyEvents) => count + dailyEvents.length, 0);
+            console.log(`Returning events: ${eventCount} items`)
             res.json(events);
         } catch (error) {
             console.error("Error fetching events:", error);

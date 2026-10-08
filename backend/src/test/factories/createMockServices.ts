@@ -1,4 +1,4 @@
-import { LocalizationParams } from "../../services/localization/localization.service";
+import { LocalizationParams } from "../../services/helpers/localization/localization.service";
 
 export const createMockServices = (overrides: Partial<any> = {}) => {
     const services = {
@@ -17,6 +17,10 @@ export const createMockServices = (overrides: Partial<any> = {}) => {
         },
         nagerService: {
             getHolidaysEvents: jest.fn().mockResolvedValue([])
+        },
+        eventService: {
+            init: jest.fn().mockResolvedValue(undefined),
+            getEvents: jest.fn().mockResolvedValue({})
         }
     };
 

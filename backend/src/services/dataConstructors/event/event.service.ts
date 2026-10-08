@@ -9,14 +9,26 @@ export const createEventSerivce = (
 ) => {
     //first key: year-month, second: date string
     const cachedEvents: Record<string, Record<string, IRawEvent[]>> = {};
+    let cacheInitialization: Promise<void> | null = null;
 
-    const getEvents = (locale: Language, month: number, year: number): EventResponse => {
-        return localizeEvents(locale, cachedEvents[`${month}-${year}`]);
+    const getEvents = async (locale: Language, month: number, year: number): Promise<EventResponse> => {
+        await init();
+
+        const monthKey = `${year}-${(month + 1).toString().padStart(2, '0')}`;
+        return localizeEvents(locale, cachedEvents[monthKey] ?? {});
     }
 
-    const init = () => {
-        console.log("Started initializing events cache");
-        initializeCache();
+    const init = (): Promise<void> => {
+        if (!cacheInitialization) {
+            console.log("Started initializing events cache");
+            cacheInitialization = initializeCache();
+            void cacheInitialization.catch(error => {
+                cacheInitialization = null;
+                console.error("Failed to initialize events cache:", error);
+            });
+        }
+
+        return cacheInitialization;
     }
 
     const initializeCache = async () => {
@@ -38,7 +50,7 @@ export const createEventSerivce = (
     const localizeEvents = (locale: Language, rawEvents: Record<string, IRawEvent[]>): EventResponse => {
         const localizedEventsRecord: Record<string, IEvent[]> = {};
 
-        for (const key in Object.keys(rawEvents)) {
+        for (const key of Object.keys(rawEvents)) {
             const localizedEvents = rawEvents[key].map(rawEvent => ({
                 state: rawEvent.state,
                 eventText: (locale && locale == "ru") ? rawEvent.eventRu : rawEvent.eventEng,
@@ -58,7 +70,7 @@ export const createEventSerivce = (
             } else if (cachedEvents[firstKey]) {
                 cachedEvents[firstKey][secondKey] = [event];
             } else {
-                cachedEvents[firstKey] = {[secondKey]: [event]};
+                cachedEvents[firstKey] = { [secondKey]: [event] };
             }
         };
 
@@ -66,12 +78,10 @@ export const createEventSerivce = (
             const dateString = rawEvent.date;
             //the string is in y-m-d format, we just need y-m
             addToCache(`${dateString.substring(0, dateString.lastIndexOf('-'))}`, rawEvent.date, rawEvent);
-        }
-        );
+        });
     }
 
     //todo: webhooks for google calendar
-    //todo: tests
-    
+
     return { getEvents, init }
 }

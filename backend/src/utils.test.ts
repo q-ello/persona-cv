@@ -1,17 +1,7 @@
 import { getGeneralString } from "@cv/shared";
-import { mergeAndLocalizeEvents, requireEnvVariable } from "./utils";
-import { createRawEvent } from "./routes/timeline/timeline.builders";
+import { requireEnvVariable } from "./utils";
 
 describe("utility functions", () => {
-    it("merges events by date", () => {
-        const result = mergeAndLocalizeEvents("en",
-            [createRawEvent({date: "2026-04-10", eventEng: "A"})],
-            [createRawEvent({ date: "2026-04-10", eventEng: "B"})]
-        );
-
-        expect(result["2026-04-10"]).toHaveLength(2);
-    });
-
     it("requires environment variable", () => {
         const originalEnv = process.env;
         delete process.env.TEST_VAR;
