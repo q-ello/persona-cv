@@ -9,7 +9,7 @@ describe('getHolidaysEvents', () => {
             ]}
         );
 
-        const result = await service.getHolidaysEvents(new Date(2024, 1), new Date(2024, 2)); // February
+        const result = await service.getHolidaysEvents(2024); // February
 
         expect(result.length).toBe(1);
         expect(result[0].eventEng).toBe('Valentine\'s Day');
@@ -23,7 +23,7 @@ describe('getHolidaysEvents', () => {
             ]}
         );
 
-        const result = await service.getHolidaysEvents(new Date(2024, 2), new Date(2024, 3)); // March
+        const result = await service.getHolidaysEvents(2024); // March
 
         expect(result.length).toBe(0);
     });
@@ -31,7 +31,7 @@ describe('getHolidaysEvents', () => {
     it('uses the date string directly as the map key (no UTC shift)', async () => {
         // Preserve the API's date string without converting it through UTC.
         const {service} = createNagerTestService({json: [{ date: '2026-05-01', name: 'Labour Day', localName: 'Праздник труда' }]});
-        const result = await service.getHolidaysEvents(new Date(2026, 4), new Date(2026, 5)); // May (0-based)
+        const result = await service.getHolidaysEvents(2026); // May (0-based)
 
         expect(result.length).toBe(1);
         expect(result[0].date).toBe('2026-05-01');
@@ -40,8 +40,8 @@ describe('getHolidaysEvents', () => {
     it("caches holidays by year", async () => {
         const {service, fetchMock} = createNagerTestService({json: [{ date: '2024-01-01', name: 'New Year' }]});
 
-        await service.getHolidaysEvents(new Date(2024, 1), new Date(2024, 2));
-        await service.getHolidaysEvents(new Date(2024, 2), new Date(2024, 3));
+        await service.getHolidaysEvents(2024);
+        await service.getHolidaysEvents(2024);
 
         expect(fetchMock).toHaveBeenCalledTimes(1); 
     });
@@ -49,14 +49,14 @@ describe('getHolidaysEvents', () => {
     it('rejects HTTP failures with the requested year and status', async () => {
         const { service } = createNagerTestService({ ok: false, status: 429, json: {} });
 
-        await expect(service.getHolidaysEvents(new Date(2024, 0), new Date(2024, 1)))
+        await expect(service.getHolidaysEvents(2024))
             .rejects.toThrow('Nager request failed for 2024: HTTP 429');
     });
 
     it.each([{ json: {} }, { json: [null] }, { json: [{ date: '2024-01-01' }] }])('rejects malformed response %j', async ({ json }) => {
         const { service } = createNagerTestService({ json });
 
-        await expect(service.getHolidaysEvents(new Date(2024, 0), new Date(2024, 1)))
+        await expect(service.getHolidaysEvents(2024))
             .rejects.toThrow('Invalid Nager response for 2024');
     });
 
@@ -64,9 +64,9 @@ describe('getHolidaysEvents', () => {
         const { service, fetchMock } = createNagerTestService({ json: [] });
         fetchMock.mockRejectedValueOnce(new Error('Unavailable'));
 
-        await expect(service.getHolidaysEvents(new Date(2024, 0), new Date(2024, 1)))
+        await expect(service.getHolidaysEvents(2024))
             .rejects.toThrow('Unavailable');
-        await expect(service.getHolidaysEvents(new Date(2024, 0), new Date(2024, 1)))
+        await expect(service.getHolidaysEvents(2024))
             .resolves.toEqual([]);
         expect(fetchMock).toHaveBeenCalledTimes(2);
     });

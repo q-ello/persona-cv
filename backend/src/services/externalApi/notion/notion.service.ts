@@ -31,9 +31,9 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
         [ERelationType.CompoundActivities]: deps.compoundActivitiesDbId
     }
 
-    const cachedRelations: Record<ERelationType, Record<string, any>> = {
-        [ERelationType.Object]: {},
-        [ERelationType.CompoundActivities]: {}
+    const cachedRelations: Record<ERelationType, Map<string, any>> = {
+        [ERelationType.Object]: new Map(),
+        [ERelationType.CompoundActivities]: new Map()
     };
 
     const relationLoadPromises: Partial<Record<ERelationType, Promise<void>>> = {};
@@ -57,12 +57,12 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
     }
 
     const getRelationObjectById = async (relation: ERelationType, pageId: string) => {
-        if (cachedRelations[relation][pageId]) {
-            return cachedRelations[relation][pageId];
+        if (cachedRelations[relation].has(pageId)) {
+            return cachedRelations[relation].get(pageId);
         }
 
         await ensureRelationCacheLoaded(relation);
-        return cachedRelations[relation][pageId];
+        return cachedRelations[relation].get(pageId);
     }
 
     const getRelationObject = async (relation: ERelationType, properties: any) => {
@@ -87,7 +87,7 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
             if (!("properties" in page)) {
                 return
             }
-            cachedRelations[relation][page.id] = page.properties;
+            cachedRelations[relation].set(page.id, page.properties);
         });
 
         console.log(`Cached ${Object.keys(cachedRelations[relation]).length} of "${relation}" objects`);

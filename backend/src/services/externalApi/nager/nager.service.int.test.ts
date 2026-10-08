@@ -17,7 +17,7 @@ describeIntegration('Nager Integration', () => {
     it('fetches real holidays data', async () => {
         const service = createNagerService(fetch);
 
-        const result = await service.getHolidaysEvents(new Date(2024, 1), new Date(2024, 2)); // January 2024
+        const result = await service.getHolidaysEvents(2024); // January 2024
         checkRawEventData(result);
     });
 });

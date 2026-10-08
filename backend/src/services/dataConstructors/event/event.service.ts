@@ -8,14 +8,26 @@ export const createEventSerivce = (
     nagerService: ReturnType<typeof createNagerService>
 ) => {
     //first key: year-month, second: date string
-    const cachedEvents: Record<string, Record<string, IRawEvent[]>> = {};
+    const cachedEvents: Map<string, Map<string, IRawEvent[]>> = new Map();
+
     let cacheInitialization: Promise<void> | null = null;
 
     const getEvents = async (locale: Language, month: number, year: number): Promise<EventResponse> => {
         await init();
 
         const monthKey = `${year}-${(month + 1).toString().padStart(2, '0')}`;
-        return localizeEvents(locale, cachedEvents[monthKey] ?? {});
+
+        if (!nagerService.hasFetchedYear(year)) {
+            const newNagerEvents = await nagerService.getHolidaysEvents(year);
+            mergeEventsIntoCache(newNagerEvents);
+            console.log(`Added ${newNagerEvents.length} holidays into cache`);
+        }
+        
+        if (!cachedEvents.has(monthKey)) {
+            return {};
+        } 
+
+        return localizeEvents(locale, cachedEvents.get(monthKey) ?? new Map());
     }
 
     const init = (): Promise<void> => {
@@ -38,7 +50,7 @@ export const createEventSerivce = (
 
         const [googleEvents, nagerEvents] = await Promise.all([
             googleCalendar.getGoogleCalendarEvents(startDate, endDate),
-            nagerService.getHolidaysEvents(startDate, endDate)
+            nagerService.getHolidaysEvents(startDate.getFullYear(), endDate.getFullYear())
         ]);
 
         const allEvents = [...googleEvents, ...nagerEvents];
@@ -47,30 +59,31 @@ export const createEventSerivce = (
         console.log(`Cached ${googleEvents.length} events from google and ${nagerEvents.length} holidays from nager since ${startDate.toDateString()} to ${endDate.toDateString()}`)
     }
 
-    const localizeEvents = (locale: Language, rawEvents: Record<string, IRawEvent[]>): EventResponse => {
-        const localizedEventsRecord: Record<string, IEvent[]> = {};
+    const localizeEvents = (locale: Language, rawEvents: Map<string, IRawEvent[]>): EventResponse => {
+        const localizedEventsRecord: EventResponse = {};
 
-        for (const key of Object.keys(rawEvents)) {
-            const localizedEvents = rawEvents[key].map(rawEvent => ({
+        rawEvents.forEach((rawEvent, key) => {
+            const localizedEvents = rawEvents.get(key)?.map(rawEvent => ({
                 state: rawEvent.state,
                 eventText: (locale && locale == "ru") ? rawEvent.eventRu : rawEvent.eventEng,
                 type: rawEvent.type
             }));
 
-            localizedEventsRecord[key] = localizedEvents;
-        }
+            localizedEventsRecord[key] = localizedEvents ?? [];
+        
+        })
 
         return localizedEventsRecord;
     }
 
     const mergeEventsIntoCache = (events: IRawEvent[]): void => {
         const addToCache = (firstKey: string, secondKey: string, event: IRawEvent) => {
-            if (cachedEvents[firstKey] && cachedEvents[firstKey][secondKey]) {
-                cachedEvents[firstKey][secondKey].push(event);
-            } else if (cachedEvents[firstKey]) {
-                cachedEvents[firstKey][secondKey] = [event];
+            if (!cachedEvents.has(firstKey)) {
+                cachedEvents.set(firstKey, new Map([[secondKey, [event]]]));
+            } else if (!cachedEvents.get(firstKey)?.has(secondKey)) {
+                cachedEvents.get(firstKey)?.set(secondKey, [event]);
             } else {
-                cachedEvents[firstKey] = { [secondKey]: [event] };
+                cachedEvents.get(firstKey)?.get(secondKey)?.push(event);
             }
         };
 
