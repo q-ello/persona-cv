@@ -15,7 +15,7 @@ describe("GoogleCalendarService", () => {
             ]
         }});
 
-        const result = await service.getGoogleCalendarEvents(2025, 4);
+        const result = await service.getGoogleCalendarEvents(new Date(2025, 4), new Date(2025, 5));
 
         expect(result).toHaveLength(2);
         expect(result[0].state).toBe(EEventState.Single);
@@ -32,7 +32,7 @@ describe("GoogleCalendarService", () => {
             ]
         }});
 
-        const result = await service.getGoogleCalendarEvents(2025, 4);
+        const result = await service.getGoogleCalendarEvents(new Date(2025, 4), new Date(2025, 5));
 
         // 3 days * 2 calendars = 6 entries
         expect(result).toHaveLength(6);
@@ -55,7 +55,7 @@ describe("GoogleCalendarService", () => {
             ]
         }});
 
-        const result = await service.getGoogleCalendarEvents(2025, 4);
+        const result = await service.getGoogleCalendarEvents(new Date(2025, 4), new Date(2025, 5));
 
         expect(result[0].state).toBe(EEventState.Single);
     });
@@ -69,7 +69,7 @@ describe("GoogleCalendarService", () => {
             ]
         }});
 
-        const result = await service.getGoogleCalendarEvents(2025, 4);
+        const result = await service.getGoogleCalendarEvents(new Date(2025, 4), new Date(2025, 5));
 
         expect(result).toHaveLength(0);
     });
@@ -77,7 +77,7 @@ describe("GoogleCalendarService", () => {
     it("returns empty array when no items", async () => {
         const { service } = createGoogleCalendarTestService({json: {}});
 
-        const result = await service.getGoogleCalendarEvents(2025, 4);
+        const result = await service.getGoogleCalendarEvents(new Date(2025, 4), new Date(2025, 5));
 
         expect(result).toEqual([]);
     });

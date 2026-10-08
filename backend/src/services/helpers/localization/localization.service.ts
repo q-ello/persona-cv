@@ -1,5 +1,5 @@
 import { Language } from "@cv/shared";
-import { createNotionService } from "../notion/notion.service";
+import { createNotionService } from "../../externalApi/notion/notion.service";
 
 export type LocalizationEntry = Record<Language, string>;
 export type LocalizationCache = Map<string, LocalizationEntry>;

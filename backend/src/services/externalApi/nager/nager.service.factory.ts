@@ -1,4 +1,4 @@
-import { createFetchMock } from "../../test/utils/createFetchMock"
+import { createFetchMock } from "../../../test/utils/createFetchMock"
 import { createNagerService } from "./nager.service";
 
 export const createNagerTestService = (response: any) => {

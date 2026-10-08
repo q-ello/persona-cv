@@ -1,5 +1,5 @@
 import { createNotionService } from "./notion.service";
-import { requireEnvVariable } from "../../utils";
+import { requireEnvVariable } from "../../../utils";
 
 const describeIntegration = process.env.RUN_INTEGRATION_TESTS === "true" ? describe : describe.skip;
 

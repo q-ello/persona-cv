@@ -1,4 +1,4 @@
-import { INotionConfig } from "../../types/config.types";
+import { INotionConfig } from "../../../types/config.types";
 import { createNotionService } from "./notion.service";
 
 type CreateNotionFactoryOptions = {

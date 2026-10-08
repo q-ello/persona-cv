@@ -1,4 +1,4 @@
-import { createMockServices } from "../../test/factories/createMockServices";
+import { createMockServices } from "../../../test/factories/createMockServices";
 import { createLocalizationService } from "../localization/localization.service";
 import { createDetailFormatterService } from "./detailFormatter.service";
 

@@ -9,7 +9,7 @@ describe('getHolidaysEvents', () => {
             ]}
         );
 
-        const result = await service.getHolidaysEvents(2024, 1); // February
+        const result = await service.getHolidaysEvents(new Date(2024, 2), new Date(2024, 3)); // February
 
         expect(result.length).toBe(1);
         expect(result[0].eventEng).toBe('Valentine\'s Day');
@@ -23,7 +23,7 @@ describe('getHolidaysEvents', () => {
             ]}
         );
 
-        const result = await service.getHolidaysEvents(2024, 2); // March
+        const result = await service.getHolidaysEvents(new Date(2024, 3), new Date(2024, 4)); // March
 
         expect(result.length).toBe(0);
     });
@@ -32,7 +32,7 @@ describe('getHolidaysEvents', () => {
         // This test guards against the timezone bug: new Date("2026-05-01") is UTC midnight,
         // which in UTC+3 is April 30 locally. The key must remain "2026-05-01".
         const {service} = createNagerTestService({json: [{ date: '2026-05-01', name: 'Labour Day', localName: 'Праздник труда' }]});
-        const result = await service.getHolidaysEvents(2026, 4); // May (0-based)
+        const result = await service.getHolidaysEvents(new Date(2026, 5), new Date(2026, 6)); // May (0-based)
 
         expect(result.length).toBe(1);
         expect(result[0].date).toBe('2026-05-01');
@@ -41,8 +41,8 @@ describe('getHolidaysEvents', () => {
     it("caches holidays by year", async () => {
         const {service, fetchMock} = createNagerTestService({json: [{ date: '2024-01-01', name: 'New Year' }]});
 
-        await service.getHolidaysEvents(2024, 0);
-        await service.getHolidaysEvents(2024, 1);
+        await service.getHolidaysEvents(new Date(2024, 1), new Date(2024, 2));
+        await service.getHolidaysEvents(new Date(2024, 2), new Date(2024, 3));
 
         expect(fetchMock).toHaveBeenCalledTimes(1); 
     });

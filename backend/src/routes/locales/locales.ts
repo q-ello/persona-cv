@@ -1,5 +1,5 @@
 import express from 'express';
-import { createLocalizationService } from '../../services/localization/localization.service';
+import { createLocalizationService } from '../../services/helpers/localization/localization.service';
 
 //hidden route for manual reloading
 export const createLocalesRouter = (localizationService: ReturnType<typeof createLocalizationService>) => {

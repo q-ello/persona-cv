@@ -1,8 +1,8 @@
 import { Client } from "@notionhq/client";
-import { INotionConfig } from "../../types/config.types";
-import { LocalizationCache, LocalizationEntry } from "../localization/localization.service";
-import { DetailFormatType } from "../detailFormatter/detailFormatter.service";
+import { INotionConfig } from "../../../types/config.types";
+import { DetailFormatType } from "../../helpers/detailFormatter/detailFormatter.service";
 import { getGeneralString, IObject, IPriority, LANGUAGES } from "@cv/shared";
+import { LocalizationCache, LocalizationEntry } from "../../helpers/localization/localization.service";
 
 type IRawPriority = IPriority & { objectLocalizationKey: string };
 

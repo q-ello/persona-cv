@@ -1,16 +1,14 @@
 import express from 'express';
-import { EventResponse, IEvent, IPriority } from '@cv/shared';
-import { createNotionService } from '../../services/notion/notion.service';
-import { createGoogleCalendarService } from '../../services/googleCalendar/googleCalendar.service';
-import { createNagerService } from '../../services/nager/nager.service';
-import { getLocale, mergeAndLocalizeEvents } from '../../utils';
-import { createLocalizationService } from '../../services/localization/localization.service';
+import { IPriority } from '@cv/shared';
+import { createNotionService } from '../../services/externalApi/notion/notion.service';
+import { getLocale } from '../../utils';
+import { createEventSerivce } from '../../services/dataConstructors/event/event.service';
+import { createLocalizationService } from '../../services/helpers/localization/localization.service';
 
 
 export const createTimelineRouter = (
     notionService: ReturnType<typeof createNotionService>,
-    googleCalendarService: ReturnType<typeof createGoogleCalendarService>,
-    nagerService: ReturnType<typeof createNagerService>,
+    eventService: ReturnType<typeof createEventSerivce>,
     localizationService: ReturnType<typeof createLocalizationService>
 ) => {
     const router = express.Router();
@@ -19,6 +17,7 @@ export const createTimelineRouter = (
         console.log("starting GET priorities handling")
 
         try {
+            //todo: move that to priorities service
             const rawPriorities = await notionService.getNotionPriorities();
             const locale = getLocale(req);
             const localizedPriorities: IPriority[] = await Promise.all(rawPriorities.map(async rawPriority => {
@@ -63,15 +62,10 @@ export const createTimelineRouter = (
                 return res.status(400).json({ error: "Invalid month or year format" });
             }
 
-            const [googleEvents, nagerEvents] = await Promise.all([
-                googleCalendarService.getGoogleCalendarEvents(yearNum, monthNum),
-                nagerService.getHolidaysEvents(yearNum, monthNum)
-            ]);
+            const events = eventService.getEvents(getLocale(req), monthNum, yearNum);
 
-            const eventsRecord: EventResponse = mergeAndLocalizeEvents(getLocale(req), googleEvents, nagerEvents);
-
-            console.log(`Returning events: ${[...googleEvents, ...nagerEvents].length} items`)
-            res.json(eventsRecord);
+            console.log(`Returning events: ${events.length} items`)
+            res.json(events);
         } catch (error) {
             console.error("Error fetching events:", error);
             res.status(500).json({ error: "Failed to fetch events" });

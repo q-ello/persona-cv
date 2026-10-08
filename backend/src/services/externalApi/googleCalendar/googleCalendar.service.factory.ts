@@ -1,4 +1,4 @@
-import { createFetchMock } from "../../test/utils/createFetchMock"
+import { createFetchMock } from "../../../test/utils/createFetchMock"
 import { createGoogleCalendarService } from "./googleCalendar.service";
 
 export const createGoogleCalendarTestService = (response: any) => {
