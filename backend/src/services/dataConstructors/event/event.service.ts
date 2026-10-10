@@ -12,17 +12,14 @@ export const createEventSerivce = (
 
     let cacheInitialization: Promise<void> | null = null;
 
+    const nagerYearLoads = new Map<number, Promise<void>>;
+
     const getEvents = async (locale: Language, month: number, year: number): Promise<EventResponse> => {
         await init();
+        await ensureNagerYear(year);
 
         const monthKey = `${year}-${(month + 1).toString().padStart(2, '0')}`;
 
-        if (!nagerService.hasFetchedYear(year)) {
-            const newNagerEvents = await nagerService.getHolidaysEvents(year);
-            mergeEventsIntoCache(newNagerEvents);
-            console.log(`Added ${newNagerEvents.length} holidays into cache`);
-        }
-        
         if (!cachedEvents.has(monthKey)) {
             return {};
         } 
@@ -93,6 +90,34 @@ export const createEventSerivce = (
             addToCache(`${dateString.substring(0, dateString.lastIndexOf('-'))}`, rawEvent.date, rawEvent);
         });
     }
+
+    //#region nager
+
+    const ensureNagerYear = async (year: number): Promise<void> => {
+        if (!nagerYearLoads.has(year)) {
+            nagerYearLoads.set(year, loadNagerYear(year));
+        }
+
+        try {
+            await nagerYearLoads.get(year);
+        } catch (error) {
+            nagerYearLoads.delete(year);
+            throw error;
+        }
+    }
+
+    const loadNagerYear = async (year: number): Promise<void> => {
+        if (nagerService.hasFetchedYear(year)) {
+            return;
+        }
+
+        const newNagerEvents = await nagerService.getHolidaysEvents(year);
+        mergeEventsIntoCache(newNagerEvents);
+
+        console.log(`Added ${newNagerEvents.length} holidays into cache`);
+    }
+
+    //#endregion
 
     //todo: webhooks for google calendar
 
