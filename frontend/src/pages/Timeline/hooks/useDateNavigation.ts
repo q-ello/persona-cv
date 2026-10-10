@@ -1,9 +1,8 @@
 import { useCallback, useMemo, useRef, useState } from "react";
-
-const maxPastDate = new Date(2023, 0, 1);
+import {MIN_TIMELINE_DATE} from '@cv/shared'
 
 const clampDate = (date: Date, maxFutureDate: Date): Date => {
-    if (date < maxPastDate) return maxPastDate;
+    if (date < MIN_TIMELINE_DATE ) return MIN_TIMELINE_DATE;
     if (date > maxFutureDate) return maxFutureDate;
     return date;
 }
@@ -67,7 +66,7 @@ const useDateNavigation = () => {
     }, [selectedDate, today]);
 
     const isOnMaxPastMonth = useMemo(() => {
-        return selectedDate.getFullYear() === maxPastDate.getFullYear() && selectedDate.getMonth() === maxPastDate.getMonth()
+        return selectedDate.getFullYear() === MIN_TIMELINE_DATE.getFullYear() && selectedDate.getMonth() === MIN_TIMELINE_DATE.getMonth()
     }, [selectedDate]);
 
     const isOnMaxFutureMonth = useMemo(() => {

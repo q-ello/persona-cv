@@ -1,4 +1,4 @@
-import { EventResponse, IEvent, Language } from "@cv/shared";
+import { EventResponse, Language, MIN_TIMELINE_DATE } from "@cv/shared";
 import { createGoogleCalendarService } from "../../externalApi/googleCalendar/googleCalendar.service";
 import { createNagerService } from "../../externalApi/nager/nager.service";
 import { IRawEvent } from "../../../types/events.types";
@@ -41,19 +41,15 @@ export const createEventSerivce = (
     }
 
     const initializeCache = async () => {
-        const startDate = new Date(2022, 0, 1);
-        const now = new Date();
-        const endDate = new Date(now.getFullYear(), now.getMonth() + 3, now.getDate());
-
         const [googleEvents, nagerEvents] = await Promise.all([
-            googleCalendar.getGoogleCalendarEvents(startDate, endDate),
-            nagerService.getHolidaysEvents(startDate.getFullYear(), endDate.getFullYear())
+            googleCalendar.getGoogleCalendarEvents(),
+            nagerService.getHolidaysEvents(MIN_TIMELINE_DATE.getFullYear(), new Date().getFullYear())
         ]);
 
         const allEvents = [...googleEvents, ...nagerEvents];
 
         mergeEventsIntoCache(allEvents);
-        console.log(`Cached ${googleEvents.length} events from google and ${nagerEvents.length} holidays from nager since ${startDate.toDateString()} to ${endDate.toDateString()}`)
+        console.log(`Cached ${googleEvents.length} events from google and ${nagerEvents.length} holidays from nager since ${MIN_TIMELINE_DATE.toDateString()}`)
     }
 
     const localizeEvents = (locale: Language, rawEvents: Map<string, IRawEvent[]>): EventResponse => {

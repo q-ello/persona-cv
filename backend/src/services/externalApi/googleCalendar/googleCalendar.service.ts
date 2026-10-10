@@ -1,17 +1,46 @@
-import { EEventState, EEventType, getGeneralString, IEvent } from '@cv/shared';
+import { EEventState, EEventType, getGeneralString, IEvent, MIN_TIMELINE_DATE } from '@cv/shared';
 import { IRawEvent } from '../../../types/events.types';
 import { IGoogleCalendarConfig } from '../../../types/config.types';
 
 export const createGoogleCalendarService = (deps: IGoogleCalendarConfig, fetchFn: typeof fetch) => {
-    const getGoogleCalendarEvents = async (startDate: Date, endDate: Date): Promise<IRawEvent[]> => {
+    const cachedEventsIds: Set<string> = new Set();
+    let lastFetchedTime: Date | null = null;
+
+    //todo: check id
+
+    const getGoogleCalendarEvents = async (): Promise<IRawEvent[]> => {
         const rawEvents: IRawEvent[] = [];
+
+        const fetchUpdated = async (calendarId: string) => {
+            const apiUrl = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`;
+            const params = new URLSearchParams({
+                key: deps.apiKey,
+                fields: "updated"
+            });
+
+            const response = await fetchFn(`${apiUrl}?${params}`);
+            if (!response.ok) {
+                throw new Error(`Google HTTP ${response.status}`);
+            }
+            
+            const {updated} = await response.json();
+            return updated;
+        }
+
+        let updateCommonCalendar = true;
+        let updateDeadlineCalendar = true;
+        
+        if (lastFetchedTime !== null) {
+            updateCommonCalendar = new Date(await fetchUpdated(deps.commonCalendarId)) > (lastFetchedTime as Date);
+            updateDeadlineCalendar = new Date(await fetchUpdated(deps.deadlinesCalendarId)) > (lastFetchedTime as Date)
+            lastFetchedTime = new Date();
+        }
 
         const fetchEvents = async (calendarId: string, eventType: EEventType) => {
             const apiUrl = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`;
             const params = new URLSearchParams({
                 key: deps.apiKey,
-                timeMin: startDate.toISOString(),
-                timeMax: endDate.toISOString()
+                timeMin: MIN_TIMELINE_DATE.toISOString(),
             });
             const response = await fetchFn(`${apiUrl}?${params.toString()}`);
 
@@ -71,8 +100,13 @@ export const createGoogleCalendarService = (deps: IGoogleCalendarConfig, fetchFn
             })
         }
 
-        await fetchEvents(deps.commonCalendarId, EEventType.Common);
-        await fetchEvents(deps.deadlinesCalendarId, EEventType.Deadline);
+        if (updateCommonCalendar) {
+            await fetchEvents(deps.commonCalendarId, EEventType.Common);
+        }
+
+        if (updateDeadlineCalendar) {
+            await fetchEvents(deps.deadlinesCalendarId, EEventType.Deadline);
+        }
 
         return rawEvents;
     }
