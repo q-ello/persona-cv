@@ -4,6 +4,7 @@ import { IGoogleCalendarConfig } from '../../../types/config.types';
 
 export const createGoogleCalendarService = (deps: IGoogleCalendarConfig, fetchFn: typeof fetch) => {
     const cachedEventsIds: Set<string> = new Set();
+    const pendingToCacheEventsIds: Set<string> = new Set();
     let lastFetchedTime: Date | null = null;
 
     //todo: check id
@@ -31,32 +32,48 @@ export const createGoogleCalendarService = (deps: IGoogleCalendarConfig, fetchFn
         let updateDeadlineCalendar = true;
         
         if (lastFetchedTime !== null) {
-            updateCommonCalendar = new Date(await fetchUpdated(deps.commonCalendarId)) > (lastFetchedTime as Date);
-            updateDeadlineCalendar = new Date(await fetchUpdated(deps.deadlinesCalendarId)) > (lastFetchedTime as Date)
+            const tempLastFetchedTime = lastFetchedTime;
+            lastFetchedTime = new Date();
+            updateCommonCalendar = new Date(await fetchUpdated(deps.commonCalendarId)) > tempLastFetchedTime;
+            updateDeadlineCalendar = new Date(await fetchUpdated(deps.deadlinesCalendarId)) > tempLastFetchedTime;
+        } else {
+            lastFetchedTime = new Date();
         }
 
-        const fetchEvents = async (calendarId: string, eventType: EEventType) => {
+        const fetchEvents = async (calendarId: string, eventType: EEventType, pageToken?: string) => {
             const apiUrl = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`;
             const params = new URLSearchParams({
                 key: deps.apiKey,
                 timeMin: MIN_TIMELINE_DATE.toISOString(),
             });
+
+            if (pageToken) {
+                params.append('pageToken', pageToken);
+            }
+
             const response = await fetchFn(`${apiUrl}?${params.toString()}`);
+            if (!response.ok) {
+                throw new Error(`Google HTTP ${response.status}`);
+            }
 
             const data = await response.json();
 
             if (!data.items) return;
+
+            const nextPageToken = data.nextPageToken;
 
             data.items.forEach((item: any) => {
                 if (!item.summary || !item.id) {
                     return;
                 }
 
-                if (cachedEventsIds.has(item.id)) {
+                const uniqueId = `${calendarId}:${item.id}`;
+
+                if (cachedEventsIds.has(uniqueId)) {
                     return;
                 }
 
-                cachedEventsIds.add(item.id);
+                pendingToCacheEventsIds.add(uniqueId);
 
                 const eventEng: string = item.summary
                 const eventRu: string = item.description ?? eventEng
@@ -103,6 +120,10 @@ export const createGoogleCalendarService = (deps: IGoogleCalendarConfig, fetchFn
                     rawEvents.push(finalEvent);
                 }
             })
+
+            if (nextPageToken) {
+                fetchEvents(calendarId, eventType, nextPageToken);
+            } 
         }
 
         if (updateCommonCalendar) {
@@ -113,10 +134,13 @@ export const createGoogleCalendarService = (deps: IGoogleCalendarConfig, fetchFn
             await fetchEvents(deps.deadlinesCalendarId, EEventType.Deadline);
         }
 
-        lastFetchedTime = new Date();
-
         return rawEvents;
     }
 
-    return { getGoogleCalendarEvents }
+    const commitCachedEventsIds = (): void => {
+        pendingToCacheEventsIds.forEach(id => cachedEventsIds.add(id));
+        pendingToCacheEventsIds.clear();
+    }
+
+    return { getGoogleCalendarEvents, commitCachedEventsIds }
 }

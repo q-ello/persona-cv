@@ -9,10 +9,9 @@ export const createEventSerivce = (
 ) => {
     //first key: year-month, second: date string
     const cachedEvents: Map<string, Map<string, IRawEvent[]>> = new Map();
-
-    let cacheInitialization: Promise<void> | null = null;
-
     const nagerYearLoads = new Map<number, Promise<void>>;
+    let cacheInitialization: Promise<void> | null = null;
+    let refreshInterval: NodeJS.Timeout | null = null;
 
     const getEvents = async (locale: Language, month: number, year: number): Promise<EventResponse> => {
         await init();
@@ -35,15 +34,29 @@ export const createEventSerivce = (
                 cacheInitialization = null;
                 console.error("Failed to initialize events cache:", error);
             });
+        }
 
-            setInterval(async () => {
-                const newGoogleEvents = await googleCalendar.getGoogleCalendarEvents();
-                mergeEventsIntoCache(newGoogleEvents);
-                console.log(`Added ${newGoogleEvents.length} new events from google calendar`);
+        if (!refreshInterval) {
+            refreshInterval = setInterval(async () => {
+                updateGoogleEvents();
             }, 1000*60*60*24);
         }
 
+
         return cacheInitialization;
+    }
+
+    const updateGoogleEvents = async (): Promise<void> => {
+        try {
+            const newGoogleEvents = await googleCalendar.getGoogleCalendarEvents();
+            mergeEventsIntoCache(newGoogleEvents);
+            console.log(`Added ${newGoogleEvents.length} new events from google calendar`);
+        } catch (error) {
+            console.log(`Could not refresh google events. retrying in 5 seconds`);
+            setTimeout(() => {
+                updateGoogleEvents();
+            }, 1000*5);
+        }
     }
 
     const initializeCache = async () => {
@@ -91,6 +104,9 @@ export const createEventSerivce = (
             //the string is in y-m-d format, we just need y-m
             addToCache(`${dateString.substring(0, dateString.lastIndexOf('-'))}`, rawEvent.date, rawEvent);
         });
+
+        //after merge we can successfully commit cached ids in google calendar
+        googleCalendar.commitCachedEventsIds();
     }
 
     //#region nager
@@ -120,8 +136,6 @@ export const createEventSerivce = (
     }
 
     //#endregion
-
-    //todo: webhooks for google calendar
 
     return { getEvents, init }
 }
