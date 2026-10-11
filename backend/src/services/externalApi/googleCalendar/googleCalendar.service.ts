@@ -6,6 +6,7 @@ export const createGoogleCalendarService = (deps: IGoogleCalendarConfig, fetchFn
     const cachedEventsIds: Set<string> = new Set();
     const pendingToCacheEventsIds: Set<string> = new Set();
     let lastFetchedTime: Date | null = null;
+    let pendingLastFetchedTime: Date | null = null;
 
     //todo: check id
 
@@ -31,7 +32,7 @@ export const createGoogleCalendarService = (deps: IGoogleCalendarConfig, fetchFn
         let updateCommonCalendar = true;
         let updateDeadlineCalendar = true;
 
-        let newFetchedTime = new Date();
+        pendingLastFetchedTime = new Date();
         
         if (lastFetchedTime !== null) {
             updateCommonCalendar = new Date(await fetchUpdated(deps.commonCalendarId)) > (lastFetchedTime as Date);
@@ -132,15 +133,14 @@ export const createGoogleCalendarService = (deps: IGoogleCalendarConfig, fetchFn
             await fetchEvents(deps.deadlinesCalendarId, EEventType.Deadline);
         }
 
-        lastFetchedTime = newFetchedTime;
-
         return rawEvents;
     }
 
-    const commitCachedEventsIds = (): void => {
+    const commitPendingCache = (): void => {
         pendingToCacheEventsIds.forEach(id => cachedEventsIds.add(id));
         pendingToCacheEventsIds.clear();
+        lastFetchedTime = pendingLastFetchedTime;
     }
 
-    return { getGoogleCalendarEvents, commitCachedEventsIds }
+    return { getGoogleCalendarEvents, commitPendingCache }
 }
