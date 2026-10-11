@@ -50,6 +50,7 @@ export const createEventSerivce = (
         try {
             const newGoogleEvents = await googleCalendar.getGoogleCalendarEvents();
             mergeEventsIntoCache(newGoogleEvents);
+            googleCalendar.commitCachedEventsIds();
             console.log(`Added ${newGoogleEvents.length} new events from google calendar`);
         } catch (error) {
             console.log(`Could not refresh google events. retrying in 5 seconds`);
@@ -68,6 +69,7 @@ export const createEventSerivce = (
         const allEvents = [...googleEvents, ...nagerEvents];
 
         mergeEventsIntoCache(allEvents);
+        googleCalendar.commitCachedEventsIds();
         console.log(`Cached ${googleEvents.length} events from google and ${nagerEvents.length} holidays from nager since ${MIN_TIMELINE_DATE.toDateString()}`)
     }
 

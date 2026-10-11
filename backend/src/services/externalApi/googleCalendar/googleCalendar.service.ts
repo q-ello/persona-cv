@@ -30,14 +30,12 @@ export const createGoogleCalendarService = (deps: IGoogleCalendarConfig, fetchFn
 
         let updateCommonCalendar = true;
         let updateDeadlineCalendar = true;
+
+        let newFetchedTime = new Date();
         
         if (lastFetchedTime !== null) {
-            const tempLastFetchedTime = lastFetchedTime;
-            lastFetchedTime = new Date();
-            updateCommonCalendar = new Date(await fetchUpdated(deps.commonCalendarId)) > tempLastFetchedTime;
-            updateDeadlineCalendar = new Date(await fetchUpdated(deps.deadlinesCalendarId)) > tempLastFetchedTime;
-        } else {
-            lastFetchedTime = new Date();
+            updateCommonCalendar = new Date(await fetchUpdated(deps.commonCalendarId)) > (lastFetchedTime as Date);
+            updateDeadlineCalendar = new Date(await fetchUpdated(deps.deadlinesCalendarId)) > (lastFetchedTime as Date);
         }
 
         const fetchEvents = async (calendarId: string, eventType: EEventType, pageToken?: string) => {
@@ -122,7 +120,7 @@ export const createGoogleCalendarService = (deps: IGoogleCalendarConfig, fetchFn
             })
 
             if (nextPageToken) {
-                fetchEvents(calendarId, eventType, nextPageToken);
+                await fetchEvents(calendarId, eventType, nextPageToken);
             } 
         }
 
@@ -133,6 +131,8 @@ export const createGoogleCalendarService = (deps: IGoogleCalendarConfig, fetchFn
         if (updateDeadlineCalendar) {
             await fetchEvents(deps.deadlinesCalendarId, EEventType.Deadline);
         }
+
+        lastFetchedTime = newFetchedTime;
 
         return rawEvents;
     }
