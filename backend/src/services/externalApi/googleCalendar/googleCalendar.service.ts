@@ -33,7 +33,6 @@ export const createGoogleCalendarService = (deps: IGoogleCalendarConfig, fetchFn
         if (lastFetchedTime !== null) {
             updateCommonCalendar = new Date(await fetchUpdated(deps.commonCalendarId)) > (lastFetchedTime as Date);
             updateDeadlineCalendar = new Date(await fetchUpdated(deps.deadlinesCalendarId)) > (lastFetchedTime as Date)
-            lastFetchedTime = new Date();
         }
 
         const fetchEvents = async (calendarId: string, eventType: EEventType) => {
@@ -49,9 +48,15 @@ export const createGoogleCalendarService = (deps: IGoogleCalendarConfig, fetchFn
             if (!data.items) return;
 
             data.items.forEach((item: any) => {
-                if (!item.summary) {
+                if (!item.summary || !item.id) {
                     return;
                 }
+
+                if (cachedEventsIds.has(item.id)) {
+                    return;
+                }
+
+                cachedEventsIds.add(item.id);
 
                 const eventEng: string = item.summary
                 const eventRu: string = item.description ?? eventEng
@@ -107,6 +112,8 @@ export const createGoogleCalendarService = (deps: IGoogleCalendarConfig, fetchFn
         if (updateDeadlineCalendar) {
             await fetchEvents(deps.deadlinesCalendarId, EEventType.Deadline);
         }
+
+        lastFetchedTime = new Date();
 
         return rawEvents;
     }

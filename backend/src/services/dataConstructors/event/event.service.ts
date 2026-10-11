@@ -35,6 +35,12 @@ export const createEventSerivce = (
                 cacheInitialization = null;
                 console.error("Failed to initialize events cache:", error);
             });
+
+            setInterval(async () => {
+                const newGoogleEvents = await googleCalendar.getGoogleCalendarEvents();
+                mergeEventsIntoCache(newGoogleEvents);
+                console.log(`Added ${newGoogleEvents.length} new events from google calendar`);
+            }, 1000*60*60*24);
         }
 
         return cacheInitialization;
