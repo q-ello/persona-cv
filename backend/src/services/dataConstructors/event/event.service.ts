@@ -69,6 +69,7 @@ export const createEventSerivce = (
         const allEvents = [...googleEvents, ...nagerEvents];
 
         mergeEventsIntoCache(allEvents);
+        googleCalendar.commitPendingCache();
         console.log(`Cached ${googleEvents.length} events from google and ${nagerEvents.length} holidays from nager since ${MIN_TIMELINE_DATE.toDateString()}`)
     }
 
@@ -105,9 +106,6 @@ export const createEventSerivce = (
             //the string is in y-m-d format, we just need y-m
             addToCache(`${dateString.substring(0, dateString.lastIndexOf('-'))}`, rawEvent.date, rawEvent);
         });
-
-        //after merge we can successfully commit cached ids in google calendar
-        googleCalendar.commitPendingCache();
     }
 
     //#region nager
