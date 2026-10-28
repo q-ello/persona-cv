@@ -10,6 +10,7 @@ export interface INotionConfig {
 
 export interface IGithubConfig {
     token: string;
+    owner: string;
 }
 
 export interface IGoogleCalendarConfig {

@@ -10,6 +10,8 @@ import { createNagerService } from "./services/externalApi/nager/nager.service";
 import { createLocalesRouter } from "./routes/locales/locales";
 import { createEventService } from "./services/dataConstructors/event/event.service";
 import { createLocalizationService } from "./services/helpers/localization/localization.service";
+import { Octokit } from "octokit";
+import { createGithubService } from "./services/externalApi/github/github.service";
 
 dotenv.config();
 loadConfig();
@@ -24,6 +26,9 @@ eventService.init();
 
 const localizationService = createLocalizationService(notionService);
 localizationService.init();
+
+const githubOctokit = new Octokit({auth: config.github.token});
+const githubService = createGithubService(githubOctokit, config.github, fetch);
 
 const app = express();
 const PORT = 3001;

@@ -14,6 +14,10 @@ export const config : IConfig = {
         apiKey: "",
         commonCalendarId: "",
         deadlinesCalendarId: ""
+    },
+    github: {
+        token: "",
+        owner: ""
     }
 };
 
@@ -31,5 +35,10 @@ export const loadConfig = () => {
         apiKey: requireEnvVariable("GOOGLE_CALENDAR_API_KEY"),
         commonCalendarId: requireEnvVariable("GOOGLE_COMMON_CALENDAR_ID"),
         deadlinesCalendarId: requireEnvVariable("GOOGLE_DEADLINES_CALENDAR_ID")
+    };
+
+    config.github = {
+        token: requireEnvVariable("GITHUB_TOKEN"),
+        owner: requireEnvVariable("GITHUB_OWNER")
     }
 }
