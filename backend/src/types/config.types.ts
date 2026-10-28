@@ -6,15 +6,20 @@ export interface INotionConfig {
     dailyLogDbId: string;
     objectDbId: string;
     compoundActivitiesDbId: string;
+};
+
+export interface IGithubConfig {
+    token: string;
 }
 
 export interface IGoogleCalendarConfig {
     apiKey: string;
     commonCalendarId: string;
     deadlinesCalendarId: string;
-}
+};
 
 export interface IConfig {
     notion: INotionConfig;
     googleCalendar: IGoogleCalendarConfig;
-}
+    github: IGithubConfig;
+};

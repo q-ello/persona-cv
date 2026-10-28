@@ -1,5 +1,5 @@
-import { EventResponse, IEvent, isLanguage, Language } from "@cv/shared";
-import { IRawEvent } from "./services/dataConstructors/event/event.types";
+import { isLanguage, Language } from "@cv/shared";
+import { IRawDailyLogItem } from "./services/dataConstructors/dailyLogs/dailyLogs.types";
 
 export const requireEnvVariable = (name: string): string => {
     const value = process.env[name];
@@ -17,3 +17,8 @@ export const getLocale = (req: any): Language => {
 export const formatMonthKey = (year: number, month: number) => `${year}-${(month + 1).toString().padStart(2, '0')}`;
 
 export const refreshIntervalTime = 1000*60*60*24;
+
+export interface ILogService {
+    getLogs(): Promise<IRawDailyLogItem[]>;
+    commitPendingCache(): Promise<void>;
+}

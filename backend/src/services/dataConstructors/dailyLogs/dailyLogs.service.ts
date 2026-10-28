@@ -1,24 +1,9 @@
 import { DailyLogsResponse, Language } from "@cv/shared";
-import { createGithubService } from "../../externalApi/github/github.service";
-import { createHardcoverService } from "../../externalApi/hardcover/hardcover.service";
-import { createLingoTrackService } from "../../externalApi/lingotrack/lingotrack.service";
-import { createNotionService } from "../../externalApi/notion/notion.service";
-import { createSteamService } from "../../externalApi/steam/steam.services";
-import { createTraktService } from "../../externalApi/trakt/trakt.service";
-import { createTumblrService } from "../../externalApi/tumblr/tumblr.service";
-import { createUnityService } from "../../externalApi/unity/unity.service";
 import { IRawDailyLogItem } from "./dailyLogs.types";
-import { formatMonthKey, refreshIntervalTime } from "../../../utils";
+import { formatMonthKey, ILogService, refreshIntervalTime } from "../../../utils";
 
 export const createDailyLogsService = (
-    notionService: ReturnType<typeof createNotionService>,
-    githubService: ReturnType<typeof createGithubService>,
-    hardcoverService: ReturnType<typeof createHardcoverService>,
-    lingotrackService: ReturnType<typeof createLingoTrackService>,
-    steamService: ReturnType<typeof createSteamService>,
-    traktService: ReturnType<typeof createTraktService>,
-    tumblrService: ReturnType<typeof createTumblrService>,
-    unityService: ReturnType<typeof createUnityService>
+    services: readonly ILogService[]
 ) => {
     //first key: year-month, second: date string
     const cachedLogs: Map<string, Map<string, IRawDailyLogItem[]>> = new Map();
@@ -56,30 +41,38 @@ export const createDailyLogsService = (
         return cacheInitialization;
     }
 
-    const updateLogs = async (): Promise<void> => {
-        try {
-            const newLogs = [];
-            newLogs.push(...await notionService.getDailyLogs());
-            //todo: update github logs
-            //todo: update hardcover logs
-            //todo: update lingotrack logs
-            //todo: update steam logs
-            //todo: update trakt logs
-            //todo: update tumbrl logs
-            //todo: update unity logs
-            mergeLogsIntoCache(newLogs);
-            //every ILogService: commit pending cache
-            console.log(`Added ${newLogs.length} new logs total`);
-            
-            //question: maybe add interface getLogs to every service, so that we just call it for each service?
-            //and put array of ILogService instead of so many different ones
-            //todo: catch different services errors, so that one doesn't fail all of them
-        } catch (error) {
-            console.log(`Could not refresh logs. retrying in 5 seconds`);
-            //todo: log which ones failed
+    const updateLogs = async (servicesToUpdate: readonly ILogService[] = services): Promise<void> => {
+        const newLogsResults = await Promise.allSettled(services.map(service => service.getLogs()));
+        //todo: update github logs
+        //todo: update hardcover logs
+        //todo: update lingotrack logs
+        //todo: update steam logs
+        //todo: update trakt logs
+        //todo: update tumbrl logs
+        //todo: update unity logs
+        const allLogs: IRawDailyLogItem[] = [];
+        const servicesToCommit: ILogService[] = [];
+        const servicesToRetry: ILogService[] = [];
+        newLogsResults.forEach((result, index) => {
+            if (result.status === "fulfilled") {
+                allLogs.push(...result.value);
+                if (result.value.length > 0) {
+                    servicesToCommit.push(services[index]);
+                }
+            } else {
+                servicesToRetry.push(services[index]);
+                console.log(`Could not update logs of service: ${result.reason}. Will retry in 5 seconds`);
+            }
+        });
+
+        mergeLogsIntoCache(allLogs);
+        servicesToCommit.forEach(async service => await service.commitPendingCache());
+        console.log(`Added ${allLogs} new logs total`);
+
+        if (servicesToRetry.length > 0) {
             setTimeout(() => {
-                updateLogs();
-            }, 5000);
+                updateLogs(servicesToRetry);
+            }, 1000*5);
         }
     }
 

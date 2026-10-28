@@ -245,7 +245,7 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
         }
     }
 
-    const getDailyLogs = async (): Promise<IRawDailyLogItem[]> => {
+    const getLogs = async (): Promise<IRawDailyLogItem[]> => {
         //todo: add id tracking and caching
         try {
             const databaseResponse: any = await notion!.databases.retrieve({
@@ -294,7 +294,7 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
 
     return {
         getNotionPriorities: getPriorities,
-        getAllLocalizations, getDailyLogs
+        getAllLocalizations, getDailyLogs: getLogs
     }
 
 }
