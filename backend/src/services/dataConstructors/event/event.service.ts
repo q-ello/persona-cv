@@ -1,9 +1,10 @@
 import { EventResponse, Language, MIN_TIMELINE_DATE } from "@cv/shared";
 import { createGoogleCalendarService } from "../../externalApi/googleCalendar/googleCalendar.service";
 import { createNagerService } from "../../externalApi/nager/nager.service";
-import { IRawEvent } from "../../../types/events.types";
+import { IRawEvent } from "./event.types";
+import { formatMonthKey, refreshIntervalTime } from "../../../utils";
 
-export const createEventSerivce = (
+export const createEventService = (
     googleCalendar: ReturnType<typeof createGoogleCalendarService>,
     nagerService: ReturnType<typeof createNagerService>
 ) => {
@@ -17,7 +18,7 @@ export const createEventSerivce = (
         await init();
         await ensureNagerYear(year);
 
-        const monthKey = `${year}-${(month + 1).toString().padStart(2, '0')}`;
+        const monthKey = formatMonthKey(year, month);
 
         if (!cachedEvents.has(monthKey)) {
             return {};
@@ -37,9 +38,9 @@ export const createEventSerivce = (
         }
 
         if (!refreshInterval) {
-            refreshInterval = setInterval(async () => {
+            refreshInterval = setInterval(() => {
                 updateGoogleEvents();
-            }, 1000*60*60*24);
+            }, refreshIntervalTime);
         }
 
 

@@ -8,7 +8,7 @@ import cors from "cors";
 import { createNotionService } from "./services/externalApi/notion/notion.service";
 import { createNagerService } from "./services/externalApi/nager/nager.service";
 import { createLocalesRouter } from "./routes/locales/locales";
-import { createEventSerivce } from "./services/dataConstructors/event/event.service";
+import { createEventService } from "./services/dataConstructors/event/event.service";
 import { createLocalizationService } from "./services/helpers/localization/localization.service";
 
 dotenv.config();
@@ -19,7 +19,7 @@ const notionService = createNotionService(notionClient, config.notion);
 
 const googleCalendarService = createGoogleCalendarService(config.googleCalendar, fetch);
 const nagerService = createNagerService(fetch);
-const eventService = createEventSerivce(googleCalendarService, nagerService);
+const eventService = createEventService(googleCalendarService, nagerService);
 eventService.init();
 
 const localizationService = createLocalizationService(notionService);

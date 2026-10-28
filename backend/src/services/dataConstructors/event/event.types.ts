@@ -1,4 +1,4 @@
-import { EEventState, EEventType, IEvent } from "@cv/shared";
+import { EEventState, EEventType } from "@cv/shared";
 
 export interface IRawEvent
 {

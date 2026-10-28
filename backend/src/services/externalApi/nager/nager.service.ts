@@ -1,5 +1,5 @@
-import { EEventState, EEventType, getGeneralString, IHoliday } from '@cv/shared';
-import { IRawEvent } from '../../../types/events.types';
+import { EEventState, EEventType, IHoliday } from '@cv/shared';
+import { IRawEvent } from '../../dataConstructors/event/event.types';
 
 export const createNagerService = (fetchFn: typeof fetch) => {
     const holidaysCache = new Map<number, Promise<IHoliday[]>>();

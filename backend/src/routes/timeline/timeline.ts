@@ -2,13 +2,13 @@ import express from 'express';
 import { IPriority } from '@cv/shared';
 import { createNotionService } from '../../services/externalApi/notion/notion.service';
 import { getLocale } from '../../utils';
-import { createEventSerivce } from '../../services/dataConstructors/event/event.service';
+import { createEventService } from '../../services/dataConstructors/event/event.service';
 import { createLocalizationService } from '../../services/helpers/localization/localization.service';
 
 
 export const createTimelineRouter = (
     notionService: ReturnType<typeof createNotionService>,
-    eventService: ReturnType<typeof createEventSerivce>,
+    eventService: ReturnType<typeof createEventService>,
     localizationService: ReturnType<typeof createLocalizationService>
 ) => {
     const router = express.Router();

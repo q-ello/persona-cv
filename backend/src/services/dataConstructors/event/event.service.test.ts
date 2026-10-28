@@ -1,10 +1,10 @@
 import { EEventState, EEventType, MIN_TIMELINE_DATE } from '@cv/shared';
-import { IRawEvent } from '../../../types/events.types';
+import { IRawEvent } from './event.types';
 import { createDeferred } from '../../../test/utils/createDeferred';
 import { createFetchResponse } from '../../../test/utils/createFetchMock';
 import { createGoogleCalendarEvent } from '../../externalApi/googleCalendar/googleCalendar.builders';
 import { createGoogleCalendarTestService } from '../../externalApi/googleCalendar/googleCalendar.service.factory';
-import { createEventSerivce } from './event.service';
+import { createEventService } from './event.service';
 import { createRawEvent } from './event.builders';
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -34,7 +34,7 @@ describe('events cache', () => {
 
     it('initializes once using all Google events and the full historical holiday range', async () => {
         const { google, nager } = createDependencies();
-        const service = createEventSerivce(google, nager);
+        const service = createEventService(google, nager);
 
         const initialization = service.init();
         expect(service.init()).toBe(initialization);
@@ -53,7 +53,7 @@ describe('events cache', () => {
             createRawEvent({ date: '2026-01-01' }),
             createRawEvent({ date: '2026-12-31', eventEng: 'Year End' }),
         ], [createRawEvent({ date: '2026-01-01', eventEng: 'Holiday', eventRu: 'Праздник', type: EEventType.Holiday })]);
-        const service = createEventSerivce(google, nager);
+        const service = createEventService(google, nager);
 
         expect(await service.getEvents('en', 0, 2026)).toEqual({
             '2026-01-01': [
@@ -72,7 +72,7 @@ describe('events cache', () => {
         const { google, nager } = createDependencies();
         const loading = createDeferred<IRawEvent[]>();
         google.getGoogleCalendarEvents.mockReturnValueOnce(loading.promise);
-        const service = createEventSerivce(google, nager);
+        const service = createEventService(google, nager);
         let finished = false;
         const english = service.getEvents('en', 9, 2026).then(events => {
             finished = true;
@@ -93,7 +93,7 @@ describe('events cache', () => {
 
     it('shares a missing year load and keeps all of its months without another Google commit', async () => {
         const { google, nager } = createDependencies();
-        const service = createEventSerivce(google, nager);
+        const service = createEventService(google, nager);
         await service.init();
         const loading = createDeferred<IRawEvent[]>();
         nager.getHolidaysEvents.mockReturnValueOnce(loading.promise);
@@ -117,7 +117,7 @@ describe('events cache', () => {
 
     it('records coverage for an empty year instead of loading it for every month', async () => {
         const { google, nager } = createDependencies();
-        const service = createEventSerivce(google, nager);
+        const service = createEventService(google, nager);
 
         await expect(service.getEvents('en', 0, 2027)).resolves.toEqual({});
         await expect(service.getEvents('en', 11, 2027)).resolves.toEqual({});
@@ -127,7 +127,7 @@ describe('events cache', () => {
 
     it('retries a failed year load without reinitializing or duplicating holidays', async () => {
         const { google, nager } = createDependencies();
-        const service = createEventSerivce(google, nager);
+        const service = createEventService(google, nager);
         await service.init();
         nager.getHolidaysEvents.mockRejectedValueOnce(new Error('Nager unavailable'))
             .mockResolvedValueOnce([createRawEvent({ date: '2027-01-01', type: EEventType.Holiday })]);
@@ -145,7 +145,7 @@ describe('events cache', () => {
             [createRawEvent({ date: '2026-10-11', eventEng: 'Old' })],
             [createRawEvent({ date: '2026-10-11', eventEng: 'Holiday', type: EEventType.Holiday })],
         );
-        const service = createEventSerivce(google, nager);
+        const service = createEventService(google, nager);
         await service.init();
         google.getGoogleCalendarEvents.mockResolvedValueOnce([
             createRawEvent({ date: '2026-10-11', eventEng: 'New' }),
@@ -164,7 +164,7 @@ describe('events cache', () => {
 
     it('preserves cached data on refresh failure and retries after five seconds', async () => {
         const { google, nager } = createDependencies([createRawEvent({ date: '2026-10-11', eventEng: 'Old' })]);
-        const service = createEventSerivce(google, nager);
+        const service = createEventService(google, nager);
         await service.init();
         google.getGoogleCalendarEvents.mockRejectedValueOnce(new Error('Google unavailable'))
             .mockResolvedValueOnce([createRawEvent({ date: '2026-10-11', eventEng: 'New' })]);
@@ -192,7 +192,7 @@ describe('events cache', () => {
         const loading = createDeferred<IRawEvent[]>();
         nager.getHolidaysEvents.mockReturnValueOnce(loading.promise);
         const commit = jest.spyOn(google, 'commitPendingCache');
-        const service = createEventSerivce(google, nager);
+        const service = createEventService(google, nager);
         const failure = expect(service.init()).rejects.toThrow('Nager unavailable');
         await jest.advanceTimersByTimeAsync(0);
         expect(fetchMock).toHaveBeenCalledTimes(2);
@@ -225,7 +225,7 @@ describe('events cache', () => {
         });
         const { nager } = createDependencies();
         const commit = jest.spyOn(google, 'commitPendingCache');
-        const service = createEventSerivce(google, nager);
+        const service = createEventService(google, nager);
         await service.init();
         updated = '2026-10-12T11:00:00Z';
         newEvents = true;

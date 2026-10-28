@@ -1,5 +1,5 @@
 import { EEventState, EEventType } from "@cv/shared";
-import { IRawEvent } from "../../../types/events.types";
+import { IRawEvent } from "./event.types";
 
 export const createRawEvent = (overrides: Partial<IRawEvent> = {}): IRawEvent => ({
     date: "",

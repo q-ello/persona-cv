@@ -1,5 +1,5 @@
 import { EEventState, EEventType, getGeneralString, IEvent, MIN_TIMELINE_DATE } from '@cv/shared';
-import { IRawEvent } from '../../../types/events.types';
+import { IRawEvent } from '../../dataConstructors/event/event.types';
 import { IGoogleCalendarConfig } from '../../../types/config.types';
 
 export const createGoogleCalendarService = (deps: IGoogleCalendarConfig, fetchFn: typeof fetch) => {

@@ -3,19 +3,9 @@ import { INotionConfig } from "../../../types/config.types";
 import { DetailFormatType } from "../../helpers/detailFormatter/detailFormatter.service";
 import { getGeneralString, IObject, IPriority, LANGUAGES } from "@cv/shared";
 import { LocalizationCache, LocalizationEntry } from "../../helpers/localization/localization.service";
+import { IRawDailyLogItem } from "../../dataConstructors/dailyLogs/dailyLogs.types";
 
 type IRawPriority = IPriority & { objectLocalizationKey: string };
-
-type IRawDailyLogItem = {
-    activityKey: string;
-    object?: Object;
-    objectLocalizationKey?: string;
-    detailsKey: string;
-    detailsValue?: string;
-    format?: DetailFormatType;
-    dateLogged: string;
-    relevantToProject: boolean;
-}
 
 enum ERelationType {
     Object = "Object",
@@ -256,6 +246,7 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
     }
 
     const getDailyLogs = async (): Promise<IRawDailyLogItem[]> => {
+        //todo: add id tracking and caching
         try {
             const databaseResponse: any = await notion!.databases.retrieve({
                 database_id: deps.dailyLogDbId

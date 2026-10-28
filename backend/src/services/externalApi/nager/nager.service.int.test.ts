@@ -1,4 +1,4 @@
-import { IRawEvent } from "../../../types/events.types";
+import { IRawEvent } from "../../dataConstructors/event/event.types";
 import { createNagerService } from "./nager.service";
 
 const describeIntegration = process.env.RUN_INTEGRATION_TESTS === "true" ? describe : describe.skip;
