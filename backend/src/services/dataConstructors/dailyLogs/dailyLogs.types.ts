@@ -5,9 +5,11 @@ export type IRawDailyLogItem = {
     activityKey: string;
     object?: IObject;
     objectLocalizationKey?: string;
-    detailsKey: string;
+    detailsKey?: string;
     detailsValue?: string;
     format?: DetailFormatType;
     dateLogged: string;
     relevantToProject: boolean;
+    icons?: string;
+    hoverInfo?: string;
 }
