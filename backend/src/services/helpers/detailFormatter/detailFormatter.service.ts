@@ -4,7 +4,7 @@ import { createLocalizationService, LocalizationParams } from "../localization/l
 export type DetailFormatType = "text" | "range" | "no_dash" | "count";
 
 export const createDetailFormatterService = (localizationService: ReturnType<typeof createLocalizationService>) => {
-    const formatDetail = async (detailsKey: string, format: DetailFormatType, detailsValue: string, locale: Language): Promise<string> => {
+    const formatDetail = async (detailsKey: string, locale: Language, format: DetailFormatType = "no_dash", detailsValue: string = ""): Promise<string> => {
         let completeDetailsKey = `detail.${detailsKey}`;
         const params: LocalizationParams = {value: detailsValue};
 

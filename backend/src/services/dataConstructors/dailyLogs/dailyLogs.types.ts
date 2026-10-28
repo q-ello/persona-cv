@@ -10,6 +10,6 @@ export type IRawDailyLogItem = {
     format?: DetailFormatType;
     dateLogged: string;
     relevantToProject: boolean;
-    icons?: string;
+    icons?: string[];
     hoverInfo?: string;
 }

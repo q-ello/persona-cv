@@ -1,9 +1,11 @@
-import { DailyLogsResponse, Language } from "@cv/shared";
+import { DailyLogsResponse, IDailyLogItem, Language } from "@cv/shared";
 import { IRawDailyLogItem } from "./dailyLogs.types";
 import { formatMonthKey, ILogService, refreshIntervalTime } from "../../../utils";
+import { createDetailFormatterService } from "../../helpers/detailFormatter/detailFormatter.service";
 
 export const createDailyLogsService = (
-    services: readonly ILogService[]
+    services: readonly ILogService[],
+    detailFormatter: ReturnType<typeof createDetailFormatterService>
 ) => {
     //first key: year-month, second: date string
     const cachedLogs: Map<string, Map<string, IRawDailyLogItem[]>> = new Map();
@@ -12,7 +14,7 @@ export const createDailyLogsService = (
 
     const getLogs = async (locale: Language, month: number, year: number): Promise<DailyLogsResponse> => {
         await init();
-        
+
         const monthKey = formatMonthKey(year, month);
 
         if (!cachedLogs.has(monthKey)) {
@@ -72,25 +74,30 @@ export const createDailyLogsService = (
         if (servicesToRetry.length > 0) {
             setTimeout(() => {
                 updateLogs(servicesToRetry);
-            }, 1000*5);
+            }, 1000 * 5);
         }
     }
 
-    const localizeLogs = (locale: Language, rawLogs: Map<string, IRawDailyLogItem[]>): DailyLogsResponse => {
+    const localizeLogs = async (locale: Language, rawLogs: Map<string, IRawDailyLogItem[]>): Promise<DailyLogsResponse> => {
         const localizedLogsRecord: DailyLogsResponse = {};
 
-        rawLogs.forEach((rawLog, key) => {
-            const localizedLogs = rawLogs.get(key)?.map(rawLog => ({
-                //todo: make log
-            }));
-
-            localizedLogsRecord[key] = localizedLogs ?? [];
-        })
+        for (const [key, logs] of rawLogs) {
+            localizedLogsRecord[key] = await Promise.all(
+                logs.map(async rawLog => ({
+                    activityKey: rawLog.activityKey,
+                    object: rawLog.object,
+                    relevantToProject: rawLog.relevantToProject,
+                    detail: rawLog.detailsKey ? await detailFormatter.formatDetail(rawLog.detailsKey, locale, rawLog.format, rawLog.detailsValue) : "",
+                    icons: rawLog.icons,
+                    hoverInfo: rawLog.hoverInfo
+                }))
+            );
+        }
 
         return localizedLogsRecord;
     }
 
-    
+
     const mergeLogsIntoCache = (logs: IRawDailyLogItem[]): void => {
         const addToCache = (firstKey: string, secondKey: string, event: IRawDailyLogItem) => {
             if (!cachedLogs.has(firstKey)) {

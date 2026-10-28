@@ -2,7 +2,7 @@ import { IObject } from "./notion";
 
 export interface IDailyLogItem {
     activityKey: string;
-    object: IObject;
+    object?: IObject;
     relevantToProject: boolean;
     detail?: string;
     icons?: string[];
