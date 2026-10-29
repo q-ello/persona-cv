@@ -44,8 +44,7 @@ export const createDailyLogsService = (
     }
 
     const updateLogs = async (servicesToUpdate: readonly ILogService[] = services): Promise<void> => {
-        const newLogsResults = await Promise.allSettled(services.map(service => service.getLogs()));
-        //todo: update github logs
+        const newLogsResults = await Promise.allSettled(servicesToUpdate.map(service => service.getLogs()));
         //todo: update hardcover logs
         //todo: update lingotrack logs
         //todo: update steam logs
@@ -59,17 +58,17 @@ export const createDailyLogsService = (
             if (result.status === "fulfilled") {
                 allLogs.push(...result.value);
                 if (result.value.length > 0) {
-                    servicesToCommit.push(services[index]);
+                    servicesToCommit.push(servicesToUpdate[index]);
                 }
             } else {
-                servicesToRetry.push(services[index]);
+                servicesToRetry.push(servicesToUpdate[index]);
                 console.log(`Could not update logs of service: ${result.reason}. Will retry in 5 seconds`);
             }
         });
 
         mergeLogsIntoCache(allLogs);
         servicesToCommit.forEach(async service => await service.commitPendingCache());
-        console.log(`Added ${allLogs} new logs total`);
+        console.log(`Added ${allLogs.length} new logs total`);
 
         if (servicesToRetry.length > 0) {
             setTimeout(() => {
@@ -97,7 +96,6 @@ export const createDailyLogsService = (
         return localizedLogsRecord;
     }
 
-
     const mergeLogsIntoCache = (logs: IRawDailyLogItem[]): void => {
         const addToCache = (firstKey: string, secondKey: string, event: IRawDailyLogItem) => {
             if (!cachedLogs.has(firstKey)) {
@@ -115,4 +113,6 @@ export const createDailyLogsService = (
             addToCache(`${dateString.substring(0, dateString.lastIndexOf('-'))}`, rawLog.dateLogged, rawLog);
         });
     }
+
+    return {init, getLogs}
 }

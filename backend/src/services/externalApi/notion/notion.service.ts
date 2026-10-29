@@ -12,6 +12,8 @@ enum ERelationType {
     CompoundActivities = "CompoundActivities"
 }
 
+//todo: make priorities from trackers
+
 export const maxPrioritiesNumber = 6;
 
 export const createNotionService = (notion: Client, deps: INotionConfig) => {
@@ -27,6 +29,9 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
     };
 
     const relationLoadPromises: Partial<Record<ERelationType, Promise<void>>> = {};
+
+    let lastRefreshedLogs: Date | null = null;
+    let pendingLastRefreshedLogs: Date | null = null;
 
     //#region relation
 
@@ -80,7 +85,7 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
             cachedRelations[relation].set(page.id, page.properties);
         });
 
-        console.log(`Cached ${Object.keys(cachedRelations[relation]).length} of "${relation}" objects`);
+        console.log(`Cached ${cachedRelations[relation].size} of "${relation}" objects`);
     }
 
     const ensureRelationCacheLoaded = async (relation: ERelationType): Promise<void> => {
@@ -248,13 +253,25 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
     const getLogs = async (): Promise<IRawDailyLogItem[]> => {
         //todo: add id tracking and caching
         try {
+            pendingLastRefreshedLogs = new Date();
+
             const databaseResponse: any = await notion!.databases.retrieve({
                 database_id: deps.dailyLogDbId
             });
 
-            const response = await notion!.dataSources.query({
-                data_source_id: databaseResponse.data_sources[0].id,
-            });
+            const response = lastRefreshedLogs
+                ? await notion!.dataSources.query({
+                    data_source_id: databaseResponse.data_sources[0].id,
+                    filter: {
+                        property: "Created time",
+                        date: {
+                            after: lastRefreshedLogs.toISOString()
+                        }
+                    }
+                })
+                : await notion!.dataSources.query({
+                    data_source_id: databaseResponse.data_sources[0].id
+                });
 
             let dailyLogs: IRawDailyLogItem[] = (await Promise.all(
                 response.results.map(async (result): Promise<IRawDailyLogItem | null> => {
@@ -283,18 +300,21 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
                     }
                 }))).filter(item => item !== null);
 
-            console.log(`Got ${dailyLogs.length} notion daily logs`);
+            console.log(`Got ${dailyLogs.length} notion logs`);
             return dailyLogs;
-
         } catch (error) {
             console.error("Error fetching daily logs from Notion:", error);
             throw new Error("Failed to fetch daily logs from Notion");
         }
     }
 
+    const commitPendingCache = async (): Promise<void> => {
+        lastRefreshedLogs = pendingLastRefreshedLogs;
+    }
+
     return {
         getNotionPriorities: getPriorities,
-        getAllLocalizations, getDailyLogs: getLogs
+        getAllLocalizations, getLogs, commitPendingCache
     }
 
 }

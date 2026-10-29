@@ -43,9 +43,11 @@ export const createGithubService = (github: Octokit, deps: IGithubConfig) => {
                     pendingLastUpdatedByRepo.set(repoName, new Date(updatedAt));
                 }
             } else {
-                console.log(`Could not fetch commits for a repo ${repoName}. Will retry in 5 seconds.`, response.reason);
+                console.log(`Could not fetch commits for a repo ${repoName}.`, response.reason);
             }
         });
+
+        console.log(`Fetched ${logs.length} github logs`);
 
         return logs;
     }
