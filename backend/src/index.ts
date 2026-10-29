@@ -28,7 +28,7 @@ const localizationService = createLocalizationService(notionService);
 localizationService.init();
 
 const githubOctokit = new Octokit({auth: config.github.token});
-const githubService = createGithubService(githubOctokit, config.github, fetch);
+const githubService = createGithubService(githubOctokit, config.github);
 
 const app = express();
 const PORT = 3001;
