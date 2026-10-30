@@ -7,4 +7,4 @@ export const getGeneralString = (date: Date) => {
 
 export const getMonthFromDateString = (dateString: string): number => {
     return parseInt(dateString.split('-')[1], 10);
-}
+};

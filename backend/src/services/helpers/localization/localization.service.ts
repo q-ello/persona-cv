@@ -1,5 +1,10 @@
 import { Language } from "@cv/shared";
 import { createNotionService } from "../../externalApi/notion/notion.service";
+import { deepLog, LogType } from "../../../utils";
+
+const log = (log: string, logType: LogType = "info") => {
+    deepLog('loc service', log, logType);
+}
 
 export type LocalizationEntry = Record<Language, string>;
 export type LocalizationCache = Map<string, LocalizationEntry>;
@@ -10,7 +15,7 @@ export const createLocalizationService = (notionService: ReturnType<typeof creat
     let lastFetchedTime: Date;
 
     const init = () => {
-        console.log("Started initializing localization cache");
+        log("Started initializing localization cache");
         refreshCache();
 
         setInterval(() => reload(), 24*60*60*1000)
@@ -29,16 +34,16 @@ export const createLocalizationService = (notionService: ReturnType<typeof creat
             if (freshLocales.size > 0)
             {
                 cachedLocales = freshLocales;
-                console.log(`Refreshed ${cachedLocales.size} localization keys`);
+                log(`Refreshed ${cachedLocales.size} localization keys`);
             }
             else
             {
-                console.log("Didn't refresh locales: database didn't change from the last fetch");
+                log("Didn't refresh locales: database didn't change from the last fetch");
             }
 
         }
         catch (e) {
-            console.log("Cache wasn't refreshed:", e);
+            log("Cache wasn't refreshed:" + e, "error");
         }
     }
 
@@ -60,11 +65,11 @@ export const createLocalizationService = (notionService: ReturnType<typeof creat
         const enResult = cachedLocales.get(key)?.en;
         if (enResult)
         {
-            console.warn(`No ${locale} locale for the key ${key}. Falling back to english one`);
+            log(`No ${locale} locale for the key ${key}. Falling back to english one`, "warning");
             return interpolate(enResult, params);
         }
 
-        console.warn(`No locales for the key ${key}. Returning the key back`);
+        log(`No locales for the key ${key}. Returning the key back`, "warning");
 
         return key.split(".").pop() as string; 
     }

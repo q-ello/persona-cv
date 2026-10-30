@@ -19,11 +19,11 @@ export function localize(lang: Language, key: string, params?: any) {
         result = locale[locKey];
     }
     else if (locKey in localization.en) {
-        console.warn(`Did not find localization for key ${key} in locale ${locale}. Falling back to english localization`)
+        console.warn(`[localization] Did not find localization for key ${key} in locale ${locale}. Falling back to english localization`, "warning")
         result = localization.en[locKey];
     }
     else {
-        console.warn(`Did not find any localization for key ${key}. Returning the key instead.`)
+        console.warn(`[localization] Did not find any localization for key ${key}. Returning the key instead.`, "warning")
         result = key;
     }
 

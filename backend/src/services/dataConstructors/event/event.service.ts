@@ -2,7 +2,11 @@ import { EventResponse, Language, MIN_TIMELINE_DATE } from "@cv/shared";
 import { createGoogleCalendarService } from "../../externalApi/googleCalendar/googleCalendar.service";
 import { createNagerService } from "../../externalApi/nager/nager.service";
 import { IRawEvent } from "./event.types";
-import { formatMonthKey, refreshIntervalTime } from "../../../utils";
+import { deepLog, formatMonthKey, LogType, refreshIntervalTime } from "../../../utils";
+
+const log = (log: string, type: LogType = "info") => {
+    deepLog('events', log, type);
+}
 
 export const createEventService = (
     googleCalendar: ReturnType<typeof createGoogleCalendarService>,
@@ -29,11 +33,11 @@ export const createEventService = (
 
     const init = (): Promise<void> => {
         if (!cacheInitialization) {
-            console.log("Started initializing events cache");
+            log("Started initializing events cache");
             cacheInitialization = initializeCache();
             void cacheInitialization.catch(error => {
                 cacheInitialization = null;
-                console.error("Failed to initialize events cache:", error);
+                log("Failed to initialize events cache:"+ error, "error");
             });
         }
 
@@ -52,9 +56,9 @@ export const createEventService = (
             const newGoogleEvents = await googleCalendar.getGoogleCalendarEvents();
             mergeEventsIntoCache(newGoogleEvents);
             googleCalendar.commitPendingCache();
-            console.log(`Added ${newGoogleEvents.length} new events from google calendar`);
+            log(`Added ${newGoogleEvents.length} new events from google calendar`);
         } catch (error) {
-            console.log(`Could not refresh google events. retrying in 5 seconds`);
+            log(`Could not refresh google events. retrying in 5 seconds`);
             setTimeout(() => {
                 updateGoogleEvents();
             }, 1000*5);
@@ -71,7 +75,7 @@ export const createEventService = (
 
         mergeEventsIntoCache(allEvents);
         googleCalendar.commitPendingCache();
-        console.log(`Cached ${googleEvents.length} events from google and ${nagerEvents.length} holidays from nager since ${MIN_TIMELINE_DATE.toDateString()}`)
+        log(`Cached ${googleEvents.length} events from google and ${nagerEvents.length} holidays from nager since ${MIN_TIMELINE_DATE.toDateString()}`)
     }
 
     const localizeEvents = (locale: Language, rawEvents: Map<string, IRawEvent[]>): EventResponse => {
@@ -132,7 +136,7 @@ export const createEventService = (
         const newNagerEvents = await nagerService.getHolidaysEvents(year);
         mergeEventsIntoCache(newNagerEvents);
 
-        console.log(`Added ${newNagerEvents.length} holidays into cache`);
+        log(`Added ${newNagerEvents.length} holidays into cache`);
     }
 
     //#endregion

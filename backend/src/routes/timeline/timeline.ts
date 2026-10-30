@@ -1,11 +1,14 @@
 import express from 'express';
 import { IPriority } from '@cv/shared';
 import { createNotionService } from '../../services/externalApi/notion/notion.service';
-import { getLocale } from '../../utils';
+import { deepLog, getLocale, LogType } from '../../utils';
 import { createEventService } from '../../services/dataConstructors/event/event.service';
 import { createLocalizationService } from '../../services/helpers/localization/localization.service';
 import { createDailyLogsService } from '../../services/dataConstructors/dailyLogs/dailyLogs.service';
 
+const log = (log: string, type: LogType = "info") => {
+    deepLog('timeline', log, type);
+}
 
 export const createTimelineRouter = (
     notionService: ReturnType<typeof createNotionService>,
@@ -16,7 +19,7 @@ export const createTimelineRouter = (
     const router = express.Router();
 
     router.get('/priorities', async (req, res) => {
-        console.log("starting GET priorities handling")
+        log("starting GET priorities handling")
 
         try {
             //todo: move that to priorities service
@@ -40,17 +43,17 @@ export const createTimelineRouter = (
                 }
             }));
 
-            console.log(`Returned priorities: ${localizedPriorities.length} items`)
+            log(`Returned priorities: ${localizedPriorities.length} items`)
 
             res.json(localizedPriorities);
         } catch (error) {
-            console.error("Error fetching priorities from Notion:", error);
+            log("Error fetching priorities from Notion:" + error, "error");
             res.status(500).json({ error: "Failed to fetch priorities from Notion" });
         }
     });
 
     router.get('/events', async (req, res) => {
-        console.log("Starting to handle GET events request...");
+        log("Starting to handle GET events request...");
         try {
             const { month, year } = req.query;
             if (!month || !year) {
@@ -66,17 +69,17 @@ export const createTimelineRouter = (
             const events = await eventService.getEvents(getLocale(req), monthNum, yearNum);
 
             const eventCount = Object.values(events).reduce((count, dailyEvents) => count + dailyEvents.length, 0);
-            console.log(`Returning events: ${eventCount} items`)
+            log(`Returning events: ${eventCount} items`)
             res.json(events);
         } catch (error) {
-            console.error("Error fetching events:", error);
+            log("Error fetching events:"+ error, "error");
             res.status(500).json({ error: "Failed to fetch events" });
         }
 
     });
 
     router.get('/logs', async (req, res) => {
-        console.log("Starting to handle GET logs request...");
+        log("Starting to handle GET logs request...");
         try {
             const { month, year } = req.query;
             if (!month || !year) {
@@ -92,19 +95,19 @@ export const createTimelineRouter = (
             const logs = await logService.getLogs(getLocale(req), monthNum, yearNum);
 
             const logsCount = Object.values(logs).reduce((count, dailyLogs) => count + dailyLogs.length, 0);
-            console.log(`Returning logs: ${logsCount} items`)
+            log(`Returning logs: ${logsCount} items`)
             res.json(logs);
         } catch (error) {
-            console.error("Error fetching logs:", error);
+            log("Error fetching logs:"+ error, "error");
             res.status(500).json({ error: "Failed to fetch logs" });
         }
     });
 
     router.get('/health', async (req, res) => {
-        console.log("Starting to handle GET health request");
+        log("Starting to handle GET health request");
         try {
             await notionService.getNotionPriorities();
-            console.log("Everything's ok");
+            log("Everything's ok");
             res.json({ status: "ok" });
         } catch {
             res.status(500).json({ status: "fail" });

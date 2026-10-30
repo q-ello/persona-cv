@@ -4,6 +4,11 @@ import { DetailFormatType } from "../../helpers/detailFormatter/detailFormatter.
 import { getGeneralString, IObject, IPriority, LANGUAGES } from "@cv/shared";
 import { LocalizationCache, LocalizationEntry } from "../../helpers/localization/localization.service";
 import { IRawDailyLogItem } from "../../dataConstructors/dailyLogs/dailyLogs.types";
+import { deepLog, LogType } from "../../../utils";
+
+const log = (log: string, logType: LogType = "info") => {
+    deepLog('notion', log, logType);
+}
 
 type IRawPriority = IPriority & { objectLocalizationKey: string };
 
@@ -85,7 +90,7 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
             cachedRelations[relation].set(page.id, page.properties);
         });
 
-        console.log(`Cached ${cachedRelations[relation].size} of "${relation}" objects`);
+        log(`Cached ${cachedRelations[relation].size} of "${relation}" objects`);
     }
 
     const ensureRelationCacheLoaded = async (relation: ERelationType): Promise<void> => {
@@ -195,7 +200,7 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
 
             return priorities;
         } catch (error) {
-            console.error("Error fetching priorities from Notion:", error);
+            log("Error fetching priorities from Notion:"+ error, "error");
             throw new Error("Failed to fetch priorities from Notion");
         }
     };
@@ -245,7 +250,7 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
 
             return localization;
         } catch (error) {
-            console.error("Error fetching localization from Notion:", error);
+            log("Error fetching localization from Notion:"+ error, "error");
             throw new Error("Failed to fetch localization from Notion");
         }
     }
@@ -300,10 +305,10 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
                     }
                 }))).filter(item => item !== null);
 
-            console.log(`Got ${dailyLogs.length} notion logs`);
+            log(`Got ${dailyLogs.length} notion logs`);
             return dailyLogs;
         } catch (error) {
-            console.error("Error fetching daily logs from Notion:", error);
+            log("Error fetching daily logs from Notion:"+ error, "error");
             throw new Error("Failed to fetch daily logs from Notion");
         }
     }

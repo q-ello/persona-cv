@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import express from "express";
-import {config, loadConfig} from "./config";
+import { config, loadConfig } from "./config";
 import Client from "@notionhq/client/build/src/Client";
 import { createTimelineRouter } from "./routes/timeline/timeline";
 import { createGoogleCalendarService } from "./services/externalApi/googleCalendar/googleCalendar.service";
@@ -18,11 +18,12 @@ import { createDetailFormatterService } from "./services/helpers/detailFormatter
 dotenv.config();
 loadConfig();
 
+
 //external apis
 const notionClient = new Client({ auth: config.notion.secret });
 const notionService = createNotionService(notionClient, config.notion);
 
-const githubOctokit = new Octokit({auth: config.github.token});
+const githubOctokit = new Octokit({ auth: config.github.token });
 const githubService = createGithubService(githubOctokit, config.github);
 
 const googleCalendarService = createGoogleCalendarService(config.googleCalendar, fetch);
@@ -38,7 +39,7 @@ const detailFormatterService = createDetailFormatterService(localizationService)
 const eventService = createEventService(googleCalendarService, nagerService);
 eventService.init();
 
-const logService = createDailyLogsService([notionService], detailFormatterService);
+const logService = createDailyLogsService([notionService, githubService], detailFormatterService);
 logService.init();
 
 const app = express();

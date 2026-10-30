@@ -21,4 +21,20 @@ export const refreshIntervalTime = 1000*60*60*24;
 export interface ILogService {
     getLogs(): Promise<IRawDailyLogItem[]>;
     commitPendingCache(): Promise<void>;
+};
+
+export type LogType = "info" | "error" | "warning";
+
+export const deepLog = (serviceName: string, log: string, type: LogType) => {
+    const message = `${`[${serviceName}]`.padEnd(15)} - ${log}`;
+    switch (type) {
+        case "error":
+            console.error(message);
+            break;
+        case "info":
+            console.log(message);
+            break;
+        case "warning":
+            console.warn(message);
+    }
 }

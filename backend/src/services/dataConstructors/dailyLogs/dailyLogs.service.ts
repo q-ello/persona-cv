@@ -1,7 +1,11 @@
 import { DailyLogsResponse, IDailyLogItem, Language } from "@cv/shared";
 import { IRawDailyLogItem } from "./dailyLogs.types";
-import { formatMonthKey, ILogService, refreshIntervalTime } from "../../../utils";
+import { deepLog, formatMonthKey, ILogService, LogType, refreshIntervalTime } from "../../../utils";
 import { createDetailFormatterService } from "../../helpers/detailFormatter/detailFormatter.service";
+
+const log = (log: string, type: LogType = "info") => {
+    deepLog('dailyLogs', log, type);
+}
 
 export const createDailyLogsService = (
     services: readonly ILogService[],
@@ -26,11 +30,11 @@ export const createDailyLogsService = (
 
     const init = (): Promise<void> => {
         if (!cacheInitialization) {
-            console.log("Started initializing daily logs cache");
+            log("Started initializing daily logs cache");
             cacheInitialization = updateLogs();
             void cacheInitialization?.catch(error => {
                 cacheInitialization = null;
-                console.error("Failed to initialize daily logs cache:", error);
+                log("Failed to initialize daily logs cache:"+ error, "error");
             })
         }
 
@@ -62,13 +66,13 @@ export const createDailyLogsService = (
                 }
             } else {
                 servicesToRetry.push(servicesToUpdate[index]);
-                console.log(`Could not update logs of service: ${result.reason}. Will retry in 5 seconds`);
+                log(`Could not update logs of service: ${result.reason}. Will retry in 5 seconds`);
             }
         });
 
         mergeLogsIntoCache(allLogs);
         servicesToCommit.forEach(async service => await service.commitPendingCache());
-        console.log(`Added ${allLogs.length} new logs total`);
+        log(`Added ${allLogs.length} new logs total`);
 
         if (servicesToRetry.length > 0) {
             setTimeout(() => {

@@ -3,6 +3,11 @@ import { IGithubConfig } from "../../../types/config.types";
 import { IRawDailyLogItem } from "../../dataConstructors/dailyLogs/dailyLogs.types"
 import { IGithubCommit, IGithubRepo } from "./github.types";
 import { getGeneralString } from "@cv/shared";
+import { deepLog, LogType } from "../../../utils";
+
+const log = (log: string, logType: LogType = "info") => {
+    deepLog('github', log, logType);
+}
 
 export const createGithubService = (github: Octokit, deps: IGithubConfig) => {
     let lastFetchedTime: Date | null = null;
@@ -43,11 +48,11 @@ export const createGithubService = (github: Octokit, deps: IGithubConfig) => {
                     pendingLastUpdatedByRepo.set(repoName, new Date(updatedAt));
                 }
             } else {
-                console.log(`Could not fetch commits for a repo ${repoName}.`, response.reason);
+                log(`Could not fetch commits for a repo ${repoName}.`, response.reason);
             }
         });
 
-        console.log(`Fetched ${logs.length} github logs`);
+        log(`Fetched ${logs.length} github logs`);
 
         return logs;
     }
