@@ -1,8 +1,10 @@
 export interface IGithubCommit {
-    author: {
-        date: string;
-    };
-    message: string;
+    commit: {
+        author: {
+            date: string;
+        };
+        message: string;
+    }
 }
 
 export interface IGithubRepo {

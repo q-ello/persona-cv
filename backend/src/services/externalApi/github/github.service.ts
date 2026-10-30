@@ -67,11 +67,14 @@ export const createGithubService = (github: Octokit, deps: IGithubConfig) => {
         const hoverMessages: Map<string, string> = new Map(); //date -> hover message
 
         commits.forEach(commit => {
-            const date = getGeneralString(new Date(commit.author.date));
+            if (!commit.commit.author.date) {
+                return;
+            }
+            const date = getGeneralString(new Date(commit.commit.author.date));
             if (hoverMessages.has(date)) {
-                hoverMessages.set(date, hoverMessages.get(date) + '\n' + commit.message);
+                hoverMessages.set(date, hoverMessages.get(date) + '\n' + commit.commit.message);
             } else {
-                hoverMessages.set(date, commit.message);
+                hoverMessages.set(date, commit.commit.message);
             }
         })
 
