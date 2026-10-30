@@ -1,4 +1,4 @@
-import { Language } from "@cv/shared";
+import { IObject, Language } from "@cv/shared";
 import { createNotionService } from "../../externalApi/notion/notion.service";
 import { deepLog, LogType } from "../../../utils";
 
@@ -80,5 +80,13 @@ export const createLocalizationService = (notionService: ReturnType<typeof creat
         })
     }
 
-    return {init, asyncLocalize, reload};
+    const localizeObject = async (object: IObject, locale: Language, objectLocalizationKey?: string): Promise<IObject> => {
+        const objectName = objectLocalizationKey ? await asyncLocalize(`object.${objectLocalizationKey}`, locale) : object.objectName;
+        return {
+            objectName: objectName,
+            url: object.url
+        }
+    }
+
+    return {init, asyncLocalize, reload, localizeObject};
 }

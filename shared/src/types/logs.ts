@@ -4,7 +4,6 @@ export interface IDailyLogItem {
     activityKey: string;
     object?: IObject;
     relevantToProject: boolean;
-    detail?: string;
     icons?: string[];
     hoverInfo?: string;
 }

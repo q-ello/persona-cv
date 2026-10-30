@@ -13,7 +13,6 @@ import { createLocalizationService } from "./services/helpers/localization/local
 import { Octokit } from "octokit";
 import { createGithubService } from "./services/externalApi/github/github.service";
 import { createDailyLogsService } from "./services/dataConstructors/dailyLogs/dailyLogs.service";
-import { createDetailFormatterService } from "./services/helpers/detailFormatter/detailFormatter.service";
 
 dotenv.config();
 loadConfig();
@@ -33,13 +32,11 @@ const nagerService = createNagerService(fetch);
 const localizationService = createLocalizationService(notionService);
 localizationService.init();
 
-const detailFormatterService = createDetailFormatterService(localizationService);
-
 //data constructors
 const eventService = createEventService(googleCalendarService, nagerService);
 eventService.init();
 
-const logService = createDailyLogsService([notionService, githubService], detailFormatterService);
+const logService = createDailyLogsService([notionService, githubService], localizationService);
 logService.init();
 
 const app = express();

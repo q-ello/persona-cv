@@ -1,7 +1,7 @@
-import { DailyLogsResponse, IDailyLogItem, Language } from "@cv/shared";
+import { DailyLogsResponse, Language } from "@cv/shared";
 import { IRawDailyLogItem } from "./dailyLogs.types";
 import { deepLog, formatMonthKey, ILogService, LogType, refreshIntervalTime } from "../../../utils";
-import { createDetailFormatterService } from "../../helpers/detailFormatter/detailFormatter.service";
+import { createLocalizationService } from "../../helpers/localization/localization.service";
 
 const log = (log: string, type: LogType = "info") => {
     deepLog('dailyLogs', log, type);
@@ -9,7 +9,7 @@ const log = (log: string, type: LogType = "info") => {
 
 export const createDailyLogsService = (
     services: readonly ILogService[],
-    detailFormatter: ReturnType<typeof createDetailFormatterService>
+    localizationService: ReturnType<typeof createLocalizationService>
 ) => {
     //first key: year-month, second: date string
     const cachedLogs: Map<string, Map<string, IRawDailyLogItem[]>> = new Map();
@@ -34,7 +34,7 @@ export const createDailyLogsService = (
             cacheInitialization = updateLogs();
             void cacheInitialization?.catch(error => {
                 cacheInitialization = null;
-                log("Failed to initialize daily logs cache:"+ error, "error");
+                log("Failed to initialize daily logs cache:" + error, "error");
             })
         }
 
@@ -88,11 +88,10 @@ export const createDailyLogsService = (
             localizedLogsRecord[key] = await Promise.all(
                 logs.map(async rawLog => ({
                     activityKey: rawLog.activityKey,
-                    object: rawLog.object,
+                    object: rawLog.object ?await localizationService.localizeObject(rawLog.object, locale, rawLog.objectLocalizationKey) : undefined,
                     relevantToProject: rawLog.relevantToProject,
-                    detail: rawLog.detailsKey ? await detailFormatter.formatDetail(rawLog.detailsKey, locale, rawLog.format, rawLog.detailsValue) : "",
                     icons: rawLog.icons,
-                    hoverInfo: rawLog.hoverInfo
+                    hoverInfo: rawLog.detailsKey ? await localizationService.asyncLocalize(`detail.${rawLog.detailsKey}`, locale) : rawLog.hoverInfo
                 }))
             );
         }
@@ -118,5 +117,5 @@ export const createDailyLogsService = (
         });
     }
 
-    return {init, getLogs}
+    return { init, getLogs }
 }

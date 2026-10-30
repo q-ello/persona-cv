@@ -1,6 +1,5 @@
 import { Client } from "@notionhq/client";
 import { INotionConfig } from "../../../types/config.types";
-import { DetailFormatType } from "../../helpers/detailFormatter/detailFormatter.service";
 import { getGeneralString, IObject, IPriority, LANGUAGES } from "@cv/shared";
 import { LocalizationCache, LocalizationEntry } from "../../helpers/localization/localization.service";
 import { IRawDailyLogItem } from "../../dataConstructors/dailyLogs/dailyLogs.types";
@@ -300,8 +299,6 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
                         activityKey: getPropertyValue(compoundActivitiesProperties.ActivityKey),
                         ...objectData,
                         detailsKey: getPropertyValue(compoundActivitiesProperties.DetailsKey),
-                        detailsValue: getPropertyValue(properties.DetailsValue),
-                        format: getPropertyValue(compoundActivitiesProperties.Format) as DetailFormatType,
                         dateLogged: getGeneralString(new Date(getPropertyValue(properties.DateLogged))),
                         relevantToProject: getPropertyValue(properties.RelevantToProject) === "Yes"
                     }

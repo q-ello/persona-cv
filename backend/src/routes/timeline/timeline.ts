@@ -35,10 +35,7 @@ export const createTimelineRouter = (
                 }
                 return {
                     priorityKey: rawPriority.priorityKey,
-                    object: {
-                        objectName: objectName,
-                        url: rawPriority.object.url,
-                    },
+                    object: await localizationService.localizeObject(rawPriority.object, locale, rawPriority.objectLocalizationKey),
                     checked: rawPriority.checked
                 }
             }));
