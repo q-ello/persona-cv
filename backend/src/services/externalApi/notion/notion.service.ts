@@ -10,6 +10,8 @@ const log = (log: string, logType: LogType = "info") => {
     deepLog('notion', log, logType);
 }
 
+//todo: rework details
+
 type IRawPriority = IPriority & { objectLocalizationKey: string };
 
 enum ERelationType {

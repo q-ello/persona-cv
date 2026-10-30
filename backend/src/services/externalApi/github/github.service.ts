@@ -71,10 +71,15 @@ export const createGithubService = (github: Octokit, deps: IGithubConfig) => {
                 return;
             }
             const date = getGeneralString(new Date(commit.commit.author.date));
+            const commitParts = commit.commit.message.split('\n');
+            let message = commitParts.length > 3 
+                ? commitParts.slice(0, 3).join('\n') + "..."
+                : commit.commit.message;
+
             if (hoverMessages.has(date)) {
-                hoverMessages.set(date, hoverMessages.get(date) + '\n' + commit.commit.message);
+                hoverMessages.set(date, hoverMessages.get(date) + '\n\n' + message);
             } else {
-                hoverMessages.set(date, commit.commit.message);
+                hoverMessages.set(date, message);
             }
         })
 
