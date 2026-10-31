@@ -8,7 +8,6 @@ export const createGoogleCalendarService = (deps: IGoogleCalendarConfig, fetchFn
     let lastFetchedTime: Date | null = null;
     let pendingLastFetchedTime: Date | null = null;
 
-    //todo: check id
     //todo: just check with created_time
 
     const getGoogleCalendarEvents = async (): Promise<IRawEvent[]> => {

@@ -17,6 +17,7 @@ export const createGithubService = (github: Octokit, deps: IGithubConfig) => {
     const pendingLastUpdatedByRepo: Map<string, Date> = new Map();
 
     const getLogs = async (): Promise<IRawDailyLogItem[]> => {
+        pendingLastFetchedTime = new Date();
 
         const response = await github.paginate(`GET /user/repos`);
         let repos: IGithubRepo[] = response;
@@ -59,7 +60,7 @@ export const createGithubService = (github: Octokit, deps: IGithubConfig) => {
 
     const commitPendingCache = async (): Promise<void> => {
         lastFetchedTime = pendingLastFetchedTime;
-        lastUpdatedByRepo = pendingLastUpdatedByRepo;
+        lastUpdatedByRepo = new Map(pendingLastUpdatedByRepo);
         pendingLastUpdatedByRepo.clear();
     }
 

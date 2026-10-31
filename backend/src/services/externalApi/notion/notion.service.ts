@@ -101,10 +101,9 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
 
         try {
             await relationLoadPromises[relation];
-        } catch (error) {
+        } finally {
             delete relationLoadPromises[relation];
-            throw error;
-        }
+        } 
     }
 
     //#endregion
@@ -257,7 +256,6 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
     }
 
     const getLogs = async (): Promise<IRawDailyLogItem[]> => {
-        //todo: add id tracking and caching
         try {
             pendingLastRefreshedLogs = new Date();
 
