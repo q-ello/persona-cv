@@ -3,7 +3,24 @@ import { createNotionCompoundActivitiesPage, createNotionDailyLogQuery, createNo
 import { maxPrioritiesNumber } from "./notion.service";
 import { createNotionTestService } from "./notion.service.factory";
 
+const createDailyLog = () => createNotionDailyLogQuery({ dateLogged: new Date("2026-10-10T12:00:00Z") });
+const createLogsService = (queryResult: any[] = [createDailyLog()]) => createNotionTestService({
+    queryResult,
+    objectResultsById: { "page-2": createNotionObjectPage() },
+    compoundActivitiesResultsById: { "page-1": createNotionCompoundActivitiesPage() },
+});
+
 describe("NotionService", () => {
+    beforeEach(() => {
+        jest.spyOn(console, "log").mockImplementation(() => {});
+        jest.spyOn(console, "error").mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+        jest.useRealTimers();
+        jest.restoreAllMocks();
+    });
+
     //#region priorities
     it("maps valid response to priorities", async () => {
         const priorityKey = "Test Priority Key";
@@ -170,13 +187,11 @@ describe("NotionService", () => {
         const objectId = "test object";
         const activitiesId = "test activities";
 
-        const detailsValue = "Test details value";
-        const dateLogged = new Date();
+        const dateLogged = new Date("2026-10-10T12:00:00Z");
         const relevantToProject = true;
 
         const activityKey = "Test Activity Key";
         const detailsKey = "Test details key";
-        const format = "text";
 
         const objectName = "Test Object Name";
         const localizationKey = "object.localization.key";
@@ -187,7 +202,6 @@ describe("NotionService", () => {
                 createNotionDailyLogQuery({
                     compoundActivitiesId: activitiesId,
                     objectId,
-                    detailsValue,
                     dateLogged,
                     relevantToProject
                 })
@@ -202,13 +216,12 @@ describe("NotionService", () => {
             compoundActivitiesResultsById: {
                 [activitiesId]: createNotionCompoundActivitiesPage({
                     activityKey,
-                    detailsKey,
-                    format
+                    detailsKey
                 })
             }
         });
 
-        const result = await service.getDailyLogs();
+        const result = await service.getLogs();
 
         const dateString = getGeneralString(dateLogged);
 
@@ -221,8 +234,6 @@ describe("NotionService", () => {
                 },
                 objectLocalizationKey: localizationKey,
                 detailsKey,
-                detailsValue,
-                format,
                 dateLogged: dateString,
                 relevantToProject
             }
@@ -236,7 +247,7 @@ describe("NotionService", () => {
             ]
         });
 
-        const result = await service.getDailyLogs();
+        const result = await service.getLogs();
 
         expect(result).toEqual([]);
     });
@@ -260,9 +271,150 @@ describe("NotionService", () => {
             ]
         });
 
-        const result = await service.getDailyLogs();
+        const result = await service.getLogs();
 
         expect(result).toEqual([]);
+    });
+
+    it.each([{ relation: [] }, { relation: [{}] }, { relation: [{ id: "unknown-page" }] }])("skips unresolved compound activities: $relation", async ({ relation }) => {
+        const entry = createDailyLog();
+        const { service } = createLogsService([{
+            ...entry,
+            properties: { ...entry.properties, CompoundActivities: { relation } },
+        }]);
+
+        await expect(service.getLogs()).resolves.toEqual([]);
+    });
+
+    it.each([{ relation: [] }, { relation: [{ id: "unknown-page" }] }])("keeps a log without a resolved optional object: $relation", async ({ relation }) => {
+        const entry = createDailyLog();
+        const { service } = createLogsService([{
+            ...entry,
+            properties: { ...entry.properties, Object: { relation } },
+        }]);
+
+        await expect(service.getLogs()).resolves.toEqual([{
+            activityKey: "Activity Key", detailsKey: "Details Key", dateLogged: "2026-10-10",
+            relevantToProject: false,
+        }]);
+    });
+
+    it("paginates the daily log data source before resolving relations", async () => {
+        const { service, notionMock } = createLogsService();
+        notionMock.dataSources.query.mockResolvedValueOnce({
+            results: [createNotionDailyLogQuery({ dateLogged: new Date("2026-10-09T12:00:00Z") })],
+            has_more: true, next_cursor: "next-page",
+        });
+
+        expect((await service.getLogs()).map(log => log.dateLogged)).toEqual(["2026-10-09", "2026-10-10"]);
+        expect(notionMock.dataSources.query).toHaveBeenNthCalledWith(2, expect.objectContaining({
+            data_source_id: "data-source-1", start_cursor: "next-page",
+        }));
+        expect(notionMock.databases.retrieve).toHaveBeenCalledWith({ database_id: "daily-log-db" });
+    });
+
+    it("loads each relation database once for concurrent entries and later reads", async () => {
+        const { service, notionMock } = createLogsService([createDailyLog(), createDailyLog()]);
+
+        const results = await Promise.all([service.getLogs(), service.getLogs()]);
+        expect(results.map(logs => logs.length)).toEqual([2, 2]);
+        await expect(service.getLogs()).resolves.toHaveLength(2);
+
+        for (const dataSource of ["object-data-source", "compound-activities-data-source"]) {
+            expect(notionMock.dataSources.query.mock.calls.filter(([args]) => args.data_source_id === dataSource))
+                .toHaveLength(1);
+        }
+        expect(notionMock.databases.retrieve).toHaveBeenCalledTimes(5);
+    });
+
+    it("paginates relation databases and ignores relation results without properties", async () => {
+        const { service, notionMock } = createLogsService();
+        const query = notionMock.dataSources.query.getMockImplementation()!;
+        notionMock.dataSources.query.mockImplementationOnce(query)
+            .mockResolvedValueOnce({
+                results: [{ id: "invalid-page" }], has_more: true, next_cursor: "more-activities",
+            });
+
+        await expect(service.getLogs()).resolves.toHaveLength(1);
+        expect(notionMock.dataSources.query).toHaveBeenNthCalledWith(3, expect.objectContaining({
+            data_source_id: "compound-activities-data-source", start_cursor: "more-activities",
+        }));
+    });
+
+    it("only advances the created-time filter after committing the pending batch", async () => {
+        const fetchedAt = new Date("2026-10-11T12:00:00Z");
+        jest.useFakeTimers({ now: fetchedAt });
+        const { service, notionMock } = createLogsService();
+        await service.getLogs();
+        await service.getLogs();
+        const logQueries = () => notionMock.dataSources.query.mock.calls
+            .map(([args]) => args).filter(args => args.data_source_id === "data-source-1");
+        expect(logQueries()).toEqual([
+            expect.objectContaining({ filter: undefined }), expect.objectContaining({ filter: undefined }),
+        ]);
+
+        jest.setSystemTime(new Date("2026-10-12T12:00:00Z"));
+        await service.commitPendingCache();
+        await service.getLogs();
+
+        expect(logQueries().at(-1)).toEqual(expect.objectContaining({
+            filter: { property: "Created time", date: { after: fetchedAt.toISOString() } },
+        }));
+    });
+
+    it("committing before any fetch does not exclude historical logs", async () => {
+        const { service, notionMock } = createLogsService();
+        await service.commitPendingCache();
+
+        await expect(service.getLogs()).resolves.toHaveLength(1);
+        expect(notionMock.dataSources.query).toHaveBeenNthCalledWith(1, expect.objectContaining({ filter: undefined }));
+    });
+
+    it("returns no logs when the data source is empty without loading relations", async () => {
+        const { service, notionMock } = createLogsService([]);
+
+        await expect(service.getLogs()).resolves.toEqual([]);
+        expect(notionMock.databases.retrieve).toHaveBeenCalledTimes(1);
+        expect(notionMock.dataSources.query).toHaveBeenCalledTimes(1);
+    });
+
+    it("reports database retrieval failures and allows a later retry", async () => {
+        const { service, notionMock } = createLogsService();
+        notionMock.databases.retrieve.mockRejectedValueOnce(new Error("Notion unavailable"));
+
+        await expect(service.getLogs()).rejects.toThrow("Failed to fetch daily logs from Notion");
+        expect(notionMock.dataSources.query).not.toHaveBeenCalled();
+        await expect(service.getLogs()).resolves.toHaveLength(1);
+    });
+
+    it("reports query failures without advancing the previously committed filter", async () => {
+        const fetchedAt = new Date("2026-10-11T12:00:00Z");
+        jest.useFakeTimers({ now: fetchedAt });
+        const { service, notionMock } = createLogsService();
+        await service.getLogs();
+        await service.commitPendingCache();
+        jest.setSystemTime(new Date("2026-10-12T12:00:00Z"));
+        notionMock.dataSources.query.mockRejectedValueOnce(new Error("Rate limited"));
+
+        await expect(service.getLogs()).rejects.toThrow("Failed to fetch daily logs from Notion");
+        await expect(service.getLogs()).resolves.toHaveLength(1);
+
+        expect(notionMock.dataSources.query).toHaveBeenLastCalledWith(expect.objectContaining({
+            filter: { property: "Created time", date: { after: fetchedAt.toISOString() } },
+        }));
+    });
+
+    it("retries a failed relation load instead of caching its rejected promise", async () => {
+        const { service, notionMock } = createLogsService();
+        const retrieve = notionMock.databases.retrieve.getMockImplementation()!;
+        notionMock.databases.retrieve.mockImplementationOnce(retrieve)
+            .mockRejectedValueOnce(new Error("Relations unavailable"));
+
+        await expect(service.getLogs()).rejects.toThrow("Failed to fetch daily logs from Notion");
+        await expect(service.getLogs()).resolves.toHaveLength(1);
+
+        expect(notionMock.databases.retrieve.mock.calls.filter(([args]) => args.database_id === "compound-activities-db"))
+            .toHaveLength(2);
     });
     //#endregion
 });

@@ -10,7 +10,8 @@ export const createTestApp = (serviceOverrides?: Partial<any>) => {
     app.use("/api/timeline", createTimelineRouter(
         services.notionService,
         services.eventService,
-        services.localizationService
+        services.localizationService,
+        services.logService
     ));
 
     app.use("/api/locales", createLocalesRouter(

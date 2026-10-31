@@ -50,16 +50,16 @@ export const createNotionTestService = ({
         },
         dataSources: {
             query: jest.fn(
-                ({data_source_id}: {data_source_id: string}) => {
+                ({data_source_id}: {data_source_id: string}): Promise<{ results: any[]; has_more: boolean; next_cursor: string | null }> => {
                     if (data_source_id === objectDataSourceId) {
-                        return Promise.resolve({results: makeRelationResults(objectResultsById)});
+                        return Promise.resolve({results: makeRelationResults(objectResultsById), has_more: false, next_cursor: null});
                     }
 
                     if (data_source_id === compoundActivitiesDataSourceId) {
-                        return Promise.resolve({results: makeRelationResults(compoundActivitiesResultsById)});
+                        return Promise.resolve({results: makeRelationResults(compoundActivitiesResultsById), has_more: false, next_cursor: null});
                     }
 
-                    return Promise.resolve({results: queryResult});
+                    return Promise.resolve({results: queryResult, has_more: false, next_cursor: null});
                 }
             )
         }

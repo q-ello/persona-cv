@@ -64,7 +64,7 @@ describeIntegration("Integration: Notion", () => {
 
         const {service} = createRealNotion();
 
-        const result = await service.getDailyLogs();
+        const result = await service.getLogs();
 
         expect(Array.isArray(result)).toBe(true);
         expect(result[0]).toHaveProperty("activityKey");
@@ -73,8 +73,6 @@ describeIntegration("Integration: Notion", () => {
         expect(result[0]["object"]).toHaveProperty("url");
         expect(result[0]).toHaveProperty("objectLocalizationKey");
         expect(result[0]).toHaveProperty("detailsKey");
-        expect(result[0]).toHaveProperty("detailsValue");
-        expect(result[0]).toHaveProperty("format");
         expect(result[0]).toHaveProperty("dateLogged");
         expect(typeof result[0].relevantToProject).toBe("boolean");
     });

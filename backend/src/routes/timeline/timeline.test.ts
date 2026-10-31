@@ -1,5 +1,5 @@
 import request from "supertest";
-import { EEventState, EEventType, EventResponse } from "@cv/shared";
+import { DailyLogsResponse, EEventState, EEventType, EventResponse } from "@cv/shared";
 import { createTestApp } from "../../test/factories/createTestApp";
 
 describe("/events route", () => {
@@ -68,9 +68,9 @@ describe("/priorities route", () => {
         ];
 
         notionService.getNotionPriorities.mockResolvedValue(mockRawPriorities);
-        localizationService.asyncLocalize
-            .mockResolvedValueOnce("Localized Object 1")
-            .mockResolvedValueOnce("Localized Object 2");
+        localizationService.localizeObject
+            .mockResolvedValueOnce({ objectName: "Localized Object 1", url: "https://example.com/1" })
+            .mockResolvedValueOnce({ objectName: "Localized Object 2", url: "https://example.com/2" });
 
         const res = await request(app).get("/api/timeline/priorities");
 
@@ -79,5 +79,86 @@ describe("/priorities route", () => {
             { priorityKey: "Priority 1", object: {objectName: "Localized Object 1", url: "https://example.com/1"}, checked: false },
             { priorityKey: "Priority 2", object: {objectName: "Localized Object 2", url: "https://example.com/2"}, checked: true }
         ]);
+    });
+});
+
+describe("/logs route", () => {
+    beforeEach(() => {
+        jest.spyOn(console, "log").mockImplementation(() => {});
+        jest.spyOn(console, "error").mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
+    it.each(["", "?month=0", "?year=2026"])("rejects missing parameters: %s", async query => {
+        const { app, logService } = createTestApp();
+
+        const response = await request(app).get(`/api/timeline/logs${query}`);
+
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual({ error: "Month and year query parameters are required" });
+        expect(logService.getLogs).not.toHaveBeenCalled();
+    });
+
+    it.each([
+        "month=-1&year=2026", "month=12&year=2026", "month=invalid&year=2026", "month=0&year=invalid",
+    ])("rejects invalid parameters: %s", async query => {
+        const { app, logService } = createTestApp();
+
+        const response = await request(app).get(`/api/timeline/logs?${query}`);
+
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual({ error: "Invalid month or year format" });
+        expect(logService.getLogs).not.toHaveBeenCalled();
+    });
+
+    it.each([0, 11])("accepts zero-based month %i and defaults to English", async month => {
+        const { app, logService } = createTestApp();
+
+        const response = await request(app).get(`/api/timeline/logs?month=${month}&year=2026`);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({});
+        expect(logService.getLogs).toHaveBeenCalledWith("en", month, 2026);
+    });
+
+    it("passes the requested locale and returns the daily log response", async () => {
+        const { app, logService } = createTestApp();
+        const logs: DailyLogsResponse = {
+            "2026-04-10": [{
+                activityKey: "worked", object: { objectName: "Проект" },
+                relevantToProject: true, hoverInfo: "Commit message", icons: ["code"],
+            }],
+        };
+        logService.getLogs.mockResolvedValue(logs);
+
+        const response = await request(app).get("/api/timeline/logs?month=3&year=2026")
+            .set("Accept-Language", "ru");
+
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual(logs);
+        expect(logService.getLogs).toHaveBeenCalledWith("ru", 3, 2026);
+    });
+
+    it("falls back to English for an unsupported locale", async () => {
+        const { app, logService } = createTestApp();
+
+        const response = await request(app).get("/api/timeline/logs?month=0&year=2026")
+            .set("Accept-Language", "de");
+
+        expect(response.status).toBe(200);
+        expect(logService.getLogs).toHaveBeenCalledWith("en", 0, 2026);
+    });
+
+    it("returns a generic 500 response when fetching logs fails", async () => {
+        const { app, logService } = createTestApp();
+        logService.getLogs.mockRejectedValue(new Error("Private provider error"));
+
+        const response = await request(app).get("/api/timeline/logs?month=0&year=2026");
+
+        expect(response.status).toBe(500);
+        expect(response.body).toEqual({ error: "Failed to fetch logs" });
     });
 });
