@@ -1,4 +1,4 @@
-import { Client } from "@notionhq/client";
+import { Client, collectPaginatedAPI } from "@notionhq/client";
 import { INotionConfig } from "../../../types/config.types";
 import { getGeneralString, IObject, IPriority, LANGUAGES } from "@cv/shared";
 import { LocalizationCache, LocalizationEntry } from "../../helpers/localization/localization.service";
@@ -80,11 +80,11 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
             database_id: dbIdsByRelation[relation]
         })
 
-        const response = await notion!.dataSources.query({
+        const results = await collectPaginatedAPI(notion.dataSources.query, {
             data_source_id: databaseResponse.data_sources[0].id
         });
 
-        response.results.forEach(page => {
+        results.forEach(page => {
             if (!("properties" in page)) {
                 return
             }
@@ -159,7 +159,7 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
                 database_id: deps.prioritiesDbId
             })
 
-            const response = await notion!.dataSources.query({
+            const results = await collectPaginatedAPI(notion.dataSources.query, {
                 data_source_id: databaseResponse.data_sources[0].id,
                 sorts: [{
                     property: "Last edited time",
@@ -168,7 +168,7 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
             });
 
             let priorities: IRawPriority[] = (await Promise.all(
-                response.results.map(async (result): Promise<IRawPriority | null> => {
+                results.map(async (result): Promise<IRawPriority | null> => {
 
                     if (!("properties" in result)) {
                         return null;
@@ -201,7 +201,7 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
 
             return priorities;
         } catch (error) {
-            log("Error fetching priorities from Notion:"+ error, "error");
+            log("Error fetching priorities from Notion:" + error, "error");
             throw new Error("Failed to fetch priorities from Notion");
         }
     };
@@ -216,14 +216,14 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
                 return new Map();
             }
 
-            const response = await notion!.dataSources.query({
+            const results = await collectPaginatedAPI(notion.dataSources.query, {
                 data_source_id: databaseResponse.data_sources[0].id,
             });
 
             let localization: LocalizationCache = new Map();
 
             await Promise.all(
-                response.results.map(async (result): Promise<void> => {
+                results.map(async (result): Promise<void> => {
 
                     if (!("properties" in result)) {
                         return;
@@ -251,7 +251,7 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
 
             return localization;
         } catch (error) {
-            log("Error fetching localization from Notion:"+ error, "error");
+            log("Error fetching localization from Notion:" + error, "error");
             throw new Error("Failed to fetch localization from Notion");
         }
     }
@@ -265,22 +265,20 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
                 database_id: deps.dailyLogDbId
             });
 
-            const response = lastRefreshedLogs
-                ? await notion!.dataSources.query({
-                    data_source_id: databaseResponse.data_sources[0].id,
-                    filter: {
+            const results = await collectPaginatedAPI(notion.dataSources.query, {
+                data_source_id: databaseResponse.data_sources[0].id,
+                filter: lastRefreshedLogs
+                    ? {
                         property: "Created time",
                         date: {
                             after: lastRefreshedLogs.toISOString()
                         }
                     }
-                })
-                : await notion!.dataSources.query({
-                    data_source_id: databaseResponse.data_sources[0].id
-                });
+                    : undefined
+            });
 
             let dailyLogs: IRawDailyLogItem[] = (await Promise.all(
-                response.results.map(async (result): Promise<IRawDailyLogItem | null> => {
+                results.map(async (result): Promise<IRawDailyLogItem | null> => {
                     if (!("properties" in result)) {
                         return null;
                     }
@@ -307,7 +305,7 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
             log(`Got ${dailyLogs.length} notion logs`);
             return dailyLogs;
         } catch (error) {
-            log("Error fetching daily logs from Notion:"+ error, "error");
+            log("Error fetching daily logs from Notion:" + error, "error");
             throw new Error("Failed to fetch daily logs from Notion");
         }
     }
@@ -317,7 +315,7 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
     }
 
     return {
-        getNotionPriorities: getPriorities,
+        getNotionPriorities: getPriorities, 
         getAllLocalizations, getLogs, commitPendingCache
     }
 

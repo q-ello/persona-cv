@@ -31,7 +31,7 @@ export const createGithubService = (github: Octokit, deps: IGithubConfig) => {
                 sinceParam = `&since=${lastUpdatedByRepo.get(repo.name)?.toISOString()}`;
             }
             const response = await github.paginate(`GET /repos/{owner}/{repo}/commits?author=${deps.owner}${sinceParam}`, {
-                owner: deps.owner,
+                owner: repo.owner.login,
                 repo: repo.name
             });
             return response as IGithubCommit[];
