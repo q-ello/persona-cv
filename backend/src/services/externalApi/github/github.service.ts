@@ -11,25 +11,25 @@ const log = (log: string, logType: LogType = "info") => {
 //todo: {{amount}} commits in the start of hover info
 
 export const createGithubService = (github: Octokit, deps: IGithubConfig) => {
-    let lastFetchedTime: Date | null = null;
-    let pendingLastFetchedTime: Date | null = null;
-
     let lastUpdatedByRepo: Map<string, Date> = new Map();
     const pendingLastUpdatedByRepo: Map<string, Date> = new Map();
 
-    const getLogs = async (): Promise<IRawDailyLogItem[]> => {
-        pendingLastFetchedTime = new Date();
+    const getRepoFullName = (repo: IGithubRepo) => `${repo.owner.login}/${repo.name}`;
 
+    const getLogs = async (): Promise<IRawDailyLogItem[]> => {
         const response = await github.paginate(`GET /user/repos`);
         let repos: IGithubRepo[] = response;
 
-        if (lastFetchedTime) {
-            repos = repos.filter(repo => repo.updated_at && new Date(repo.updated_at) > lastFetchedTime!);
-        }
+        repos = repos.filter(repo => {
+            const repoFullName = getRepoFullName(repo);
+            const lastSuccessfulUpdate = lastUpdatedByRepo.get(repoFullName);
+
+            return !lastSuccessfulUpdate || !repo.updated_at || new Date(repo.updated_at) > lastSuccessfulUpdate
+        });
 
         const commitsResponses = await Promise.allSettled(repos.map(async repo => {
             let sinceParam = "";
-            const repoFullName = `${repo.owner.login}/${repo.name}`;
+            const repoFullName = getRepoFullName(repo);
             if (lastUpdatedByRepo.get(repoFullName)) {
                 sinceParam = `&since=${lastUpdatedByRepo.get(repoFullName)?.toISOString()}`;
             }
@@ -44,15 +44,15 @@ export const createGithubService = (github: Octokit, deps: IGithubConfig) => {
 
         commitsResponses.forEach((response, index) => {
             const repoName = repos[index].name;
-            const fullRepoName = `${repos[index].owner.login}/${repoName}`;
+            const repoFullName = getRepoFullName(repos[index]);
             if (response.status === "fulfilled") {
                 logs.push(...makeRawDailyLogItems(repoName, response.value));
                 const updatedAt = repos[index].updated_at;
                 if (updatedAt) {
-                    pendingLastUpdatedByRepo.set(fullRepoName, new Date(updatedAt));
+                    pendingLastUpdatedByRepo.set(repoFullName, new Date(updatedAt));
                 }
             } else {
-                log(`Could not fetch commits for a repo ${repoName}.`, response.reason);
+                log(`Could not fetch commits for a repo ${repoName}: ${response.reason}`, "error");
             }
         });
 
@@ -62,7 +62,6 @@ export const createGithubService = (github: Octokit, deps: IGithubConfig) => {
     }
 
     const commitPendingCache = async (): Promise<void> => {
-        lastFetchedTime = pendingLastFetchedTime;
         pendingLastUpdatedByRepo.forEach((value, key) => {
             lastUpdatedByRepo.set(key, value);
         })
@@ -70,7 +69,7 @@ export const createGithubService = (github: Octokit, deps: IGithubConfig) => {
     }
 
     const makeRawDailyLogItems = (repoName: string, commits: IGithubCommit[]): IRawDailyLogItem[] => {
-        const hoverMessages: Map<string, {amount: number, message: string}> = new Map(); //date -> hover message
+        const hoverMessages: Map<string, { amount: number, message: string }> = new Map(); //date -> hover message
 
         commits.forEach(commit => {
             if (!commit.commit.author.date) {
@@ -78,24 +77,24 @@ export const createGithubService = (github: Octokit, deps: IGithubConfig) => {
             }
             const date = getGeneralString(new Date(commit.commit.author.date));
             const commitParts = commit.commit.message.split('\n');
-            let message = commitParts.length > 3 
+            let message = commitParts.length > 3
                 ? commitParts.slice(0, 3).join('\n') + "..."
                 : commit.commit.message;
 
             if (hoverMessages.has(date)) {
                 const prevMessage = hoverMessages.get(date)!;
-                hoverMessages.set(date, {amount: prevMessage?.amount + 1, message: prevMessage?.message + '\n\n' + message});
+                hoverMessages.set(date, { amount: prevMessage?.amount + 1, message: prevMessage?.message + '\n\n' + message });
             } else {
-                hoverMessages.set(date, {amount: 1, message});
+                hoverMessages.set(date, { amount: 1, message });
             }
         })
 
         const logs: IRawDailyLogItem[] = [];
-        
+
         hoverMessages.forEach((value, key) => {
             logs.push({
                 activityKey: "worked",
-                object: {objectName: repoName},
+                object: { objectName: repoName },
                 dateLogged: key,
                 relevantToProject: true,
                 hoverInfo: `${value.amount} commit${value.amount > 1 ? "s" : ""}:\n\n ${value.message}`
