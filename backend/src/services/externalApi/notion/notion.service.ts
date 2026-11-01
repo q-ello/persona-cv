@@ -124,7 +124,7 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
             case "checkbox":
                 return property.checkbox ? "Yes" : "No";
             case "date":
-                return property.date.start;
+                return property.date.start ?? "";
             case "title":
                 return getPropertyValue(property.title[0]);
             case "rich_text":
@@ -283,6 +283,10 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
 
                     const properties = result.properties;
 
+                    const dateLogged = getPropertyValue(properties.DateLogged);
+                    if (!dateLogged) {
+                        return null;
+                    }
 
                     const compoundActivitiesProperties = await getRelationObject(ERelationType.CompoundActivities, properties);
                     if (!compoundActivitiesProperties) {
@@ -295,7 +299,7 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
                         activityKey: getPropertyValue(compoundActivitiesProperties.ActivityKey),
                         ...objectData,
                         detailsKey: getPropertyValue(compoundActivitiesProperties.DetailsKey),
-                        dateLogged: getGeneralString(new Date(getPropertyValue(properties.DateLogged))),
+                        dateLogged: getGeneralString(new Date(dateLogged)),
                         relevantToProject: getPropertyValue(properties.RelevantToProject) === "Yes"
                     }
                 }))).filter(item => item !== null);

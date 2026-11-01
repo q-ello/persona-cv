@@ -19,10 +19,12 @@ const createTestService = (repos: IGithubRepo[] = [], commits: IGithubCommit[] =
 
 describe('GitHub logs', () => {
     beforeEach(() => {
+        jest.useFakeTimers({ now: new Date('2026-10-10T14:00:00Z') });
         jest.spyOn(console, 'log').mockImplementation(() => {});
     });
 
     afterEach(() => {
+        jest.useRealTimers();
         jest.restoreAllMocks();
     });
 
@@ -31,7 +33,7 @@ describe('GitHub logs', () => {
 
         await expect(service.getLogs()).resolves.toEqual([{
             activityKey: 'worked', object: { objectName: 'project' }, dateLogged: '2026-10-10',
-            relevantToProject: true, hoverInfo: 'Fix a bug',
+            relevantToProject: true, hoverInfo: '1 commit:\n\n Fix a bug',
         }]);
         expect(paginate.mock.calls).toEqual([
             ['GET /user/repos'],
@@ -47,8 +49,8 @@ describe('GitHub logs', () => {
 
         expect((await service.getLogs()).map(({ dateLogged, hoverInfo }) => ({ dateLogged, hoverInfo })))
             .toEqual([
-                { dateLogged: '2026-10-10', hoverInfo: 'First\n\nSecond' },
-                { dateLogged: '2026-10-09', hoverInfo: 'Another day' },
+                { dateLogged: '2026-10-10', hoverInfo: '2 commits:\n\n First\n\nSecond' },
+                { dateLogged: '2026-10-09', hoverInfo: '1 commit:\n\n Another day' },
             ]);
     });
 
@@ -59,9 +61,9 @@ describe('GitHub logs', () => {
     });
 
     it.each([
-        ['one line', 'one line'],
-        ['one\ntwo\nthree', 'one\ntwo\nthree'],
-        ['one\ntwo\nthree\nfour', 'one\ntwo\nthree...'],
+        ['one line', '1 commit:\n\n one line'],
+        ['one\ntwo\nthree', '1 commit:\n\n one\ntwo\nthree'],
+        ['one\ntwo\nthree\nfour', '1 commit:\n\n one\ntwo\nthree...'],
     ])('formats hover text for %j', async (message, expected) => {
         const { service } = createTestService([createRepo()], [createCommit(message)]);
 
@@ -73,7 +75,7 @@ describe('GitHub logs', () => {
 
         const logs = await service.getLogs();
         expect(logs).toHaveLength(1);
-        expect(logs[0].hoverInfo).toBe('Fix a bug');
+        expect(logs[0].hoverInfo).toBe('1 commit:\n\n Fix a bug');
     });
 
     it('returns no logs for an empty repository list without requesting commits', async () => {
@@ -118,8 +120,7 @@ describe('GitHub logs', () => {
             'GET /repos/{owner}/{repo}/commits?author=author', { owner: 'repository-owner', repo: 'project' });
     });
 
-    // Known regression: commitPendingCache clears the same Map assigned to lastUpdatedByRepo.
-    it.failing('uses the committed repository timestamp as the next commit cursor', async () => {
+    it('uses the committed repository timestamp as the next commit cursor', async () => {
         const { service, paginate } = createTestService([createRepo()], [createCommit()]);
         await service.getLogs();
         await service.commitPendingCache();
@@ -133,8 +134,7 @@ describe('GitHub logs', () => {
             { owner: 'repository-owner', repo: 'project' });
     });
 
-    // Known regression: pendingLastFetchedTime is never assigned.
-    it.failing('skips unchanged repositories after committing a successful fetch', async () => {
+    it('skips unchanged repositories after committing a successful fetch', async () => {
         const { service, paginate } = createTestService([createRepo()], [createCommit()]);
         await service.getLogs();
         await service.commitPendingCache();

@@ -29,8 +29,9 @@ export const createGithubService = (github: Octokit, deps: IGithubConfig) => {
 
         const commitsResponses = await Promise.allSettled(repos.map(async repo => {
             let sinceParam = "";
-            if (lastUpdatedByRepo.get(repo.name)) {
-                sinceParam = `&since=${lastUpdatedByRepo.get(repo.name)?.toISOString()}`;
+            const repoFullName = `${repo.owner.login}/${repo.name}`;
+            if (lastUpdatedByRepo.get(repoFullName)) {
+                sinceParam = `&since=${lastUpdatedByRepo.get(repoFullName)?.toISOString()}`;
             }
             const response = await github.paginate(`GET /repos/{owner}/{repo}/commits?author=${deps.owner}${sinceParam}`, {
                 owner: repo.owner.login,
@@ -43,11 +44,12 @@ export const createGithubService = (github: Octokit, deps: IGithubConfig) => {
 
         commitsResponses.forEach((response, index) => {
             const repoName = repos[index].name;
+            const fullRepoName = `${repos[index].owner.login}/${repoName}`;
             if (response.status === "fulfilled") {
                 logs.push(...makeRawDailyLogItems(repoName, response.value));
                 const updatedAt = repos[index].updated_at;
                 if (updatedAt) {
-                    pendingLastUpdatedByRepo.set(repoName, new Date(updatedAt));
+                    pendingLastUpdatedByRepo.set(fullRepoName, new Date(updatedAt));
                 }
             } else {
                 log(`Could not fetch commits for a repo ${repoName}.`, response.reason);
