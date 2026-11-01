@@ -8,6 +8,7 @@ import { deepLog, LogType } from "../../../utils";
 const log = (log: string, logType: LogType = "info") => {
     deepLog('github', log, logType);
 }
+//todo: {{amount}} commits in the start of hover info
 
 export const createGithubService = (github: Octokit, deps: IGithubConfig) => {
     let lastFetchedTime: Date | null = null;
@@ -60,12 +61,14 @@ export const createGithubService = (github: Octokit, deps: IGithubConfig) => {
 
     const commitPendingCache = async (): Promise<void> => {
         lastFetchedTime = pendingLastFetchedTime;
-        lastUpdatedByRepo = new Map(pendingLastUpdatedByRepo);
+        pendingLastUpdatedByRepo.forEach((value, key) => {
+            lastUpdatedByRepo.set(key, value);
+        })
         pendingLastUpdatedByRepo.clear();
     }
 
     const makeRawDailyLogItems = (repoName: string, commits: IGithubCommit[]): IRawDailyLogItem[] => {
-        const hoverMessages: Map<string, string> = new Map(); //date -> hover message
+        const hoverMessages: Map<string, {amount: number, message: string}> = new Map(); //date -> hover message
 
         commits.forEach(commit => {
             if (!commit.commit.author.date) {
@@ -78,9 +81,10 @@ export const createGithubService = (github: Octokit, deps: IGithubConfig) => {
                 : commit.commit.message;
 
             if (hoverMessages.has(date)) {
-                hoverMessages.set(date, hoverMessages.get(date) + '\n\n' + message);
+                const prevMessage = hoverMessages.get(date)!;
+                hoverMessages.set(date, {amount: prevMessage?.amount + 1, message: prevMessage?.message + '\n\n' + message});
             } else {
-                hoverMessages.set(date, message);
+                hoverMessages.set(date, {amount: 1, message});
             }
         })
 
@@ -92,7 +96,7 @@ export const createGithubService = (github: Octokit, deps: IGithubConfig) => {
                 object: {objectName: repoName},
                 dateLogged: key,
                 relevantToProject: true,
-                hoverInfo: value
+                hoverInfo: `${value.amount} commit${value.amount > 1 ? "s" : ""}:\n\n ${value.message}`
             })
         });
 
