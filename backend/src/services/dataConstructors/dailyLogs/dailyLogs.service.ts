@@ -1,6 +1,6 @@
 import { DailyLogsResponse, Language } from "@cv/shared";
 import { IRawDailyLogItem } from "./dailyLogs.types";
-import { deepLog, formatMonthKey, ILogService, LogType, refreshIntervalTime } from "../../../utils";
+import { deepLog, formatMonthKey, ILogService, LogType, refreshIntervalTime, retryIntervalTime } from "../../../utils";
 import { createLocalizationService } from "../../helpers/localization/localization.service";
 
 const log = (log: string, type: LogType = "info") => {
@@ -60,9 +60,13 @@ export const createDailyLogsService = (
         const servicesToRetry: ILogService[] = [];
         newLogsResults.forEach((result, index) => {
             if (result.status === "fulfilled") {
+                const service = servicesToUpdate[index];
+
                 allLogs.push(...result.value);
-                if (result.value.length > 0) {
-                    servicesToCommit.push(servicesToUpdate[index]);
+                servicesToCommit.push(service);
+
+                if (service.hasPendingRetries?.()) {
+                    servicesToRetry.push(service);
                 }
             } else {
                 servicesToRetry.push(servicesToUpdate[index]);
@@ -71,13 +75,14 @@ export const createDailyLogsService = (
         });
 
         mergeLogsIntoCache(allLogs);
-        servicesToCommit.forEach(async service => await service.commitPendingCache());
-        log(`Added ${allLogs.length} new logs total`);
+
+        await Promise.all(servicesToCommit.map(service => service.commitPendingCache()));
+        log(`Added ${allLogs.length} new logs total`); 
 
         if (servicesToRetry.length > 0) {
             setTimeout(() => {
                 updateLogs(servicesToRetry);
-            }, 1000 * 5);
+            }, retryIntervalTime);
         }
     }
 

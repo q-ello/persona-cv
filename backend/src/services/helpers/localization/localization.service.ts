@@ -1,6 +1,6 @@
 import { IObject, Language } from "@cv/shared";
 import { createNotionService } from "../../externalApi/notion/notion.service";
-import { deepLog, LogType } from "../../../utils";
+import { deepLog, LogType, refreshIntervalTime } from "../../../utils";
 
 const log = (log: string, logType: LogType = "info") => {
     deepLog('loc service', log, logType);
@@ -18,7 +18,7 @@ export const createLocalizationService = (notionService: ReturnType<typeof creat
         log("Started initializing localization cache");
         refreshCache();
 
-        setInterval(() => reload(), 24*60*60*1000)
+        setInterval(() => reload(), refreshIntervalTime)
     }
 
     const reload = async () => {

@@ -11,8 +11,10 @@ const log = (log: string, logType: LogType = "info") => {
 //todo: {{amount}} commits in the start of hover info
 
 export const createGithubService = (github: Octokit, deps: IGithubConfig) => {
-    let lastUpdatedByRepo: Map<string, Date> = new Map();
+    const lastUpdatedByRepo: Map<string, Date> = new Map();
     const pendingLastUpdatedByRepo: Map<string, Date> = new Map();
+
+    let pendingRetries = false;
 
     const getRepoFullName = (repo: IGithubRepo) => `${repo.owner.login}/${repo.name}`;
 
@@ -39,6 +41,8 @@ export const createGithubService = (github: Octokit, deps: IGithubConfig) => {
             });
             return response as IGithubCommit[];
         }));
+
+        pendingRetries = commitsResponses.some(response => response.status === "rejected");
 
         const logs: IRawDailyLogItem[] = [];
 
@@ -104,5 +108,5 @@ export const createGithubService = (github: Octokit, deps: IGithubConfig) => {
         return logs;
     }
 
-    return { getLogs, commitPendingCache };
+    return { getLogs, commitPendingCache, hasPendingRetries: () => pendingRetries };
 }

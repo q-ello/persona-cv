@@ -2,7 +2,7 @@ import { EventResponse, Language, MIN_TIMELINE_DATE } from "@cv/shared";
 import { createGoogleCalendarService } from "../../externalApi/googleCalendar/googleCalendar.service";
 import { createNagerService } from "../../externalApi/nager/nager.service";
 import { IRawEvent } from "./event.types";
-import { deepLog, formatMonthKey, LogType, refreshIntervalTime } from "../../../utils";
+import { deepLog, formatMonthKey, LogType, refreshIntervalTime, retryIntervalTime } from "../../../utils";
 
 const log = (log: string, type: LogType = "info") => {
     deepLog('events', log, type);
@@ -61,7 +61,7 @@ export const createEventService = (
             log(`Could not refresh google events. retrying in 5 seconds`);
             setTimeout(() => {
                 updateGoogleEvents();
-            }, 1000*5);
+            }, retryIntervalTime);
         }
     }
 

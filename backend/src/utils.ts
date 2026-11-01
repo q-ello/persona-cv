@@ -17,10 +17,12 @@ export const getLocale = (req: any): Language => {
 export const formatMonthKey = (year: number, month: number) => `${year}-${(month + 1).toString().padStart(2, '0')}`;
 
 export const refreshIntervalTime = 1000*60*60*24;
+export const retryIntervalTime = 1000*5;
 
 export interface ILogService {
     getLogs(): Promise<IRawDailyLogItem[]>;
     commitPendingCache(): Promise<void>;
+    hasPendingRetries?(): boolean;
 };
 
 export type LogType = "info" | "error" | "warning";
@@ -37,4 +39,4 @@ export const deepLog = (serviceName: string, log: string, type: LogType) => {
         case "warning":
             console.warn(message);
     }
-}
+};
