@@ -8,7 +8,6 @@ import { deepLog, LogType } from "../../../utils";
 const log = (log: string, logType: LogType = "info") => {
     deepLog('github', log, logType);
 }
-//todo: {{amount}} commits in the start of hover info
 
 export const createGithubService = (github: Octokit, deps: IGithubConfig) => {
     const lastUpdatedByRepo: Map<string, Date> = new Map();

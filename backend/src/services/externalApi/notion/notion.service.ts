@@ -9,8 +9,6 @@ const log = (log: string, logType: LogType = "info") => {
     deepLog('notion', log, logType);
 }
 
-//todo: rework details
-
 type IRawPriority = IPriority & { objectLocalizationKey: string };
 
 enum ERelationType {
@@ -124,7 +122,7 @@ export const createNotionService = (notion: Client, deps: INotionConfig) => {
             case "checkbox":
                 return property.checkbox ? "Yes" : "No";
             case "date":
-                return property.date.start ?? "";
+                return property.date?.start ?? "";
             case "title":
                 return getPropertyValue(property.title[0]);
             case "rich_text":

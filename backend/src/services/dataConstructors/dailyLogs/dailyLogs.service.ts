@@ -16,6 +16,10 @@ export const createDailyLogsService = (
     let cacheInitialization: Promise<void> | null = null;
     let refreshInterval: NodeJS.Timeout | null = null;
 
+    let updateQueue: Promise<void> = Promise.resolve();
+    let retryTimeout: NodeJS.Timeout | null = null;
+    const retryServices = new Set<ILogService>();
+
     const getLogs = async (locale: Language, month: number, year: number): Promise<DailyLogsResponse> => {
         await init();
 
@@ -48,42 +52,60 @@ export const createDailyLogsService = (
     }
 
     const updateLogs = async (servicesToUpdate: readonly ILogService[] = services): Promise<void> => {
-        const newLogsResults = await Promise.allSettled(servicesToUpdate.map(service => service.getLogs()));
+        const update = updateQueue.then(async () => {
+            if (retryTimeout) {
+                clearTimeout(retryTimeout);
+                retryTimeout = null;
+            }
+
+            const newLogsResults = await Promise.allSettled(servicesToUpdate.map(service => service.getLogs()));
+            const allLogs: IRawDailyLogItem[] = [];
+            const servicesToCommit: ILogService[] = [];
+
+            newLogsResults.forEach((result, index) => {
+                const service = servicesToUpdate[index];
+
+                if (result.status === "rejected") {
+                    retryServices.add(service);
+                    log(`Could not update logs of service: ${result.reason}. Will retry in 5 seconds`, "error");
+                    return;
+                }
+
+                allLogs.push(...result.value);
+                servicesToCommit.push(service);
+
+                if (service.hasPendingRetries?.()) {
+                    retryServices.add(service);
+                } else {
+                    retryServices.delete(service);
+                }
+            });
+
+            mergeLogsIntoCache(allLogs);
+
+            await Promise.all(servicesToCommit.map(service => service.commitPendingCache()));
+            log(`Added ${allLogs.length} new logs total`);
+
+            if (retryServices.size > 0) {
+                retryTimeout = setTimeout(() => {
+                    retryTimeout = null;
+                    void updateLogs([...retryServices]);
+                }, retryIntervalTime);
+            }
+        })
+
+        updateQueue = update.catch(error => {
+            log(`Failed to update daily logs: ${error}`, "error");
+        });
+
+        return update;
+
         //todo: update hardcover logs
         //todo: update lingotrack logs
         //todo: update steam logs
         //todo: update trakt logs
         //todo: update tumbrl logs
         //todo: update unity logs
-        const allLogs: IRawDailyLogItem[] = [];
-        const servicesToCommit: ILogService[] = [];
-        const servicesToRetry: ILogService[] = [];
-        newLogsResults.forEach((result, index) => {
-            if (result.status === "fulfilled") {
-                const service = servicesToUpdate[index];
-
-                allLogs.push(...result.value);
-                servicesToCommit.push(service);
-
-                if (service.hasPendingRetries?.()) {
-                    servicesToRetry.push(service);
-                }
-            } else {
-                servicesToRetry.push(servicesToUpdate[index]);
-                log(`Could not update logs of service: ${result.reason}. Will retry in 5 seconds`);
-            }
-        });
-
-        mergeLogsIntoCache(allLogs);
-
-        await Promise.all(servicesToCommit.map(service => service.commitPendingCache()));
-        log(`Added ${allLogs.length} new logs total`); 
-
-        if (servicesToRetry.length > 0) {
-            setTimeout(() => {
-                updateLogs(servicesToRetry);
-            }, retryIntervalTime);
-        }
     }
 
     const localizeLogs = async (locale: Language, rawLogs: Map<string, IRawDailyLogItem[]>): Promise<DailyLogsResponse> => {
@@ -93,7 +115,7 @@ export const createDailyLogsService = (
             localizedLogsRecord[key] = await Promise.all(
                 logs.map(async rawLog => ({
                     activityKey: rawLog.activityKey,
-                    object: rawLog.object ?await localizationService.localizeObject(rawLog.object, locale, rawLog.objectLocalizationKey) : undefined,
+                    object: rawLog.object ? await localizationService.localizeObject(rawLog.object, locale, rawLog.objectLocalizationKey) : undefined,
                     relevantToProject: rawLog.relevantToProject,
                     icons: rawLog.icons,
                     hoverInfo: rawLog.detailsKey ? await localizationService.asyncLocalize(`detail.${rawLog.detailsKey}`, locale) : rawLog.hoverInfo
