@@ -127,14 +127,14 @@ describe('daily logs cache', () => {
         expect(localization.asyncLocalize).not.toHaveBeenCalled();
     });
 
-    it('returns an empty response for no providers or no logs without committing', async () => {
+    it('returns an empty response for no providers or no logs and commits successful empty batches', async () => {
         await expect(createDailyLogsService([], createLocalization()).getLogs('en', 0, 2026))
             .resolves.toEqual({});
         const provider = createProvider();
         const service = createDailyLogsService([provider], createLocalization());
 
         await expect(service.getLogs('en', 0, 2026)).resolves.toEqual({});
-        expect(provider.commitPendingCache).not.toHaveBeenCalled();
+        expect(provider.commitPendingCache).toHaveBeenCalledTimes(1);
     });
 
     it('refreshes daily and appends new logs while retaining earlier months', async () => {
@@ -155,7 +155,7 @@ describe('daily logs cache', () => {
         expect(provider.commitPendingCache).toHaveBeenCalledTimes(2);
         await jest.advanceTimersByTimeAsync(refreshIntervalTime);
         expect((await service.getLogs('en', 0, 2026))['2026-01-10']).toHaveLength(2);
-        expect(provider.commitPendingCache).toHaveBeenCalledTimes(2);
+        expect(provider.commitPendingCache).toHaveBeenCalledTimes(3);
     });
 
     it('serves successful providers and retries only failures after five seconds', async () => {
